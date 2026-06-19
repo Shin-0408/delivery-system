@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#0048b5"/>
+  <rect x="78" y="172" width="226" height="152" rx="18" fill="#ffffff"/>
+  <path d="M304 220h64l58 62v42H304z" fill="#ffffff"/>
+  <circle cx="154" cy="350" r="38" fill="#222"/>
+  <circle cx="372" cy="350" r="38" fill="#222"/>
+  <circle cx="154" cy="350" r="17" fill="#ffffff"/>
+  <circle cx="372" cy="350" r="17" fill="#ffffff"/>
+  <path d="M104 132h214" stroke="#ffffff" stroke-width="28" stroke-linecap="round"/>
+  <text x="256" y="116" text-anchor="middle" font-family="sans-serif" font-size="58" font-weight="700" fill="#ffffff">V49</text>
+</svg>

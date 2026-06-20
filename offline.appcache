@@ -1,0 +1,11 @@
+CACHE MANIFEST
+# delivery-system-v60-20260620-01
+CACHE:
+index.html
+manifest.json
+icon.png
+icon-192.png
+service-worker.js
+
+NETWORK:
+*

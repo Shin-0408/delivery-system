@@ -1,10 +1,7 @@
 <!DOCTYPE html>
 <html lang="ja" manifest="offline.appcache">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>配送・集金管理システム V71</title>
-<style>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>M004 株式会社大将 V71</title><style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;width:100%;min-width:100%;background:#e9edf2;font-family:sans-serif;overflow-x:hidden}
 body{font-size:20px;line-height:1.15}
@@ -211,14 +208,41 @@ body{background:#e9edf2}
   line-height:1.35;
 }
 .v68Notice b{color:#003366}
-
-
-
-
-
+.customerCards{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+  padding:10px;
+  background:#fff;
+}
+.customerCard{
+  display:block;
+  text-decoration:none;
+  color:#111;
+  border:2px solid #0048b5;
+  border-radius:10px;
+  background:#f8fbff;
+  padding:14px;
+  box-shadow:0 2px 4px rgba(0,0,0,.18);
+}
+.customerCard .code{
+  font-size:22px;
+  font-weight:bold;
+  color:#003366;
+}
+.customerCard .name{
+  font-size:25px;
+  font-weight:bold;
+  margin-top:4px;
+}
+.customerCard .desc{
+  font-size:18px;
+  color:#444;
+  margin-top:6px;
+}
 .pageNav{
   display:grid;
-  grid-template-columns:1fr 1fr;
+  grid-template-columns:1fr 1fr 1fr;
   gap:8px;
   padding:8px;
   background:#fff;
@@ -278,150 +302,24 @@ body{background:#e9edf2}
 }
 @media(max-width:520px){
   .formGrid,.bigActions,.pageNav,.topOnlyFooter{grid-template-columns:1fr}
-  
+  .customerCard .name{font-size:22px}
 }
-</style>
-<link rel="manifest" href="./manifest.json">
-<meta name="theme-color" content="#0048b5">
-</head>
-<body>
-<div class="app">
-<div class="header">配送・集金管理システム V71</div>
-
-<div class="topGrid">
-<div class="lbl">得意先</div><select id="customerCode"><option value="M001" >M001　株式会社松葉屋製麺</option>
-<option value="M002" >M002　株式会社アローズ</option>
-<option value="M003" >M003　株式会社カーゴジャパンアドバンスト</option>
-<option value="M004" >M004　株式会社大将</option></select>
-<div class="lbl">ドライバー</div><select id="driverCode"><option value="D001" >D001　福田</option>
-<option value="D002" >D002　岸</option>
-<option value="D003" >D003　森田</option></select>
-<div class="lbl">車 両</div><select id="vehicleCode"><option value="V001" >V001　京都480れ12-44</option>
-<option value="V002" >V002　京都481り12-46</option>
-<option value="V003" >V003　京都481り1-45</option>
-<option value="V004" >V004　京都480り94-29</option>
-<option value="V005" >V005　京都880り6-89</option></select>
-<div class="lbl">端 末</div><select id="terminalCode"><option value="S001" >S001　FZ-N1①</option>
-<option value="S002" >S002　FZ-N1②</option>
-<option value="S003" >S003　FZ-N1③</option>
-<option value="S004" >S004　FZ-N1④</option>
-<option value="S005" >S005　FZ-N1⑤</option></select>
-</div>
-
-<div class="workInfoBox">
-  <div class="workInfoTitle">業務開始前情報</div>
-  <div class="workInfoGrid">
-    <div class="workField">
-      <label>業務開始前走行距離</label>
-      <div class="workInputWrap"><input type="number" id="startMeter" inputmode="numeric" placeholder="0"><span>km</span></div>
-    </div>
-    <div class="workField">
-      <label>業務開始前アルコール値</label>
-      <div class="workInputWrap"><input type="number" id="startAlcohol" step="0.001" inputmode="decimal" placeholder="0.000"><span>mg/L</span></div>
-    </div>
-  </div>
-</div>
-
-<div class="workInfoBox">
-  <div class="workInfoTitle">業務終了後情報</div>
-  <div class="workInfoGrid">
-    <div class="workField">
-      <label>業務終了後走行距離</label>
-      <div class="workInputWrap"><input type="number" id="endMeter" inputmode="numeric" placeholder="0"><span>km</span></div>
-    </div>
-    <div class="workField">
-      <label>本日の走行距離</label>
-      <div class="workInputWrap"><input type="number" id="dailyDistance" readonly value="0"><span>km</span></div>
-    </div>
-    <div class="workField">
-      <label>業務終了後アルコール値</label>
-      <div class="workInputWrap"><input type="number" id="endAlcohol" step="0.001" inputmode="decimal" placeholder="0.000"><span>mg/L</span></div>
-    </div>
-  </div>
-</div>
-
-<div class="v68Notice">
-<b>トップページ</b><br>
-得意先・ドライバー・車両・端末、走行距離、アルコール値を入力します。<br>
-得意先を選択すると、その得意先専用ページへ移動します。
-</div>
-
-<div class="topOnlyFooter">
-<button id="btnGoCustomerPage" class="btn blue" type="button">得意先ページへ進む</button>
-<button id="btnMail" class="btn dark" type="button">日報送信</button>
-<button id="btnResetComplete" class="btn gray" type="button">業務完了解除</button>
-</div>
-
-<div class="v68Notice">
-<b>運用メモ</b><br>
-起動時・得意先ページ移動時・日報送信時だけ通信。入力操作はlocalStorageへ保存します。
-</div>
-</div>
-
+</style><link rel="manifest" href="./manifest.json"><meta name="theme-color" content="#0048b5"></head>
+<body><div class="app"><div class="header">M004 株式会社大将</div>
+<div class="pageNav"><a class="btn gray" href="./index.html" style="text-align:center;line-height:58px;text-decoration:none;color:white">トップへ戻る</a><button id="btnComplete" class="btn red" type="button">業務完了</button><button id="btnPageDailySend" class="btn dark" type="button">日報送信</button></div>
+<div class="genericBox"><h2>業務内容入力</h2><div class="smallInfo"></div>
+<div class="formField"><label>業務内容</label><textarea id="workText" placeholder="業務内容を入力"></textarea></div>
+<div class="formField"><label>連絡事項</label><textarea id="noticeText" placeholder="連絡事項があれば入力"></textarea></div>
+<div class="bigActions"><button id="btnSave" class="btn blue" type="button">保存</button><button id="btnClear" class="btn gray" type="button">入力クリア</button></div></div></div>
 <script>
-var KEY="deliverySystemV45_";
-var COMPLETE_KEY="DeliverySystemV68_businessCompleted";
-var ENDPOINT="https://fukudakoken.co.jp/daily/receive.php";
-var TOKEN="FKK_DAILY_V61_20260620";
+var KEY="deliverySystemV45_", COMPLETE_KEY="DeliverySystemV68_businessCompleted", STORE_KEY="m004WorkData";
 function id(x){return document.getElementById(x);}
 function parse(k,d){try{var v=localStorage.getItem(KEY+k);return v?JSON.parse(v):d;}catch(e){return d;}}
 function save(k,v){localStorage.setItem(KEY+k,JSON.stringify(v));}
-function loadCommon(){
-  var c=parse("config",{});
-  ["customerCode","driverCode","vehicleCode","terminalCode"].forEach(function(k){if(c[k]&&id(k))id(k).value=c[k];});
-  var w=parse("workData",{});
-  ["startMeter","endMeter","startAlcohol","endAlcohol","dailyDistance"].forEach(function(k){if(id(k))id(k).value=w[k]||"";});
-  calcDailyDistance();
-}
-function saveCommon(){
-  var c={customerCode:id("customerCode").value,driverCode:id("driverCode").value,vehicleCode:id("vehicleCode").value,terminalCode:id("terminalCode").value};
-  save("config",c);
-  var w={startMeter:id("startMeter").value||"",endMeter:id("endMeter").value||"",startAlcohol:id("startAlcohol").value||"",endAlcohol:id("endAlcohol").value||"",dailyDistance:id("dailyDistance").value||""};
-  save("workData",w);
-}
-function calcDailyDistance(){
-  var s=Number(id("startMeter").value||0), e=Number(id("endMeter").value||0);
-  id("dailyDistance").value=(!isNaN(s)&&!isNaN(e)&&e>=s)?(e-s):0;
-}
-function markChanged(){try{localStorage.setItem(COMPLETE_KEY,"0");}catch(e){} saveCommon(); updateMailLock();}
-function updateMailLock(){
-  var ok=localStorage.getItem(COMPLETE_KEY)==="1";
-  id("btnMail").disabled=!ok;
-  id("btnMail").style.opacity=ok?"":".45";
-  id("btnMail").style.filter=ok?"":"grayscale(1)";
-}
-function collectAllPayload(){
-  saveCommon();
-  var payload={token:TOKEN,version:"V71",sentAt:new Date().toLocaleString("ja-JP"),common:parse("config",{}),workData:parse("workData",{}),
-    m001:parse("m001ReportData",{}),m002:parse("m002WorkData",{}),m003:parse("m003WorkData",{}),m004:parse("m004WorkData",{}),
-    legacy:{historyData:parse("historyData",[]),collectHistoryData:parse("collectHistoryData",[]),carryOutData:parse("carryOutData",[]),balanceData:parse("balanceData",{})}};
-  return payload;
-}
-function fallbackForm(payload){
-  var f=document.createElement("form");f.method="POST";f.action=ENDPOINT;f.target="_blank";f.style.display="none";
-  var i=document.createElement("input");i.type="hidden";i.name="payload";i.value=JSON.stringify(payload);f.appendChild(i);document.body.appendChild(f);f.submit();
-}
-function sendDaily(){
-  if(localStorage.getItem(COMPLETE_KEY)!=="1"){alert("先に各得意先ページで業務完了してください。");return;}
-  if(!navigator.onLine){alert("通信できません。Wi-Fi接続後に日報送信してください。");return;}
-  var p=collectAllPayload(), body=JSON.stringify(p), b=id("btnMail"); b.disabled=true; b.textContent="送信中...";
-  fetch(ENDPOINT,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:body,cache:"no-store",mode:"cors"})
-  .then(function(r){return r.text().then(function(t){var j={};try{j=JSON.parse(t);}catch(e){} if(!r.ok||!j.ok)throw new Error((j&&j.error)||t);return j;});})
-  .then(function(j){alert("日報送信完了。\n受信時刻："+(j.receivedAt||""));})
-  .catch(function(e){if(confirm("通常送信に失敗しました。別画面で送信しますか？\n"+e.message))fallbackForm(p);})
-  .finally(function(){b.disabled=false;b.textContent="日報送信";updateMailLock();});
-}
-window.addEventListener("load",function(){
-  loadCommon();
-  ["customerCode","driverCode","vehicleCode","terminalCode"].forEach(function(k){id(k).addEventListener("change",markChanged);});
-  ["startMeter","endMeter","startAlcohol","endAlcohol"].forEach(function(k){id(k).addEventListener("change",markChanged);id(k).addEventListener("blur",markChanged);});
-  id("btnMail").onclick=sendDaily;
-  id("btnResetComplete").onclick=function(){localStorage.setItem(COMPLETE_KEY,"0");updateMailLock();alert("業務完了状態を解除しました。");};
-  updateMailLock();
-  if("serviceWorker" in navigator){navigator.serviceWorker.register("./service-worker.js?v=70").catch(function(){});}
-});
+function load(){var d=parse(STORE_KEY,{});id("workText").value=d.workText||"";id("noticeText").value=d.noticeText||"";}
+function saveWork(silent){save(STORE_KEY,{customerCode:"M004",customerName:"株式会社大将",workText:id("workText").value||"",noticeText:id("noticeText").value||"",savedAt:new Date().toLocaleString("ja-JP")});localStorage.setItem(COMPLETE_KEY,"0");if(!silent)alert("保存しました。");}
+window.onload=function(){load();id("btnSave").onclick=function(){saveWork(false);};id("btnComplete").onclick=function(){saveWork(true);if(!id("workText").value.trim()){alert("業務内容を入力してください。");return;}localStorage.setItem(COMPLETE_KEY,"1");localStorage.setItem("DeliverySystemV64_businessCompleted","1"); if(window.setBusinessDoneV71){window.setBusinessDoneV71();} else {alert("業務完了しました。日報送信してください。");}};id("btnClear").onclick=function(){if(confirm("入力をクリアしますか？")){id("workText").value="";id("noticeText").value="";saveWork(true);}};};
 </script>
-
 <div id="completeModalV71" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;align-items:center;justify-content:center;padding:18px">
   <div style="background:#fff;border:5px solid #003366;border-radius:14px;padding:16px;width:100%;max-width:560px;text-align:center;box-shadow:0 6px 18px rgba(0,0,0,.45)">
     <div style="font-size:34px;font-weight:bold;color:#003366;margin-bottom:10px">業務終了</div>
@@ -434,57 +332,6 @@ window.addEventListener("load",function(){
     </div>
   </div>
 </div>
-
-
-
-<script>
-(function(){
-  function id(x){return document.getElementById(x);}
-  var pageMap={M001:"m001.html",M002:"m002.html",M003:"m003.html",M004:"m004.html"};
-  var autoJumpReady=false;
-
-  function saveCommonV71(){
-    try{
-      var KEY="deliverySystemV45_";
-      var cfg={
-        customerCode:id("customerCode")?id("customerCode").value:"M001",
-        driverCode:id("driverCode")?id("driverCode").value:"",
-        vehicleCode:id("vehicleCode")?id("vehicleCode").value:"",
-        terminalCode:id("terminalCode")?id("terminalCode").value:""
-      };
-      var work={
-        startMeter:id("startMeter")?id("startMeter").value:"",
-        endMeter:id("endMeter")?id("endMeter").value:"",
-        dailyDistance:id("dailyDistance")?id("dailyDistance").value:"",
-        startAlcohol:id("startAlcohol")?id("startAlcohol").value:"",
-        endAlcohol:id("endAlcohol")?id("endAlcohol").value:""
-      };
-      localStorage.setItem(KEY+"config",JSON.stringify(cfg));
-      localStorage.setItem(KEY+"workData",JSON.stringify(work));
-    }catch(e){}
-  }
-  function goCustomer(){
-    saveCommonV71();
-    var c=id("customerCode")?id("customerCode").value:"M001";
-    location.href="./"+(pageMap[c]||"m001.html");
-  }
-  function bindV71Route(){
-    var sel=id("customerCode");
-    if(sel && !sel.dataset.v71bound){
-      sel.dataset.v71bound="1";
-      sel.addEventListener("change",function(){
-        if(!autoJumpReady){ return; }
-        goCustomer();
-      });
-    }
-    var btn=id("btnGoCustomerPage");
-    if(btn) btn.onclick=goCustomer;
-    setTimeout(function(){autoJumpReady=true;},500);
-  }
-  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bindV71Route);else bindV71Route();
-})();
-</script>
-
 
 <script>
 /* ===== V71 統合日報送信・業務完了画面復活 ===== */
@@ -634,5 +481,4 @@ window.addEventListener("load",function(){
 })();
 </script>
 
-</body>
-</html>
+</body></html>

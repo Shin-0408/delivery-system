@@ -1,0 +1,18 @@
+CACHE MANIFEST
+# v72-icon-fixed
+
+CACHE:
+index.html
+m001.html
+m002.html
+m003.html
+m004.html
+manifest.json
+service-worker.js
+icon.png
+icon-192.png
+icon-512.png
+complete-card.jpg
+
+NETWORK:
+*

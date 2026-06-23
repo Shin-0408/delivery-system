@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ja" manifest="offline.appcache">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>M003 株式会社カーゴジャパンアドバンスト V71</title><style>
+<title>M003 株式会社カーゴジャパンアドバンスト V72</title><style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;width:100%;min-width:100%;background:#e9edf2;font-family:sans-serif;overflow-x:hidden}
 body{font-size:20px;line-height:1.15}
@@ -195,10 +195,10 @@ body.customer-not-ready .workInfoBox{display:block!important}
 body.customer-not-ready .topGrid{display:grid!important}
 
 
-/* ===== V68 分離構成 共通 ===== */
+/* ===== V72 分離構成 共通 ===== */
 body{background:#e9edf2}
 .app{max-width:760px;margin:0 auto;background:#f7f7f7;min-height:100vh}
-.v68Notice{
+.v72Notice{
   margin:8px;
   padding:12px;
   background:#fff;
@@ -207,7 +207,7 @@ body{background:#e9edf2}
   font-size:19px;
   line-height:1.35;
 }
-.v68Notice b{color:#003366}
+.v72Notice b{color:#003366}
 .customerCards{
   display:grid;
   grid-template-columns:1fr;
@@ -304,7 +304,11 @@ body{background:#e9edf2}
   .formGrid,.bigActions,.pageNav,.topOnlyFooter{grid-template-columns:1fr}
   .customerCard .name{font-size:22px}
 }
-</style><link rel="manifest" href="./manifest.json"><meta name="theme-color" content="#0048b5"></head>
+</style><link rel="manifest" href="./manifest.json"><meta name="theme-color" content="#0048b5"><link rel="icon" href="./icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+</head>
 <body><div class="app"><div class="header">M003 株式会社カーゴジャパンアドバンスト</div>
 <div class="pageNav"><a class="btn gray" href="./index.html" style="text-align:center;line-height:58px;text-decoration:none;color:white">トップへ戻る</a><button id="btnComplete" class="btn red" type="button">業務完了</button><button id="btnPageDailySend" class="btn dark" type="button">日報送信</button></div>
 <div class="genericBox"><h2>業務内容入力</h2><div class="smallInfo"></div>
@@ -312,39 +316,39 @@ body{background:#e9edf2}
 <div class="formField"><label>連絡事項</label><textarea id="noticeText" placeholder="連絡事項があれば入力"></textarea></div>
 <div class="bigActions"><button id="btnSave" class="btn blue" type="button">保存</button><button id="btnClear" class="btn gray" type="button">入力クリア</button></div></div></div>
 <script>
-var KEY="deliverySystemV45_", COMPLETE_KEY="DeliverySystemV68_businessCompleted", STORE_KEY="m003WorkData";
+var KEY="deliverySystemV45_", COMPLETE_KEY="DeliverySystemV72_businessCompleted", STORE_KEY="m003WorkData";
 function id(x){return document.getElementById(x);}
 function parse(k,d){try{var v=localStorage.getItem(KEY+k);return v?JSON.parse(v):d;}catch(e){return d;}}
 function save(k,v){localStorage.setItem(KEY+k,JSON.stringify(v));}
 function load(){var d=parse(STORE_KEY,{});id("workText").value=d.workText||"";id("noticeText").value=d.noticeText||"";}
 function saveWork(silent){save(STORE_KEY,{customerCode:"M003",customerName:"株式会社カーゴジャパンアドバンスト",workText:id("workText").value||"",noticeText:id("noticeText").value||"",savedAt:new Date().toLocaleString("ja-JP")});localStorage.setItem(COMPLETE_KEY,"0");if(!silent)alert("保存しました。");}
-window.onload=function(){load();id("btnSave").onclick=function(){saveWork(false);};id("btnComplete").onclick=function(){saveWork(true);if(!id("workText").value.trim()){alert("業務内容を入力してください。");return;}localStorage.setItem(COMPLETE_KEY,"1");localStorage.setItem("DeliverySystemV64_businessCompleted","1"); if(window.setBusinessDoneV71){window.setBusinessDoneV71();} else {alert("業務完了しました。日報送信してください。");}};id("btnClear").onclick=function(){if(confirm("入力をクリアしますか？")){id("workText").value="";id("noticeText").value="";saveWork(true);}};};
+window.onload=function(){load();id("btnSave").onclick=function(){saveWork(false);};id("btnComplete").onclick=function(){saveWork(true);if(!id("workText").value.trim()){alert("業務内容を入力してください。");return;}localStorage.setItem(COMPLETE_KEY,"1");localStorage.setItem("DeliverySystemV64_businessCompleted","1"); if(window.setBusinessDoneV72){window.setBusinessDoneV72();} else {alert("業務完了しました。日報送信してください。");}};id("btnClear").onclick=function(){if(confirm("入力をクリアしますか？")){id("workText").value="";id("noticeText").value="";saveWork(true);}};};
 </script>
-<div id="completeModalV71" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;align-items:center;justify-content:center;padding:18px">
+<div id="completeModalV72" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;align-items:center;justify-content:center;padding:18px">
   <div style="background:#fff;border:5px solid #003366;border-radius:14px;padding:16px;width:100%;max-width:560px;text-align:center;box-shadow:0 6px 18px rgba(0,0,0,.45)">
     <div style="font-size:34px;font-weight:bold;color:#003366;margin-bottom:10px">業務終了</div>
     <img src="./complete-card.jpg" alt="お疲れ様でした" style="max-width:100%;border:3px solid #222;border-radius:8px;background:#eef">
     <div style="font-size:28px;font-weight:bold;margin:12px 0;color:#c00000">お疲れ様でした！</div>
     <div style="font-size:22px;margin-bottom:14px">本日の業務が終了しました。<br>日報送信してください。</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <button class="btn blue closeCompleteV71" type="button">閉じる</button>
+      <button class="btn blue closeCompleteV72" type="button">閉じる</button>
       <button id="btnDailySend" class="btn red" type="button">日報送信</button>
     </div>
   </div>
 </div>
 
 <script>
-/* ===== V71 統合日報送信・業務完了画面復活 ===== */
+/* ===== V72 統合日報送信・業務完了画面復活 ===== */
 (function(){
   var KEY = window.KEY || "deliverySystemV45_";
-  var COMPLETE_KEY_V68 = "DeliverySystemV68_businessCompleted";
+  var COMPLETE_KEY_V72 = "DeliverySystemV72_businessCompleted";
   var COMPLETE_KEY_V64 = "DeliverySystemV64_businessCompleted";
   var TOKEN = "FKK_DAILY_V61_20260620";
   var ENDPOINT = "https://fukudakoken.co.jp/daily/receive.php";
   function id(x){return document.getElementById(x);}
   function get(k,d){try{var v=localStorage.getItem(KEY+k);return v?JSON.parse(v):d;}catch(e){return d;}}
-  function setDone(v){try{localStorage.setItem(COMPLETE_KEY_V68,v?"1":"0");localStorage.setItem(COMPLETE_KEY_V64,v?"1":"0");}catch(e){} updateMailLockV71();}
-  function isDone(){return localStorage.getItem(COMPLETE_KEY_V68)==="1" || localStorage.getItem(COMPLETE_KEY_V64)==="1";}
+  function setDone(v){try{localStorage.setItem(COMPLETE_KEY_V72,v?"1":"0");localStorage.setItem(COMPLETE_KEY_V64,v?"1":"0");}catch(e){} updateMailLockV72();}
+  function isDone(){return localStorage.getItem(COMPLETE_KEY_V72)==="1" || localStorage.getItem(COMPLETE_KEY_V64)==="1";}
   function safeVal(x){var e=id(x);return e?String(e.value||""):"";}
   function safeText(x){var e=id(x);return e?String(e.textContent||e.innerText||e.value||""):"";}
   function tryMap(mapName, code){try{return (window[mapName]&&window[mapName][code])||"";}catch(e){return "";}}
@@ -383,7 +387,7 @@ window.onload=function(){load();id("btnSave").onclick=function(){saveWork(false)
       endAlcohol: safeVal("endAlcohol") || work.endAlcohol || ""
     };
   }
-  function buildPayloadV71(){
+  function buildPayloadV72(){
     try{ if(typeof saveAll==="function") saveAll(); }catch(e){}
     try{ if(typeof renderAll==="function") renderAll(); }catch(e){}
     var c = currentCustomerCode();
@@ -398,7 +402,7 @@ window.onload=function(){load();id("btnSave").onclick=function(){saveWork(false)
     var bal={}; try{bal=window.balanceData||{};}catch(e){bal=m001Local.balanceData||{};}
     return {
       token:TOKEN,
-      version:"V71",
+      version:"V72",
       reportDate:new Date().toLocaleString("ja-JP"),
       sentAt:new Date().toLocaleString("ja-JP"),
       customerCode:common.customerCode,
@@ -442,15 +446,15 @@ window.onload=function(){load();id("btnSave").onclick=function(){saveWork(false)
     f.appendChild(i);document.body.appendChild(f);f.submit();
     setTimeout(function(){try{document.body.removeChild(f);}catch(e){}},1000);
   }
-  function updateMailLockV71(){
+  function updateMailLockV72(){
     var btns=document.querySelectorAll("#btnMail,#btnDailySend,#btnPageDailySend");
     var ok=isDone();
     for(var i=0;i<btns.length;i++){btns[i].disabled=!ok;btns[i].style.opacity=ok?"":".45";btns[i].style.filter=ok?"":"grayscale(1)";}
   }
-  function sendDailyV71(){
-    if(!isDone()){alert("先に業務完了ボタンを押してください。");updateMailLockV71();return;}
+  function sendDailyV72(){
+    if(!isDone()){alert("先に業務完了ボタンを押してください。");updateMailLockV72();return;}
     if(!navigator.onLine){alert("通信できません。Wi-Fi接続後にもう一度、日報送信してください。");return;}
-    var payload=buildPayloadV71();
+    var payload=buildPayloadV72();
     var body=JSON.stringify(payload);
     var btn=this||id("btnMail")||id("btnDailySend")||id("btnPageDailySend");
     if(btn){btn.disabled=true;btn.textContent="送信中...";}
@@ -458,23 +462,23 @@ window.onload=function(){load();id("btnSave").onclick=function(){saveWork(false)
       .then(function(r){return r.text().then(function(t){var j={};try{j=JSON.parse(t);}catch(e){} if(!r.ok||!j.ok){throw new Error((j&&j.error)||t||("送信エラー "+r.status));} return j;});})
       .then(function(j){alert("日報送信完了。\n受信時刻："+(j.receivedAt||""));})
       .catch(function(e){if(confirm("通常送信に失敗しました。\n別画面で送信しますか？\n"+(e&&e.message?e.message:e))){fallbackForm(payload);}})
-      .finally(function(){if(btn){btn.disabled=false;btn.textContent="日報送信";} updateMailLockV71();});
+      .finally(function(){if(btn){btn.disabled=false;btn.textContent="日報送信";} updateMailLockV72();});
   }
-  function showCompleteV71(){
-    var m=id("completeModalV71");
+  function showCompleteV72(){
+    var m=id("completeModalV72");
     if(m){m.style.display="flex";return;}
     alert("業務完了しました。日報送信してください。");
   }
-  function closeCompleteV71(){var m=id("completeModalV71"); if(m)m.style.display="none";}
+  function closeCompleteV72(){var m=id("completeModalV72"); if(m)m.style.display="none";}
   function bind(){
-    window.sendDailyV71=sendDailyV71;
-    window.setBusinessDoneV71=function(){setDone(true);showCompleteV71();};
-    window.closeCompleteV71=closeCompleteV71;
+    window.sendDailyV72=sendDailyV72;
+    window.setBusinessDoneV72=function(){setDone(true);showCompleteV72();};
+    window.closeCompleteV72=closeCompleteV72;
     var btns=document.querySelectorAll("#btnMail,#btnDailySend,#btnPageDailySend");
-    for(var i=0;i<btns.length;i++){btns[i].onclick=sendDailyV71;btns[i].textContent="日報送信";}
-    var closes=document.querySelectorAll(".closeCompleteV71");
-    for(var j=0;j<closes.length;j++){closes[j].onclick=closeCompleteV71;}
-    updateMailLockV71();
+    for(var i=0;i<btns.length;i++){btns[i].onclick=sendDailyV72;btns[i].textContent="日報送信";}
+    var closes=document.querySelectorAll(".closeCompleteV72");
+    for(var j=0;j<closes.length;j++){closes[j].onclick=closeCompleteV72;}
+    updateMailLockV72();
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
   setTimeout(bind,800);

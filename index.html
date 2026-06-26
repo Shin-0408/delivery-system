@@ -396,7 +396,7 @@ function updateMailLock(){
 }
 function collectAllPayload(){
   saveCommon();
-  var payload={token:TOKEN,version:"V72",sentAt:new Date().toLocaleString("ja-JP"),common:parse("config",{}),workData:parse("workData",{}),
+  var payload={token:TOKEN,version:"V76",sentAt:new Date().toLocaleString("ja-JP"),common:parse("config",{}),workData:parse("workData",{}),
     m001:parse("m001ReportData",{}),m002:parse("m002WorkData",{}),m003:parse("m003WorkData",{}),m004:parse("m004WorkData",{}),
     legacy:{historyData:parse("historyData",[]),collectHistoryData:parse("collectHistoryData",[]),carryOutData:parse("carryOutData",[]),balanceData:parse("balanceData",{})}};
   return payload;
@@ -555,7 +555,7 @@ window.addEventListener("load",function(){
     var bal={}; try{bal=window.balanceData||{};}catch(e){bal=m001Local.balanceData||{};}
     return {
       token:TOKEN,
-      version:"V72",
+      version:"V76",
       reportDate:new Date().toLocaleString("ja-JP"),
       sentAt:new Date().toLocaleString("ja-JP"),
       customerCode:common.customerCode,
@@ -640,6 +640,10 @@ window.addEventListener("load",function(){
 
 <script>
 (function(){function h(){document.title="配送・集金管理システム";var e=document.querySelector(".header");if(e)e.textContent="配送・集金管理システム";} if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",h);else h();setTimeout(h,500);setTimeout(h,1500);})();
+</script>
+<!-- V76 index title override -->
+<script>
+(function(){function t(){document.title="配送・集金管理システム";var h=document.querySelector(".header");if(h)h.textContent="配送・集金管理システム";}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",t);else t();setTimeout(t,500);})();
 </script>
 </body>
 </html>

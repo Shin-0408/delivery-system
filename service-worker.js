@@ -1,4 +1,4 @@
-const CACHE_NAME = "delivery-system-v76-corrected-20260626";
+const CACHE_NAME = "delivery-system-v77-corrected-20260626";
 const FILES = [
   './',
   './index.html',

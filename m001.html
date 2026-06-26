@@ -1835,7 +1835,7 @@ if ("serviceWorker" in navigator) {
     function v(x){var e=id(x);return e?String(e.value||""):"";}
     function map(m,c){try{return (window[m]&&window[m][c])||"";}catch(e){return "";}}
     return {
-      token:"FKK_DAILY_V61_20260620",version:"V76",reportDate:new Date().toLocaleString("ja-JP"),sentAt:new Date().toLocaleString("ja-JP"),
+      token:"FKK_DAILY_V61_20260620",version:"V77",reportDate:new Date().toLocaleString("ja-JP"),sentAt:new Date().toLocaleString("ja-JP"),
       customerCode:"M001",customerName:"株式会社松葉屋製麺",driverCode:v("driverCode"),driverName:map("drivers",v("driverCode")),vehicleCode:v("vehicleCode"),vehicleName:map("vehicles",v("vehicleCode")),terminalCode:v("terminalCode"),terminalName:map("terminals",v("terminalCode")),
       startMeter:v("startMeter"),endMeter:v("endMeter"),dailyDistance:v("dailyDistance"),startAlcohol:v("startAlcohol"),endAlcohol:v("endAlcohol"),summary:readSummary()
     };
@@ -2059,7 +2059,7 @@ if ("serviceWorker" in navigator) {
   function readSummary(){function t(x){var e=id(x);return e?String(e.textContent||e.innerText||e.value||""):"";}return {carryCount:t("carryCount"),deliveryCount:t("deliveryCount"),remainCount:t("remainCount"),collectCount:t("collectCount"),collectAmount:t("collectAmount"),pendingCount:t("pendingCount"),pendingAmount:t("pendingAmount"),grandBalance:t("grandBalance")};}
   function val(x){var e=id(x);return e?String(e.value||""):"";}
   function map(m,c){try{return (window[m]&&window[m][c])||"";}catch(e){return "";}}
-  function commonPayload(){return {token:"FKK_DAILY_V61_20260620",version:"V76",reportDate:new Date().toLocaleString("ja-JP"),sentAt:new Date().toLocaleString("ja-JP"),customerCode:"M001",customerName:"株式会社松葉屋製麺",driverCode:val("driverCode"),driverName:map("drivers",val("driverCode")),vehicleCode:val("vehicleCode"),vehicleName:map("vehicles",val("vehicleCode")),terminalCode:val("terminalCode"),terminalName:map("terminals",val("terminalCode")),startMeter:val("startMeter"),endMeter:val("endMeter"),dailyDistance:val("dailyDistance"),startAlcohol:val("startAlcohol"),endAlcohol:val("endAlcohol"),summary:readSummary()};}
+  function commonPayload(){return {token:"FKK_DAILY_V61_20260620",version:"V77",reportDate:new Date().toLocaleString("ja-JP"),sentAt:new Date().toLocaleString("ja-JP"),customerCode:"M001",customerName:"株式会社松葉屋製麺",driverCode:val("driverCode"),driverName:map("drivers",val("driverCode")),vehicleCode:val("vehicleCode"),vehicleName:map("vehicles",val("vehicleCode")),terminalCode:val("terminalCode"),terminalName:map("terminals",val("terminalCode")),startMeter:val("startMeter"),endMeter:val("endMeter"),dailyDistance:val("dailyDistance"),startAlcohol:val("startAlcohol"),endAlcohol:val("endAlcohol"),summary:readSummary()};}
   function makeText(p,rows){
     var lines=["配送・集金日報","","得意先："+p.customerCode+" "+p.customerName,"ドライバー："+p.driverCode+" "+p.driverName,"車両："+p.vehicleCode+" "+p.vehicleName,"端末："+p.terminalCode+" "+p.terminalName,"","店舗別明細"];
     rows.forEach(function(r){lines.push("",r.code+" "+r.name,"持出時間："+(r.carryTime||""),"配送完了時間："+(r.deliveryTime||""),"配送内容："+(r.deliveryContent||"通常配送"),"集金："+(r.collectionStatus||"未確認"));});
@@ -2173,7 +2173,7 @@ if ("serviceWorker" in navigator) {
     var p={};
     try{if(typeof window.buildPayloadV76==="function")p=window.buildPayloadV76()||{};else if(typeof window.buildPayloadV74==="function")p=window.buildPayloadV74()||{};}catch(e){p={};}
     var rows=rowsFromPayload(p);
-    p.version="V76";
+    p.version="V77";
     p.customerCode="M001"; p.customerName="株式会社松葉屋製麺";
     p.storeReports=rows; p.completedList=rows; p.dailyDetails=rows; p.details=rows; p.deliveryDetails=rows; p.storeDetails=rows;
     var text=makeText(p,rows);
@@ -2222,6 +2222,65 @@ if ("serviceWorker" in navigator) {
   window.buildPayloadV76Final=finalPayload;
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
   setTimeout(bind,500);setTimeout(bind,1500);setInterval(refreshButtons,2000);
+})();
+</script>
+
+
+
+<style id="v77-complete-card-css">
+/* ===== V77 業務完了時ミッドナイトくん復活 ===== */
+#completeModalV72 .modalMsgV77{font-size:24px!important;line-height:1.45!important;font-weight:bold!important;color:#c00000!important;margin:12px 0!important;text-align:center!important;}
+</style>
+<script id="v77-complete-card-js">
+/* ===== V77：V76の業務完了条件・日報処理は維持し、完了時だけミッドナイトくんを表示 ===== */
+(function(){
+  function id(x){return document.getElementById(x);}
+  function showMidnightComplete(){
+    var m=id("completeModalV72")||id("completeModal");
+    if(m){
+      var msg=m.querySelector(".modalMsgV77")||m.querySelector(".modalMsg")||m.querySelector("div");
+      if(msg){msg.textContent="お疲れ様でした！明日も気をつけて業務をお願いします！";msg.className=(msg.className||"")+" modalMsgV77";}
+      m.style.display="flex";
+      return true;
+    }
+    alert("お疲れ様でした！明日も気をつけて業務をお願いします！");
+    return false;
+  }
+  function closeMidnight(){
+    var m=id("completeModalV72")||id("completeModal");
+    if(m)m.style.display="none";
+  }
+  function bindClose(){
+    var m=id("completeModalV72")||id("completeModal");
+    if(!m)return;
+    var btns=m.querySelectorAll("button,.closeCompleteV72,#btnCloseComplete");
+    for(var i=0;i<btns.length;i++){btns[i].onclick=closeMidnight;}
+  }
+  function bind(){
+    bindClose();
+    var b=id("btnM001CompleteMark");
+    if(!b||b.__v77CompleteCard)return;
+    var old=b.onclick;
+    b.onclick=function(ev){
+      var messages=[];
+      var realAlert=window.alert;
+      window.alert=function(msg){messages.push(String(msg||""));};
+      var ret;
+      try{ if(typeof old==="function") ret=old.call(this,ev); }
+      catch(e){ window.alert=realAlert; realAlert(e&&e.message?e.message:e); return false; }
+      window.alert=realAlert;
+      var success=false;
+      for(var i=0;i<messages.length;i++){
+        if(messages[i].indexOf("業務完了しました")>=0){success=true;}
+      }
+      if(success){showMidnightComplete();}
+      else{for(var j=0;j<messages.length;j++){realAlert(messages[j]);}}
+      return ret;
+    };
+    b.__v77CompleteCard=true;
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
+  setTimeout(bind,500);setTimeout(bind,1500);setTimeout(bind,3000);
 })();
 </script>
 

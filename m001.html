@@ -2659,5 +2659,85 @@ if ("serviceWorker" in navigator) {
 })();
 </script>
 
+
+
+<script id="v80-receive-send-only-js">
+/* ===== V80：V79ベース維持、日報受信復旧のみ =====
+   送信方式を receive.php が受け取りやすい form-urlencoded に戻す。
+   画面・店舗データ・一覧・完了条件・ミッドナイトくんは変更しない。
+*/
+(function(){
+  var ENDPOINT="https://fukudakoken.com/daily/receive.php";
+  function id(x){return document.getElementById(x);} 
+  function buildPayload(){
+    var p={};
+    try{p=(typeof window.buildPayloadV79==="function")?window.buildPayloadV79():{};}catch(e){p={};}
+    try{p.version="V80";}catch(e){}
+    return p||{};
+  }
+  function encode(payload){
+    var body=(payload.body||payload.reportText||payload.dailyText||payload.text||"");
+    var params=new URLSearchParams();
+    params.set("payload",JSON.stringify(payload));
+    params.set("body",body);
+    params.set("reportText",body);
+    params.set("dailyText",body);
+    params.set("text",body);
+    params.set("version","V80");
+    params.set("customerCode",payload.customerCode||"M001");
+    params.set("customerName",payload.customerName||"株式会社松葉屋製麺");
+    return params;
+  }
+  function iframeFallback(payload){
+    var iframe=document.createElement("iframe");
+    iframe.name="v80DailyReceiveFrame"+Date.now();
+    iframe.style.display="none";
+    document.body.appendChild(iframe);
+    var f=document.createElement("form");
+    f.method="POST";
+    f.action=ENDPOINT;
+    f.target=iframe.name;
+    f.style.display="none";
+    var body=(payload.body||payload.reportText||payload.dailyText||payload.text||"");
+    function add(n,v){var i=document.createElement("input");i.type="hidden";i.name=n;i.value=String(v||"");f.appendChild(i);} 
+    add("payload",JSON.stringify(payload));
+    add("body",body); add("reportText",body); add("dailyText",body); add("text",body);
+    add("version","V80"); add("customerCode",payload.customerCode||"M001"); add("customerName",payload.customerName||"株式会社松葉屋製麺");
+    document.body.appendChild(f); f.submit();
+    setTimeout(function(){try{document.body.removeChild(f);}catch(e){}},1200);
+    setTimeout(function(){try{document.body.removeChild(iframe);}catch(e){}},6000);
+  }
+  function isDone(){try{return localStorage.getItem("DeliverySystemV72_businessCompleted")==="1"||localStorage.getItem("DeliverySystemV64_businessCompleted")==="1";}catch(e){return false;}}
+  function finalRows(){try{var p=buildPayload();return p.storeReports||p.completedList||p.dailyDetails||[];}catch(e){return [];}}
+  function sendV80(){
+    var btn=id("btnPageDailySend")||id("btnMail")||id("btnDailySend");
+    try{if(finalRows().length<1){alert("最低1件以上、配送完了または配送不可まで処理してください。");return;}}catch(e){}
+    if(!isDone()){alert("先に業務完了ボタンを押してください。");return;}
+    if(!navigator.onLine){alert("通信できません。Wi-Fi接続後にもう一度、日報送信してください。");return;}
+    var payload=buildPayload();
+    if(btn){btn.disabled=true;btn.textContent="送信中...";}
+    fetch(ENDPOINT,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"},body:encode(payload).toString(),cache:"no-store",credentials:"same-origin"})
+      .then(function(r){return r.text().then(function(tx){
+        var j={}; try{j=JSON.parse(tx);}catch(e){}
+        if(!r.ok){throw new Error(tx||("送信エラー "+r.status));}
+        return j;
+      });})
+      .then(function(j){alert("日報送信完了。\n日報一覧で受信確認してください。"+(j.receivedAt?"\n受信時刻："+j.receivedAt:""));})
+      .catch(function(e){
+        iframeFallback(payload);
+        alert("日報送信を別方式で実行しました。\n日報一覧で受信確認してください。");
+      })
+      .finally(function(){if(btn){btn.disabled=false;btn.textContent="日報送信";} bindV80();});
+  }
+  function bindV80(){
+    var d=id("btnPageDailySend");
+    if(d){d.onclick=sendV80; d.textContent="日報送信";}
+    window.sendDailyV80=sendV80;
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bindV80);else bindV80();
+  setTimeout(bindV80,300);setTimeout(bindV80,1000);setTimeout(bindV80,2500);setInterval(bindV80,2500);
+})();
+</script>
+
 </body>
 </html>

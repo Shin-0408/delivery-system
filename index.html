@@ -351,6 +351,7 @@ body{background:#e9edf2}
 </div>
 
 <div class="topOnlyFooter">
+<button id="btnBusinessStartV82" class="btn green" type="button">業務開始</button>
 <button id="btnGoCustomerPage" class="btn blue" type="button">得意先ページへ進む</button>
 <button id="btnMail" class="btn dark" type="button">日報送信</button>
 <button id="btnResetComplete" class="btn gray" type="button">業務完了解除</button>
@@ -645,5 +646,42 @@ window.addEventListener("load",function(){
 <script>
 (function(){function t(){document.title="配送・集金管理システム";var h=document.querySelector(".header");if(h)h.textContent="配送・集金管理システム";}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",t);else t();setTimeout(t,500);})();
 </script>
+
+<script id="v82-index-business-start-js">
+/* ===== V82：トップページ業務開始ボタン ===== */
+(function(){
+  var KEYS=[
+    "DeliverySystemV82_workStartTime",
+    "DeliverySystemV81_workStartTime",
+    "DeliverySystemV79_workStartTime",
+    "DeliverySystemV78_workStartTime",
+    "DeliverySystemV72_workStartTime"
+  ];
+  function id(x){return document.getElementById(x);}
+  function nowFull(){return new Date().toLocaleString("ja-JP");}
+  function nowTime(){var d=new Date();return ("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2);}
+  function rawSet(k,v){try{localStorage.setItem(k,String(v||""));}catch(e){}}
+  function rawGet(k){try{return localStorage.getItem(k)||"";}catch(e){return ""}}
+  function saveStart(){
+    var t=nowFull(), hm=nowTime();
+    KEYS.forEach(function(k){rawSet(k,t);rawSet(k+"_hm",hm);});
+    rawSet("DeliverySystemV82_businessStarted","1");
+    rawSet("DeliverySystemV81_businessStarted","1");
+    var b=id("btnBusinessStartV82");
+    if(b){b.textContent="業務開始済 "+hm;b.disabled=true;b.style.opacity=".75";}
+    alert("業務開始時間を記録しました。\n"+hm);
+  }
+  function bind(){
+    var b=id("btnBusinessStartV82");
+    if(!b)return;
+    b.onclick=saveStart;
+    var s=rawGet("DeliverySystemV82_workStartTime")||rawGet("DeliverySystemV81_workStartTime")||rawGet("DeliverySystemV79_workStartTime");
+    if(s){b.textContent="業務開始済 "+(rawGet("DeliverySystemV82_workStartTime_hm")||rawGet("DeliverySystemV81_workStartTime_hm")||s);b.disabled=true;b.style.opacity=".75";}
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
+  setTimeout(bind,500);setTimeout(bind,1500);
+})();
+</script>
+
 </body>
 </html>

@@ -1780,7 +1780,7 @@ if ("serviceWorker" in navigator) {
     if(id("storeCode")) id("storeCode").value=code;
     try{
       if(typeof window.searchStore==="function") window.searchStore(false);
-      setTimeout(function(){renderListsV74(); saveM001Snapshot(); try{ if(id("storeCode")) { id("storeCode").value=""; id("storeCode").focus(); }}catch(e){}},30);
+      setTimeout(function(){renderListsV74(); saveM001Snapshot(); try{ if(id("storeCode")) { id("storeCode").focus(); }}catch(e){}},30);
     }catch(e){ if(!silent) alert("検索エラー："+(e&&e.message?e.message:e)); }
     return true;
   }
@@ -1907,6 +1907,65 @@ if ("serviceWorker" in navigator) {
   setInterval(function(){setHeader(); renderListsV74();},4000);
   window.addEventListener("beforeunload",saveM001Snapshot);
   document.addEventListener("visibilitychange",function(){if(document.hidden) saveM001Snapshot();});
+})();
+</script>
+
+
+<style>
+/* ===== V75: FZ-N1 配送完了一覧の見切れ対策 ===== */
+.completedTableV75{table-layout:fixed!important;width:100%!important;}
+.completedTableV75 th,.completedTableV75 td{font-size:14px!important;line-height:1.15!important;padding:3px 2px!important;white-space:nowrap!important;text-align:left!important;overflow:hidden!important;text-overflow:ellipsis!important;}
+.completedTableV75 th:nth-child(1),.completedTableV75 td:nth-child(1){width:46px!important;}
+.completedTableV75 th:nth-child(2),.completedTableV75 td:nth-child(2){width:58px!important;}
+.completedTableV75 th:nth-child(3),.completedTableV75 td:nth-child(3){width:42px!important;}
+.completedTableV75 th:nth-child(4),.completedTableV75 td:nth-child(4){width:50px!important;}
+.completedTableV75 th:nth-child(5),.completedTableV75 td:nth-child(5){width:auto!important;}
+</style>
+
+<script>
+/* ===== V75 M001限定補正：タイトル、ボタン後アラート抑制、一覧幅調整 ===== */
+(function(){
+  function id(x){return document.getElementById(x);}
+  function clean(v){var m=String(v||"").toUpperCase().replace(/[^A-Z0-9]/g,"").match(/K[0-9]{4}/g);return m?m[m.length-1]:"";}
+  function setTitleV75(){try{document.title="配送・集金管理システム";}catch(e){} var h=document.querySelector(".header"); if(h) h.textContent="配送・集金管理システム";}
+  function fixCompletedWidth(){
+    var tb=id("completedList"); if(!tb) return;
+    var table=tb.closest?tb.closest("table"):null; if(table){ if((table.className||"").indexOf("completedTableV75")<0)table.className=(table.className||"")+" completedTableV75"; table.style.tableLayout="fixed"; table.style.width="100%";}
+    var head=table&&table.querySelector("thead tr");
+    if(head){head.innerHTML="<th>コード</th><th>店舗名</th><th>持出</th><th>配送</th><th>内容</th>";}
+  }
+  function keepStoreCodeAfterSearch(){var st=id("storeCode"); if(st && window.currentStore && !clean(st.value)){ st.value=clean(window.currentStore)||st.value; }}
+  function wrapNoEmptyStoreAlert(name){
+    var old=window[name];
+    if(typeof old!=="function" || old.__v75NoAlert) return;
+    var fn=function(){
+      var st=id("storeCode");
+      var before=clean((window.currentStore||"") || (st&&st.value)||"");
+      if(st && before) st.value=before;
+      var r=old.apply(this,arguments);
+      setTimeout(function(){ if(st && before && !clean(st.value)) st.value=before; setTitleV75(); fixCompletedWidth(); },30);
+      return r;
+    };
+    fn.__v75NoAlert=true; window[name]=fn;
+  }
+  function quietEmptyForceSearch(){
+    var old=window.forceSearch;
+    if(typeof old!=="function" || old.__v75Quiet) return;
+    var fn=function(){
+      var st=id("storeCode");
+      var code=clean(st&&st.value);
+      if(!code){ if(window.currentStore && st){st.value=clean(window.currentStore); return true;} return false; }
+      return old.apply(this,arguments);
+    };
+    fn.__v75Quiet=true; window.forceSearch=fn;
+    var b=id("btnSearch"); if(b) b.onclick=fn;
+  }
+  function bind(){
+    setTitleV75(); fixCompletedWidth(); quietEmptyForceSearch(); keepStoreCodeAfterSearch();
+    ["carry","undoCarry","delivery","fail","collect","pending","noCollect"].forEach(wrapNoEmptyStoreAlert);
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
+  setTimeout(bind,500); setTimeout(bind,1500); setInterval(function(){setTitleV75();fixCompletedWidth();},3000);
 })();
 </script>
 

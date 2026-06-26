@@ -2284,5 +2284,63 @@ if ("serviceWorker" in navigator) {
 })();
 </script>
 
+
+
+<style id="v77-fixed-complete-card-css">
+#completeModalV77Fixed{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:99999;align-items:center;justify-content:center;padding:18px;box-sizing:border-box;}
+#completeModalV77Fixed .box{background:#fff;border-radius:14px;max-width:360px;width:96%;padding:14px;text-align:center;border:3px solid #222;box-shadow:0 8px 30px rgba(0,0,0,.35);}
+#completeModalV77Fixed img{max-width:100%;border-radius:8px;background:#eef;display:block;margin:0 auto 10px;}
+#completeModalV77Fixed .msg{font-size:24px;line-height:1.45;font-weight:bold;color:#c00000;margin:10px 0 14px;}
+#completeModalV77Fixed button{font-size:20px;font-weight:bold;border:0;border-radius:10px;background:#333;color:#fff;padding:12px 18px;min-height:50px;}
+</style>
+<script id="v77-fixed-complete-card-js">
+/* ===== V77再修正：V76状態を維持して、業務完了成功時だけミッドナイトくんを必ず表示 ===== */
+(function(){
+  function id(x){return document.getElementById(x);}
+  function ensureModal(){
+    var m=id('completeModalV77Fixed');
+    if(m)return m;
+    m=document.createElement('div');
+    m.id='completeModalV77Fixed';
+    m.innerHTML='<div class="box"><img src="./complete-card.jpg" alt="お疲れ様でした"><div class="msg">お疲れ様でした！<br>明日も気をつけて業務をお願いします！</div><button type="button" id="btnCloseCompleteV77Fixed">閉じる</button></div>';
+    document.body.appendChild(m);
+    id('btnCloseCompleteV77Fixed').onclick=function(){m.style.display='none';};
+    return m;
+  }
+  function showCard(){ensureModal().style.display='flex';}
+  function isSuccessMessage(messages){
+    for(var i=0;i<messages.length;i++){
+      if(String(messages[i]||'').indexOf('業務完了しました')>=0)return true;
+    }
+    return false;
+  }
+  function callWithCard(fn,ctx,ev){
+    var msgs=[], realAlert=window.alert, ret;
+    window.alert=function(msg){msgs.push(String(msg||''));};
+    try{ ret=fn.call(ctx,ev); }
+    catch(e){ window.alert=realAlert; realAlert(e&&e.message?e.message:e); return false; }
+    window.alert=realAlert;
+    if(isSuccessMessage(msgs)){ showCard(); }
+    else{ for(var i=0;i<msgs.length;i++) realAlert(msgs[i]); }
+    return ret;
+  }
+  function bind(){
+    var b=id('btnM001CompleteMark');
+    if(!b)return;
+    if(b.__v77FixedBound && b.onclick===b.__v77FixedHandler)return;
+    var current=b.onclick;
+    if(typeof current!=='function')return;
+    var handler=function(ev){ return callWithCard(current,this,ev); };
+    b.__v77FixedHandler=handler;
+    b.__v77FixedBound=true;
+    b.onclick=handler;
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){ensureModal();bind();});
+  else{ensureModal();bind();}
+  setTimeout(bind,100);setTimeout(bind,600);setTimeout(bind,1600);setTimeout(bind,3200);
+  setInterval(bind,700);
+})();
+</script>
+
 </body>
 </html>

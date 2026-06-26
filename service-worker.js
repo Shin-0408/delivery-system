@@ -1,4 +1,4 @@
-const CACHE_NAME = 'delivery-system-v72-icon-fixed';
+const CACHE_NAME = 'delivery-system-v73-m001-fixed';
 const FILES = [
   './',
   './index.html',

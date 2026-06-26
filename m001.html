@@ -662,7 +662,7 @@ function renderLists(){var h="",gt=0,uc=0;carryOutData.forEach(function(x){h+="<
 function renderSummary(){var ca=0,de=0,co=0,coA=0,pe=0,peA=0,no=0,fa=0;historyData.forEach(function(x){if(x.status==="持出")ca++;if(x.status==="配送完了")de++;if(x.status==="集金完了"){co++;coA+=Number(x.amount||0);}if(x.status==="未集金"){pe++;peA+=Number(x.amount||0);}if(x.status==="集金なし")no++;if(x.status==="配送不可")fa++;});$("carryCount").textContent=ca+"件";$("deliveryCount").textContent=de+"件";$("remainCount").textContent=hasUnfinishedCarry().length+"件";$("collectCount").textContent=co+"件";$("collectAmount").textContent=yen(coA);$("pendingCount").textContent=pe+"件";$("pendingAmount").textContent=yen(peA);$("noCollectCount").textContent=no+"件";$("failCount").textContent=fa+"件";}
 function renderAll(){renderLists();renderSummary();renderButtons();}
 function csvSafe(v){return '"'+String(v==null?"":v).replace(/"/g,'""')+'"';}
-function csv(){var s="日時,店舗コード,店舗名,状態,金額,理由,得意先,ドライバー,車両,端末,商品配送,請求書,手紙,集金のみ,回収あり,開始走行距離,終了走行距離,本日走行距離,開始前アルコール,終了後アルコール\n";historyData.forEach(function(x){s+=[x.datetime,x.code,x.name,x.status,x.amount,x.reason,x.customer,x.driver,x.vehicle,x.terminal,x.deliveryItem?"○":"",x.invoiceItem?"○":"",x.letterItem?"○":"",x.collectionOnly?"○":"",x.returnItem?"○":"",workData.startMeter||"",workData.endMeter||"",workData.dailyDistance||"",workData.startAlcohol||"",workData.endAlcohol||""].map(csvSafe).join(",")+"\n";});var b=new Blob(["\ufeff"+s],{type:"text/csv;charset=utf-8;"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="配送集金日報V66.csv";document.body.appendChild(a);a.click();document.body.removeChild(a);}
+function csv(){var s="日時,店舗コード,店舗名,状態,金額,理由,得意先,ドライバー,車両,端末,商品配送,請求書,手紙,集金のみ,回収あり,開始走行距離,終了走行距離,本日走行距離,開始前アルコール,終了後アルコール\n";historyData.forEach(function(x){s+=[x.datetime,x.code,x.name,x.status,x.amount,x.reason,x.customer,x.driver,x.vehicle,x.terminal,x.deliveryItem?"○":"",x.invoiceItem?"○":"",x.letterItem?"○":"",x.collectionOnly?"○":"",x.returnItem?"○":"",workData.startMeter||"",workData.endMeter||"",workData.dailyDistance||"",workData.startAlcohol||"",workData.endAlcohol||""].map(csvSafe).join(",")+"\n";});var b=new Blob(["\ufeff"+s],{type:"text/csv;charset=utf-8;"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="配送集金日報V73.csv";document.body.appendChild(a);a.click();document.body.removeChild(a);}
 function mail(){
 var body=[
 "配送・集金日報",
@@ -747,7 +747,7 @@ saveAll();
 renderAll();
 alert("日報削除完了。未集金残高は保存されています。");
 }
-function backup(){saveAll();var d={customers:customers,stores:stores,drivers:drivers,vehicles:vehicles,terminals:terminals,historyData:historyData,collectHistoryData:collectHistoryData,carryOutData:carryOutData,balanceData:balanceData,stateData:stateData,invoiceData:invoiceData,optionData:optionData,searchCountData:searchCountData,undoData:undoData,config:parse("config",{}),workData:workData,backupDate:nowText()};var b=new Blob([JSON.stringify(d,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="DeliverySystemV66_Backup.json";document.body.appendChild(a);a.click();document.body.removeChild(a);}
+function backup(){saveAll();var d={customers:customers,stores:stores,drivers:drivers,vehicles:vehicles,terminals:terminals,historyData:historyData,collectHistoryData:collectHistoryData,carryOutData:carryOutData,balanceData:balanceData,stateData:stateData,invoiceData:invoiceData,optionData:optionData,searchCountData:searchCountData,undoData:undoData,config:parse("config",{}),workData:workData,backupDate:nowText()};var b=new Blob([JSON.stringify(d,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="DeliverySystemV73_Backup.json";document.body.appendChild(a);a.click();document.body.removeChild(a);}
 function restore(){var f=$("restoreFile").files[0];if(!f){alert("ファイルを選択してください");return;}var r=new FileReader();r.onload=function(e){try{var d=JSON.parse(e.target.result);customers=d.customers||customers;stores=d.stores||stores;drivers=d.drivers||drivers;vehicles=d.vehicles||vehicles;terminals=d.terminals||terminals;historyData=d.historyData||[];collectHistoryData=d.collectHistoryData||[];carryOutData=d.carryOutData||[];balanceData=d.balanceData||{};stateData=d.stateData||{};invoiceData=d.invoiceData||{};optionData=d.optionData||{};searchCountData=d.searchCountData||{};undoData=d.undoData||[];fillMasters();loadConfig();renderMaster();renderAll();saveAll();alert("復元しました");}catch(err){alert("バックアップ破損");}};r.readAsText(f);}
 function masterData(){var t=$("masterType").value;if(t==="customer")return customers;if(t==="store")return stores;if(t==="driver")return drivers;if(t==="vehicle")return vehicles;if(t==="terminal")return terminals;return{};}
 function renderMaster(){var d=masterData(),h="";Object.keys(d).sort().forEach(function(code){h+='<div class="masterRow" data-code="'+code+'">'+code+"　"+d[code]+"</div>";});$("masterList").innerHTML=h;Array.prototype.forEach.call($("masterList").querySelectorAll(".masterRow"),function(r){r.onclick=function(){var c=r.getAttribute("data-code");$("masterCode").value=c;$("masterName").value=masterData()[c]||"";};});}
@@ -916,7 +916,7 @@ window.onload=start;
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", function () {
-    navigator.serviceWorker.register("./service-worker.js?v=70").then(function(reg){
+    navigator.serviceWorker.register("./service-worker.js?v=73").then(function(reg){
       reg.update();
     }).catch(function(){});
   });
@@ -980,8 +980,8 @@ if ("serviceWorker" in navigator) {
  /* localStorageキー・店舗マスター・日報データは変更しない。 */
 
 (function(){
-  var VERSION = "V66";
-  var ENDPOINT = "https://fukudakoken.co.jp/daily/receive.php";
+  var VERSION = "V73";
+  var ENDPOINT = "https://fukudakoken.com/daily/receive.php";
   var COMPLETE_KEY = "DeliverySystemV64_businessCompleted"; // 既存データ互換のため変更しない
   var scanBuffer = "";
   var scanTimer = null;
@@ -1356,7 +1356,7 @@ if ("serviceWorker" in navigator) {
     // ボタン再結線
     [["btnCarry","carry"],["btnUndoCarry","undoCarry"],["btnDelivery","delivery"],["btnFail","fail"],["btnCollect","collect"],["btnPending","pending"],["btnNoCollect","noCollect"],["btnComplete","complete"],["btnBack","undo"],["btnReset","reset"]].forEach(function(p){ var el=id(p[0]); if(el && typeof window[p[1]]==="function") el.onclick=window[p[1]]; });
     normalizeCarryData(); renderAllSafe(); updateMailLock(); saveAllSafe();
-    try{ if("serviceWorker" in navigator){ navigator.serviceWorker.register("./service-worker.js?v=70").then(function(reg){try{reg.update();}catch(e){}}).catch(function(){}); } }catch(e){}
+    try{ if("serviceWorker" in navigator){ navigator.serviceWorker.register("./service-worker.js?v=73").then(function(reg){try{reg.update();}catch(e){}}).catch(function(){}); } }catch(e){}
   }
   if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",boot); else boot();
   setTimeout(boot,500);
@@ -1418,7 +1418,7 @@ if ("serviceWorker" in navigator) {
   var COMPLETE_KEY_V72 = "DeliverySystemV72_businessCompleted";
   var COMPLETE_KEY_V64 = "DeliverySystemV64_businessCompleted";
   var TOKEN = "FKK_DAILY_V61_20260620";
-  var ENDPOINT = "https://fukudakoken.co.jp/daily/receive.php";
+  var ENDPOINT = "https://fukudakoken.com/daily/receive.php";
   function id(x){return document.getElementById(x);}
   function get(k,d){try{var v=localStorage.getItem(KEY+k);return v?JSON.parse(v):d;}catch(e){return d;}}
   function setDone(v){try{localStorage.setItem(COMPLETE_KEY_V72,v?"1":"0");localStorage.setItem(COMPLETE_KEY_V64,v?"1":"0");}catch(e){} updateMailLockV72();}
@@ -1572,6 +1572,235 @@ if ("serviceWorker" in navigator) {
     ["startMeter","endMeter","startAlcohol","endAlcohol","dailyDistance"].forEach(function(k){if(id(k)&&w[k]!==undefined)id(k).value=w[k]||"";});
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bindCommon);else bindCommon();
+})();
+</script>
+
+
+
+<script>
+/* ===== V73 M001最小補正：表示削除・保存保持・自動検索・重複なし一覧・.com日報 ===== */
+(function(){
+  var KEY = window.KEY || "deliverySystemV45_";
+  var ENDPOINT_V73 = "https://fukudakoken.com/daily/receive.php";
+  var autoTimer = null;
+  var lastAutoCode = "";
+  var lastAutoAt = 0;
+  function id(x){ return document.getElementById(x); }
+  function clean(v){
+    var s = String(v || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+    var m = s.match(/K[0-9]{4}/g);
+    return m && m.length ? m[m.length - 1] : s;
+  }
+  function isStore(code){ try{return /^K[0-9]{4}$/.test(code) && window.stores && !!stores[code];}catch(e){return false;} }
+  function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];}); }
+  function t(dt){ var a=String(dt||"").split(" "); return a.length>1 ? a[1] : String(dt||""); }
+  function nameOf(code){ try{return (window.stores && stores[code]) || "";}catch(e){return "";} }
+  function optionOf(code){
+    var labels=[], o=null;
+    try{o=window.optionData && optionData[code];}catch(e){}
+    if(o){
+      if(o.deliveryItem) labels.push("商品配送");
+      if(o.invoiceItem) labels.push("請求書");
+      if(o.letterItem) labels.push("手紙");
+      if(o.collectionOnly) labels.push("集金のみ");
+      if(o.returnItem) labels.push("回収あり");
+    }
+    return labels.length ? labels.join("・") : "通常配送";
+  }
+  function saveSafe(){
+    try{ if(typeof window.saveAll === "function") window.saveAll(); }catch(e){}
+    try{ if(typeof window.saveWorkInfo === "function") window.saveWorkInfo(); }catch(e){}
+  }
+  function clearV66Display(){
+    try{ document.title = "配送・集金管理システム"; }catch(e){}
+    var h=document.querySelector(".header");
+    if(h) h.textContent = "配送・集金管理システム";
+  }
+  function collectRows(){
+    var map={}, order=[];
+    try{
+      (window.historyData || []).forEach(function(x){
+        if(!x || !x.code) return;
+        var code=String(x.code).toUpperCase();
+        if(!map[code]){ map[code]={code:code,name:nameOf(code)||x.name||"",carryTime:"",deliveryTime:"",deliveryContent:optionOf(code),collectionStatus:""}; order.push(code); }
+        if(x.status === "持出") map[code].carryTime = t(x.datetime);
+        if(["配送完了","集金完了","未集金","集金なし","配送不可"].indexOf(x.status) >= 0){
+          if(!map[code].deliveryTime) map[code].deliveryTime = t(x.datetime);
+          if(x.status === "集金完了") map[code].collectionStatus = "完了";
+          else if(x.status === "未集金") map[code].collectionStatus = "未集金";
+          else if(x.status === "集金なし") map[code].collectionStatus = "なし";
+          else if(x.status === "配送不可") map[code].collectionStatus = "配送不可";
+          else if(!map[code].collectionStatus) map[code].collectionStatus = "未確認";
+        }
+        map[code].name = nameOf(code)||x.name||map[code].name;
+        map[code].deliveryContent = optionOf(code);
+      });
+    }catch(e){}
+    return order.filter(function(code){return map[code] && map[code].deliveryTime;}).map(function(code){return map[code];}).reverse();
+  }
+  function patchCompletedHeader(){
+    var head = document.querySelector("#completedList");
+    if(head && head.parentNode){
+      var table=head.parentNode;
+      var thead=table.querySelector("thead");
+      if(thead) thead.innerHTML = "<tr><th>店舗コード</th><th>店舗名</th><th>持出時間</th><th>配送完了時間</th><th>配送内容</th></tr>";
+    }
+  }
+  function renderListsV73(){
+    try{
+      if(typeof window.__v73OldRenderLists === "function") window.__v73OldRenderLists.apply(this, arguments);
+    }catch(e){}
+    patchCompletedHeader();
+    try{
+      var rows=collectRows(), html="";
+      rows.forEach(function(r){
+        html += "<tr><td>"+esc(r.code)+"</td><td>"+esc(r.name)+"</td><td>"+esc(r.carryTime||"")+"</td><td>"+esc(r.deliveryTime||"")+"</td><td>"+esc(r.deliveryContent||"通常配送")+"</td></tr>";
+      });
+      if(id("completedList")) id("completedList").innerHTML=html;
+      if(id("completedListCount")) id("completedListCount").textContent=rows.length+"件";
+    }catch(e){}
+    clearV66Display();
+  }
+  function buildReportText(payload, rows){
+    var lines=[];
+    lines.push("配送・集金日報");
+    lines.push("");
+    lines.push("得意先："+(payload.customerCode||"")+" "+(payload.customerName||""));
+    lines.push("ドライバー："+(payload.driverCode||"")+" "+(payload.driverName||""));
+    lines.push("車両："+(payload.vehicleCode||"")+" "+(payload.vehicleName||""));
+    lines.push("端末："+(payload.terminalCode||"")+" "+(payload.terminalName||""));
+    lines.push("");
+    lines.push("店舗別明細");
+    rows.slice().reverse().forEach(function(r){
+      lines.push("");
+      lines.push(r.code+" "+r.name);
+      lines.push("持出");
+      lines.push(r.carryTime||"");
+      lines.push("配送");
+      lines.push(r.deliveryTime||"");
+      lines.push("配送内容");
+      lines.push(r.deliveryContent||"通常配送");
+      lines.push("集金");
+      lines.push(r.collectionStatus||"未確認");
+    });
+    return lines.join("\n");
+  }
+  function commonPayload(){
+    function v(x){var e=id(x); return e?String(e.value||""):"";}
+    function map(m,c){try{return (window[m]&&window[m][c])||"";}catch(e){return "";}}
+    var cc=v("customerCode")||"M001";
+    return {
+      token:"FKK_DAILY_V61_20260620",
+      version:"V73",
+      reportDate:new Date().toLocaleString("ja-JP"),
+      sentAt:new Date().toLocaleString("ja-JP"),
+      customerCode:cc, customerName: cc==="M001" ? "株式会社松葉屋製麺" : map("customers",cc),
+      driverCode:v("driverCode"), driverName:map("drivers",v("driverCode")),
+      vehicleCode:v("vehicleCode"), vehicleName:map("vehicles",v("vehicleCode")),
+      terminalCode:v("terminalCode"), terminalName:map("terminals",v("terminalCode")),
+      startMeter:v("startMeter"), endMeter:v("endMeter"), dailyDistance:v("dailyDistance"),
+      startAlcohol:v("startAlcohol"), endAlcohol:v("endAlcohol"),
+      summary:{
+        carryCount:id("carryCount")?id("carryCount").textContent:"",
+        deliveryCount:id("deliveryCount")?id("deliveryCount").textContent:"",
+        remainCount:id("remainCount")?id("remainCount").textContent:"",
+        collectCount:id("collectCount")?id("collectCount").textContent:"",
+        collectAmountText:id("collectAmount")?id("collectAmount").textContent:"",
+        pendingCount:id("pendingCount")?id("pendingCount").textContent:"",
+        pendingAmountText:id("pendingAmount")?id("pendingAmount").textContent:"",
+        grandBalanceText:id("grandBalance")?id("grandBalance").textContent:""
+      }
+    };
+  }
+  function buildPayloadV73(){
+    saveSafe();
+    try{ if(typeof window.renderAll === "function") window.renderAll(); }catch(e){}
+    var rows=collectRows();
+    var p=commonPayload();
+    p.completedList=rows.slice().reverse();
+    p.storeReports=rows.slice().reverse();
+    p.historyData=(window.historyData||[]).slice(-700);
+    p.collectHistoryData=(window.collectHistoryData||[]).slice(-700);
+    p.carryOutList=(window.carryOutData||[]).slice(-700);
+    p.balanceData=window.balanceData||{};
+    p.reportText=buildReportText(p, rows);
+    return p;
+  }
+  function fallback(payload){
+    var f=document.createElement("form");
+    f.method="POST"; f.action=ENDPOINT_V73; f.target="_blank"; f.style.display="none";
+    var i=document.createElement("input"); i.type="hidden"; i.name="payload"; i.value=JSON.stringify(payload);
+    f.appendChild(i); document.body.appendChild(f); f.submit();
+    setTimeout(function(){try{document.body.removeChild(f);}catch(e){}},1000);
+  }
+  function isDone(){
+    try{return localStorage.getItem("DeliverySystemV72_businessCompleted")==="1" || localStorage.getItem("DeliverySystemV64_businessCompleted")==="1";}catch(e){return false;}
+  }
+  function updateLock(){
+    var btns=document.querySelectorAll("#btnMail,#btnDailySend,#btnPageDailySend");
+    for(var i=0;i<btns.length;i++){btns[i].disabled=!isDone();btns[i].textContent="日報送信";btns[i].style.opacity=isDone()?"":".45";}
+  }
+  function sendDailyV73(){
+    if(!isDone()){alert("先に業務完了ボタンを押してください。");updateLock();return;}
+    if(!navigator.onLine){alert("通信できません。Wi-Fi接続後にもう一度、日報送信してください。");return;}
+    var payload=buildPayloadV73(), body=JSON.stringify(payload), btn=this||id("btnMail")||id("btnDailySend")||id("btnPageDailySend");
+    if(btn){btn.disabled=true;btn.textContent="送信中...";}
+    fetch(ENDPOINT_V73,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:body,cache:"no-store",mode:"cors"})
+      .then(function(r){return r.text().then(function(tx){var j={};try{j=JSON.parse(tx);}catch(e){} if(!r.ok||!j.ok){throw new Error((j&&j.error)||tx||("送信エラー "+r.status));} return j;});})
+      .then(function(j){alert("日報送信完了。\n受信時刻："+(j.receivedAt||""));})
+      .catch(function(e){if(confirm("通常送信に失敗しました。\n別画面で送信しますか？\n"+(e&&e.message?e.message:e))){fallback(payload);}})
+      .finally(function(){if(btn){btn.disabled=false;btn.textContent="日報送信";} updateLock();});
+  }
+  function doAutoSearch(code){
+    if(!isStore(code)) return false;
+    var now=Date.now();
+    if(code===lastAutoCode && now-lastAutoAt<500) return true;
+    lastAutoCode=code; lastAutoAt=now;
+    var st=id("storeCode"); if(st) st.value=code;
+    try{ if(typeof window.searchStore === "function") window.searchStore(false); }catch(e){alert("検索エラー："+(e&&e.message?e.message:e)); return false;}
+    try{ if(typeof window.renderAll === "function") window.renderAll(); }catch(e){}
+    saveSafe();
+    setTimeout(function(){
+      var s=id("storeCode");
+      if(s){ try{s.focus();s.select();}catch(e){} }
+    },60);
+    return true;
+  }
+  function bindV73(){
+    clearV66Display();
+    if(typeof window.renderLists === "function" && !window.__v73OldRenderLists){ window.__v73OldRenderLists=window.renderLists; window.renderLists=renderListsV73; }
+    patchCompletedHeader();
+    var st=id("storeCode");
+    if(st && !st.__v73Bound){
+      st.__v73Bound=true;
+      st.removeAttribute("readonly"); st.removeAttribute("disabled"); st.setAttribute("inputmode","text");
+      st.addEventListener("input",function(){
+        clearTimeout(autoTimer);
+        var code=clean(st.value);
+        if(isStore(code)){ autoTimer=setTimeout(function(){doAutoSearch(code);},80); }
+      });
+      st.onkeydown=function(e){ if(e.key==="Enter"||e.key==="Tab"){ e.preventDefault(); var code=clean(st.value); if(code) doAutoSearch(code); } };
+    }
+    window.forceSearch=function(){var st=id("storeCode"), code=st?clean(st.value):""; if(!code){alert("店舗コードを入力してください");return false;} if(!isStore(code)){alert("店舗がありません："+code);return false;} return doAutoSearch(code);};
+    window.checkBarcode=function(){var st=id("storeCode"), code=st?clean(st.value):""; if(code) return doAutoSearch(code);};
+    window.processGlobalScan=function(raw){var code=clean(raw); if(code) return doAutoSearch(code); return false;};
+    var sb=id("btnSearch"); if(sb){sb.style.display="none"; sb.onclick=window.forceSearch;}
+    var btns=document.querySelectorAll("#btnMail,#btnDailySend,#btnPageDailySend");
+    for(var i=0;i<btns.length;i++){btns[i].onclick=sendDailyV73;btns[i].textContent="日報送信";}
+    window.sendDailyV72=sendDailyV73;
+    window.mail=sendDailyV73;
+    window.v73BuildPayload=buildPayloadV73;
+    window.v73Endpoint=ENDPOINT_V73;
+    window.v73RenderLists=renderListsV73;
+    try{ if(typeof window.renderAll === "function") window.renderAll(); }catch(e){}
+    updateLock(); saveSafe();
+  }
+  window.addEventListener("pagehide", saveSafe);
+  window.addEventListener("beforeunload", saveSafe);
+  document.addEventListener("visibilitychange", function(){ if(document.hidden) saveSafe(); });
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded", bindV73); else bindV73();
+  setTimeout(bindV73,700);
+  setTimeout(function(){clearV66Display();renderListsV73();},1400);
 })();
 </script>
 

@@ -369,7 +369,7 @@ window.onload=function(){load();id("btnSave").onclick=function(){saveWork(false)
   var COMPLETE_KEY_V72 = "DeliverySystemV72_businessCompleted";
   var COMPLETE_KEY_V64 = "DeliverySystemV64_businessCompleted";
   var TOKEN = "FKK_DAILY_V61_20260620";
-  var ENDPOINT = "https://fukudakoken.co.jp/daily/receive.php";
+  var ENDPOINT = "https://fukudakoken.com/daily/receive.php";
   function id(x){return document.getElementById(x);}
   function get(k,d){try{var v=localStorage.getItem(KEY+k);return v?JSON.parse(v):d;}catch(e){return d;}}
   function setDone(v){try{localStorage.setItem(COMPLETE_KEY_V72,v?"1":"0");localStorage.setItem(COMPLETE_KEY_V64,v?"1":"0");}catch(e){} updateMailLockV72();}

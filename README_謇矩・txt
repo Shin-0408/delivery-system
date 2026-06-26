@@ -1,0 +1,25 @@
+配送・集金管理システム V72 ロリポップ delivery フォルダ上書き用
+
+アップロード先：
+/fukudakoken.com/delivery/
+
+このZIPを解凍して、中の12ファイルだけを delivery フォルダへ上書きアップロードしてください。
+
+絶対に触らない：
+/fukudakoken.com/daily/
+/fukudakoken.com/price/
+/fukudakoken.com/receive.php
+
+上書きするファイル：
+complete-card.jpg
+icon-192.png
+icon-512.png
+icon.png
+index.html
+m001.html
+m002.html
+m003.html
+m004.html
+manifest.json
+offline.appcache
+service-worker.js

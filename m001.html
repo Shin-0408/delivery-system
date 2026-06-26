@@ -2344,138 +2344,135 @@ if ("serviceWorker" in navigator) {
 
 
 
-<script id="v78-daily-time-final-js">
-/* ===== V78：V77の状態は維持。日報に持出時間・配送完了時間を確実に入れる専用補正 ===== */
+<script id="v78-final-daily-send-js">
+/* ===== V78新規作成：V77ベース維持、日報送信・完了カード・日報時刻だけ最終補正 ===== */
 (function(){
+  var KEY=window.KEY||"deliverySystemV45_";
   var ENDPOINT="https://fukudakoken.com/daily/receive.php";
+  var COMPLETE_KEY_V72="DeliverySystemV72_businessCompleted";
+  var COMPLETE_KEY_V64="DeliverySystemV64_businessCompleted";
   function id(x){return document.getElementById(x);}
+  function get(k,d){try{var v=localStorage.getItem(KEY+k);return v?JSON.parse(v):d;}catch(e){return d;}}
+  function set(k,v){try{localStorage.setItem(KEY+k,JSON.stringify(v));}catch(e){}}
+  function setDone(v){try{localStorage.setItem(COMPLETE_KEY_V72,v?"1":"0");localStorage.setItem(COMPLETE_KEY_V64,v?"1":"0");}catch(e){}}
+  function isDone(){try{return localStorage.getItem(COMPLETE_KEY_V72)==="1"||localStorage.getItem(COMPLETE_KEY_V64)==="1";}catch(e){return false;}}
+  function clean(v){v=String(v||"").toUpperCase().replace(/[\r\n\t ]+/g,"").replace(/[^A-Z0-9]/g,"");var m=v.match(/K[0-9]{4}/g);return m&&m.length?m[m.length-1]:v;}
+  function timeOnly(v){var s=String(v||"");var m=s.match(/(\d{1,2}:\d{2})(?::\d{2})?/);return m?m[1]:s;}
+  function esc(v){return String(v==null?"":v).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];});}
   function val(x){var e=id(x);return e?String(e.value||""):"";}
-  function clean(v){return String(v||"").trim().toUpperCase().replace(/\s+/g,"");}
-  function timeOnly(v){var s=String(v||"");var m=s.match(/(\d{1,2}:\d{2})(?::\d{2})?/);return m?m[1]:"";}
+  function map(m,c){try{return (window[m]&&window[m][c])||"";}catch(e){return "";}}
   function storeName(code){try{return (window.stores&&window.stores[code])||"";}catch(e){return "";}}
-  function mapText(objName,code){try{return (window[objName]&&window[objName][code])||"";}catch(e){return "";}}
+  function loadArrays(){
+    try{window.historyData=(window.historyData&&window.historyData.length)?window.historyData:get("historyData",[]);}catch(e){}
+    try{window.carryOutData=(window.carryOutData&&window.carryOutData.length)?window.carryOutData:get("carryOutData",[]);}catch(e){}
+    try{window.collectHistoryData=(window.collectHistoryData&&window.collectHistoryData.length)?window.collectHistoryData:get("collectHistoryData",[]);}catch(e){}
+    try{window.stateData=(window.stateData&&Object.keys(window.stateData).length)?window.stateData:get("stateData",{});}catch(e){}
+    try{window.optionData=(window.optionData&&Object.keys(window.optionData).length)?window.optionData:get("optionData",{});}catch(e){}
+    try{window.balanceData=window.balanceData||get("balanceData",{});}catch(e){}
+  }
   function optionText(code,sample){
-    var o=null, a=[];
-    try{o=window.optionData&&window.optionData[code];}catch(e){}
+    var labels=[],o=null;try{o=(window.optionData&&window.optionData[code])||null;}catch(e){}
     if(!o&&sample)o=sample;
-    if(o){
-      if(o.deliveryItem)a.push("商品配送");
-      if(o.invoiceItem)a.push("請求書");
-      if(o.letterItem)a.push("手紙");
-      if(o.collectionOnly)a.push("集金のみ");
-      if(o.returnItem)a.push("回収あり");
-    }
-    return a.length?a.join("・"):"通常配送";
+    if(o){if(o.deliveryItem)labels.push("商品配送");if(o.invoiceItem)labels.push("請求書");if(o.letterItem)labels.push("手紙");if(o.collectionOnly)labels.push("集金のみ");if(o.returnItem)labels.push("回収あり");}
+    return labels.length?labels.join("・"):"通常配送";
   }
-  function collectionText(st){
-    if(st==="集金完了")return "完了";
-    if(st==="未集金")return "未集金";
-    if(st==="集金なし")return "なし";
-    return "未確認";
-  }
-  function getLocal(k,d){try{var key=(window.KEY||"deliverySystemV45_")+k;var v=localStorage.getItem(key);return v?JSON.parse(v):d;}catch(e){return d;}}
-  function setLocal(k,v){try{localStorage.setItem((window.KEY||"deliverySystemV45_")+k,JSON.stringify(v));}catch(e){}}
-  function histAll(){
-    var h=[];
-    try{h=(window.historyData||[]).slice();}catch(e){}
-    if(!h.length)h=getLocal("historyData",[]);
-    return h||[];
-  }
-  function normalizeRow(r){
-    r=r||{};
-    var carry=timeOnly(r.carryTime||r.takeoutTime||r.carryOutTime||r.pickupTime||r.carry_at||r.takeout_at||r["持出時間"]||r["持出"]||"");
-    var del=timeOnly(r.deliveryTime||r.deliveryCompleteTime||r.deliveryCompletedTime||r.completedTime||r.deliveredTime||r.delivery_at||r.completed_at||r["配送完了時間"]||r["配送時間"]||r["配送"]||"");
-    r.carryTime=carry; r.takeoutTime=carry; r.carryOutTime=carry; r.pickupTime=carry; r.carry_at=carry; r.takeout_at=carry; r["持出時間"]=carry; r["持出"]=carry;
-    r.deliveryTime=del; r.deliveryCompleteTime=del; r.deliveryCompletedTime=del; r.completedTime=del; r.deliveredTime=del; r.delivery_at=del; r.completed_at=del; r["配送完了時間"]=del; r["配送時間"]=del; r["配送"]=del;
-    r.deliveryContent=r.deliveryContent||r.delivery_content||r["配送内容"]||"通常配送"; r.delivery_content=r.deliveryContent; r["配送内容"]=r.deliveryContent;
-    r.collectionStatus=r.collectionStatus||r.collection_status||r["集金"]||"未確認"; r.collection_status=r.collectionStatus; r["集金"]=r.collectionStatus;
-    return r;
-  }
-  function buildRowsV78(){
-    var map={}, order=[];
-    histAll().forEach(function(x){
-      if(!x||!x.code)return;
-      var code=clean(x.code); if(!/^K\d{4}$/.test(code))return;
-      if(!map[code]){map[code]={code:code,storeCode:code,name:x.name||storeName(code),storeName:x.name||storeName(code),carryTime:"",deliveryTime:"",deliveryContent:optionText(code,x),collectionStatus:"未確認",lastTime:0};order.push(code);}
-      var r=map[code]; r.name=x.name||r.name||storeName(code); r.storeName=r.name;
-      var tm=0; try{tm=x.time?Number(x.time):(x.datetime?(new Date(x.datetime)).getTime():0);}catch(e){}
-      if(tm>=r.lastTime)r.lastTime=tm;
-      var st=String(x.status||"");
-      if(st==="持出")r.carryTime=timeOnly(x.datetime)||r.carryTime;
-      if(st==="配送完了"||st==="配送不可"){
-        r.deliveryTime=timeOnly(x.datetime)||r.deliveryTime;
-        r.deliveryContent=st==="配送不可"?"配送不可":optionText(code,x);
-      }
+  function collectionText(st){if(st==="集金完了")return "完了";if(st==="未集金")return "未集金";if(st==="集金なし")return "なし";if(st==="配送不可")return "対象外";return "未確認";}
+  function dt(x){var t=Number(x&&x.time||0); if(!t&&x&&x.datetime){var d=new Date(x.datetime); if(!isNaN(d.getTime()))t=d.getTime();} return t||0;}
+  function buildRows(){
+    loadArrays();
+    var mapRows={},order=[];
+    var hist=[];try{hist=(window.historyData||[]).slice();}catch(e){hist=get("historyData",[]).slice();}
+    hist.forEach(function(x){
+      if(!x||!x.code)return; var code=clean(x.code); if(!/^K[0-9]{4}$/.test(code))return;
+      if(!mapRows[code]){mapRows[code]={code:code,name:x.name||storeName(code),carryTime:"",takeoutTime:"",carryOutTime:"",deliveryTime:"",deliveryCompleteTime:"",deliveryCompletedTime:"",completedTime:"",deliveryContent:"",collectionStatus:"未確認",final:false,lastTime:0};order.push(code);}
+      var r=mapRows[code], st=String(x.status||""); r.name=x.name||r.name||storeName(code); var t=dt(x); if(t>=r.lastTime)r.lastTime=t;
+      if(st==="持出"){r.carryTime=timeOnly(x.datetime);r.takeoutTime=r.carryTime;r.carryOutTime=r.carryTime;}
+      if(st==="配送完了"){r.deliveryTime=timeOnly(x.datetime);r.deliveryCompleteTime=r.deliveryTime;r.deliveryCompletedTime=r.deliveryTime;r.completedTime=r.deliveryTime;r.deliveryContent=optionText(code,x);}
+      if(st==="配送不可"){r.deliveryTime=timeOnly(x.datetime);r.deliveryCompleteTime=r.deliveryTime;r.deliveryCompletedTime=r.deliveryTime;r.completedTime=r.deliveryTime;r.deliveryContent="配送不可"+(x.reason?"（"+x.reason+"）":"");r.collectionStatus="対象外";r.final=true;}
       if(st==="集金完了"||st==="未集金"||st==="集金なし"){
-        r.collectionStatus=collectionText(st);
-        r.deliveryContent=optionText(code,x)||r.deliveryContent;
+        if(!r.deliveryTime){r.deliveryTime=timeOnly(x.datetime);r.deliveryCompleteTime=r.deliveryTime;r.deliveryCompletedTime=r.deliveryTime;r.completedTime=r.deliveryTime;}
+        if(!r.deliveryContent)r.deliveryContent=optionText(code,x);
+        r.collectionStatus=collectionText(st);r.final=true;
       }
     });
-    try{(window.carryOutData||getLocal("carryOutData",[])||[]).forEach(function(x){
-      if(!x||!x.code)return; var code=clean(x.code); if(!map[code])return;
-      if(!map[code].carryTime)map[code].carryTime=timeOnly(x.datetime);
-    });}catch(e){}
-    var rows=[];
-    order.forEach(function(code){var r=map[code]; if(r&&(r.deliveryTime||["配送完了","配送不可","集金完了","未集金","集金なし"].indexOf((window.stateData&&window.stateData[code]&&window.stateData[code].status)||"")>=0)){rows.push(normalizeRow(r));}});
-    rows.sort(function(a,b){return (a.lastTime||0)-(b.lastTime||0);});
-    return rows;
+    return order.map(function(c){var r=mapRows[c];
+      r["持出時間"]=r.carryTime;r["持出"]=r.carryTime;
+      r["配送完了時間"]=r.deliveryTime;r["配送時間"]=r.deliveryTime;r["配送"]=r.deliveryTime;
+      r["配送内容"]=r.deliveryContent||"通常配送";r["集金"]=r.collectionStatus||"未確認";
+      return r;
+    }).filter(function(r){return r.deliveryTime||r.carryTime;}).sort(function(a,b){return (a.lastTime||0)-(b.lastTime||0);});
   }
-  function readSummary(){
-    function txt(x){var e=id(x);return e?String(e.textContent||e.innerText||""):"";}
-    return {carryCount:txt("carryCount"),deliveryCount:txt("deliveryCount"),remainCount:txt("remainCount"),collectCount:txt("collectCount"),collectAmount:txt("collectAmount"),pendingCount:txt("pendingCount"),pendingAmount:txt("pendingAmount"),noCollectCount:txt("noCollectCount"),failCount:txt("failCount")};
+  function finalRows(){return buildRows().filter(function(r){return !!r.deliveryTime;});}
+  function openCarryRows(){
+    loadArrays();var open=[],seen={};
+    try{(window.carryOutData||[]).forEach(function(x){if(!x||!x.code)return;var code=clean(x.code);if(seen[code])return;var st=window.stateData&&window.stateData[code]&&window.stateData[code].status;if(st==="持出"){seen[code]=1;open.push(code);}});}catch(e){}
+    buildRows().forEach(function(r){if(r.deliveryTime&&!r.final&&!seen[r.code]){seen[r.code]=1;open.push(r.code);}});
+    return open;
   }
-  function reportText(p,rows){
-    var lines=["配送・集金日報","","得意先：M001 株式会社松葉屋製麺","ドライバー："+(p.driverCode||"")+" "+(p.driverName||""),"車両："+(p.vehicleCode||"")+" "+(p.vehicleName||""),"端末："+(p.terminalCode||"")+" "+(p.terminalName||""),"開始走行距離："+(p.startMeter||""),"終了走行距離："+(p.endMeter||""),"本日走行距離："+(p.dailyDistance||""),"開始前アルコール："+(p.startAlcohol||""),"終了後アルコール："+(p.endAlcohol||""),"","店舗別明細"];
-    rows.forEach(function(r){normalizeRow(r);lines.push("",(r.code||"")+" "+(r.name||""),"持出時間："+(r.carryTime||""),"配送完了時間："+(r.deliveryTime||""),"配送内容："+(r.deliveryContent||"通常配送"),"集金："+(r.collectionStatus||"未確認"));});
+  function canComplete(){return finalRows().length>0&&openCarryRows().length===0;}
+  function readSummary(){function t(x){var e=id(x);return e?String(e.textContent||e.innerText||e.value||""):"";}return {carryCount:t("carryCount"),deliveryCount:t("deliveryCount"),remainCount:t("remainCount"),collectCount:t("collectCount"),collectAmount:t("collectAmount"),pendingCount:t("pendingCount"),pendingAmount:t("pendingAmount"),grandBalance:t("grandBalance")};}
+  function commonPayload(){return {token:"FKK_DAILY_V61_20260620",version:"V78",reportDate:new Date().toLocaleString("ja-JP"),sentAt:new Date().toLocaleString("ja-JP"),customerCode:"M001",customerName:"株式会社松葉屋製麺",driverCode:val("driverCode"),driverName:map("drivers",val("driverCode")),vehicleCode:val("vehicleCode"),vehicleName:map("vehicles",val("vehicleCode")),terminalCode:val("terminalCode"),terminalName:map("terminals",val("terminalCode")),startMeter:val("startMeter"),endMeter:val("endMeter"),dailyDistance:val("dailyDistance"),startAlcohol:val("startAlcohol"),endAlcohol:val("endAlcohol"),summary:readSummary()};}
+  function makeText(p,rows){
+    var lines=["配送・集金日報","","得意先："+p.customerCode+" "+p.customerName,"ドライバー："+p.driverCode+" "+p.driverName,"車両："+p.vehicleCode+" "+p.vehicleName,"端末："+p.terminalCode+" "+p.terminalName,"","店舗別明細"];
+    rows.forEach(function(r){lines.push("",r.code+" "+r.name,"持出時間："+(r.carryTime||""),"配送完了時間："+(r.deliveryTime||""),"配送内容："+(r.deliveryContent||"通常配送"),"集金："+(r.collectionStatus||"未確認"));});
     return lines.join("\n");
   }
-  function buildPayloadV78(){
-    var rows=buildRowsV78();
-    var p={token:"FKK_DAILY_V61_20260620",version:"V78",reportVersion:"V78",reportDate:new Date().toLocaleString("ja-JP"),sentAt:new Date().toLocaleString("ja-JP"),customerCode:"M001",customerName:"株式会社松葉屋製麺",driverCode:val("driverCode"),driverName:mapText("drivers",val("driverCode")),vehicleCode:val("vehicleCode"),vehicleName:mapText("vehicles",val("vehicleCode")),terminalCode:val("terminalCode"),terminalName:mapText("terminals",val("terminalCode")),startMeter:val("startMeter"),endMeter:val("endMeter"),dailyDistance:val("dailyDistance"),startAlcohol:val("startAlcohol"),endAlcohol:val("endAlcohol"),summary:readSummary(),historyData:histAll(),collectHistoryData:(window.collectHistoryData||getLocal("collectHistoryData",[])),carryOutData:(window.carryOutData||getLocal("carryOutData",[])),stateData:(window.stateData||getLocal("stateData",{}))};
-    rows.forEach(normalizeRow);
-    p.storeReports=rows; p.completedList=rows; p.dailyDetails=rows; p.details=rows; p.deliveryDetails=rows; p.storeDetails=rows; p.rows=rows; p.m001Rows=rows;
-    var text=reportText(p,rows);
-    p.reportText=text; p.dailyText=text; p.text=text; p.body=text; p.message=text; p.detailsText=text; p.plainText=text;
-    p.m001={storeReports:rows,completedList:rows,dailyDetails:rows,details:rows,deliveryDetails:rows,storeDetails:rows,reportText:text,dailyText:text,detailsText:text,historyData:p.historyData,collectHistoryData:p.collectHistoryData,carryOutData:p.carryOutData,stateData:p.stateData,summary:p.summary};
-    setLocal("m001ReportData",p);
-    setLocal("m001ReportText",text);
+  function refreshCompletedTable(){
+    var tb=id("completedList");if(!tb)return;var h="";finalRows().slice().reverse().forEach(function(r){h+="<tr><td>"+esc(r.code)+"</td><td>"+esc(r.name)+"</td><td>"+esc(r.carryTime)+"</td><td>"+esc(r.deliveryTime)+"</td><td>"+esc(r.deliveryContent||"通常配送")+"</td></tr>";});tb.innerHTML=h;var c=id("completedListCount");if(c)c.textContent=finalRows().length+"件";
+  }
+  function buildPayload(){
+    loadArrays();refreshCompletedTable();
+    var p=commonPayload(), rows=finalRows().slice().reverse(), text=makeText(p,rows);
+    p.storeReports=rows;p.completedList=rows;p.dailyDetails=rows;p.details=rows;p.deliveryDetails=rows;p.storeDetails=rows;p.rows=rows;
+    p.reportText=text;p.dailyText=text;p.text=text;p.body=text;p.message=text;p.detailsText=text;p.report=text;p.content=text;p.dailyReport=text;p.mailBody=text;
+    p.historyData=(window.historyData||[]).slice(-800);p.collectHistoryData=(window.collectHistoryData||[]).slice(-800);p.carryOutData=(window.carryOutData||[]).slice(-800);p.carryOutList=p.carryOutData;p.stateData=window.stateData||{};p.optionData=window.optionData||{};p.balanceData=window.balanceData||{};
+    p.m001={storeReports:rows,completedList:rows,dailyDetails:rows,details:rows,deliveryDetails:rows,storeDetails:rows,reportText:text,dailyText:text,text:text,body:text,message:text,detailsText:text,historyData:p.historyData,collectHistoryData:p.collectHistoryData,carryOutData:p.carryOutData,stateData:p.stateData,summary:p.summary};
+    p.customerWork=p.m001;
+    set("m001ReportData",p.m001);set("m001DailyPayloadV78",p);
     return p;
   }
-  function hasDelivery(){return buildRowsV78().length>0;}
-  function isDone(){try{return localStorage.getItem((window.COMPLETE_KEY||"DeliverySystemV72_businessCompleted"))==="1";}catch(e){return false;}}
-  function unfinished(){try{if(typeof window.hasUnfinishedCarry==="function")return window.hasUnfinishedCarry()||[];}catch(e){}return [];}
-  function refresh(){
-    var ok=hasDelivery()&&unfinished().length===0;
+  function showCompleteCard(){
+    var old=id("v78CompleteOverlay");if(old)old.remove();
+    var m=document.createElement("div");m.id="v78CompleteOverlay";m.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:999999;display:flex;align-items:center;justify-content:center;padding:14px;";
+    m.innerHTML='<div style="max-width:360px;width:92%;background:#fff;border:4px solid #222;border-radius:14px;text-align:center;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.35);"><img src="./complete-card.jpg" alt="お疲れ様でした" style="max-width:100%;border:3px solid #222;border-radius:8px;background:#eef;"><div style="font-size:22px;font-weight:900;line-height:1.45;margin:12px 0;">お疲れ様でした！<br>明日も気をつけて業務をお願いします！</div><button type="button" id="v78CompleteClose" style="font-size:18px;font-weight:900;padding:12px 22px;border-radius:10px;border:3px solid #222;background:#111;color:#fff;">閉じる</button></div>';
+    document.body.appendChild(m);var b=id("v78CompleteClose");if(b)b.onclick=function(){m.remove();};
+  }
+  function refreshButtons(){
+    try{document.title="配送・集金管理システム";var h=document.querySelector(".header");if(h)h.textContent="配送・集金管理システム";}catch(e){}
+    var ok=canComplete(), done=isDone(); if(!ok){setDone(false);done=false;}
     var c=id("btnM001CompleteMark"), d=id("btnPageDailySend");
-    if(c){c.disabled=!ok;c.style.opacity=ok?"":".45";c.textContent="業務完了";}
-    if(d){d.disabled=!(ok&&isDone());d.style.opacity=(ok&&isDone())?"":".45";d.textContent="日報送信";}
+    if(c){c.disabled=!ok;c.style.opacity=ok?"":".45";c.textContent="業務完了";c.onclick=completeV78;}
+    if(d){d.disabled=!(ok&&done);d.style.opacity=(ok&&done)?"":".45";d.textContent="日報送信";d.onclick=sendV78;}
     ["btnComplete","btnMail","btnDailySend"].forEach(function(x){var b=id(x);if(b)b.style.display="none";});
   }
+  function completeV78(){
+    refreshCompletedTable();var open=openCarryRows();
+    if(finalRows().length<1){alert("最低1件以上、配送完了または配送不可まで処理してください。");setDone(false);refreshButtons();return false;}
+    if(open.length){alert("未完了の店舗があります："+open.join("、"));setDone(false);refreshButtons();return false;}
+    setDone(true);buildPayload();refreshButtons();showCompleteCard();return true;
+  }
+  function fallbackForm(payload){
+    var f=document.createElement("form");f.method="POST";f.action=ENDPOINT;f.target="_blank";f.style.display="none";
+    var i=document.createElement("input");i.type="hidden";i.name="payload";i.value=JSON.stringify(payload);f.appendChild(i);
+    var t=document.createElement("input");t.type="hidden";t.name="body";t.value=payload.body||"";f.appendChild(t);
+    document.body.appendChild(f);f.submit();setTimeout(function(){try{document.body.removeChild(f);}catch(e){}},1000);
+  }
   function sendV78(){
-    refresh();
-    if(!hasDelivery()){alert("最低1件以上、配送完了または配送不可まで処理してください。");return false;}
-    if(!isDone()){alert("先に業務完了ボタンを押してください。");return false;}
-    var payload=buildPayloadV78(), btn=id("btnPageDailySend");
-    if(btn){btn.disabled=true;btn.textContent="送信中...";}
+    refreshButtons();
+    if(finalRows().length<1){alert("最低1件以上、配送完了または配送不可まで処理してください。");return;}
+    if(!isDone()){alert("先に業務完了ボタンを押してください。");return;}
+    if(!navigator.onLine){alert("通信できません。Wi-Fi接続後にもう一度、日報送信してください。");return;}
+    var payload=buildPayload(), btn=id("btnPageDailySend");if(btn){btn.disabled=true;btn.textContent="送信中...";}
     fetch(ENDPOINT,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify(payload),cache:"no-store",mode:"cors"})
-      .then(function(r){return r.text().then(function(tx){var j={};try{j=JSON.parse(tx);}catch(e){} if(!r.ok||!j.ok)throw new Error((j&&j.error)||tx||("送信エラー "+r.status)); return j;});})
+      .then(function(r){return r.text().then(function(tx){var j={};try{j=JSON.parse(tx);}catch(e){} if(!r.ok||!j.ok){throw new Error((j&&j.error)||tx||("送信エラー "+r.status));}return j;});})
       .then(function(j){alert("日報送信完了。\n受信時刻："+(j.receivedAt||""));})
-      .catch(function(e){
-        if(confirm("通常送信に失敗しました。\n別画面で送信しますか？\n"+(e&&e.message?e.message:e))){
-          var f=document.createElement("form");f.method="POST";f.action=ENDPOINT;f.target="_blank";f.style.display="none";
-          var i=document.createElement("input");i.type="hidden";i.name="payload";i.value=JSON.stringify(payload);f.appendChild(i);document.body.appendChild(f);f.submit();setTimeout(function(){try{document.body.removeChild(f);}catch(e){}},1000);
-        }
-      })
-      .finally(function(){if(btn){btn.textContent="日報送信";}refresh();});
-    return false;
+      .catch(function(e){if(confirm("通常送信に失敗しました。\n別画面で送信しますか？\n"+(e&&e.message?e.message:e))){fallbackForm(payload);}})
+      .finally(function(){if(btn){btn.textContent="日報送信";}refreshButtons();});
   }
-  function bind(){
-    var d=id("btnPageDailySend"); if(d){d.onclick=sendV78;d.textContent="日報送信";}
-    window.buildPayloadV78=buildPayloadV78; window.sendDailyV78=sendV78;
-    buildPayloadV78(); refresh();
-  }
+  function bind(){refreshCompletedTable();refreshButtons();}
+  window.buildPayloadV78=buildPayload;window.sendDailyV78=sendV78;window.completeV78=completeV78;
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
-  setTimeout(bind,200);setTimeout(bind,1000);setTimeout(bind,2500);setInterval(function(){try{buildPayloadV78();refresh();}catch(e){}},2000);
+  setTimeout(bind,400);setTimeout(bind,1200);setTimeout(bind,2500);setInterval(bind,2500);
 })();
 </script>
 

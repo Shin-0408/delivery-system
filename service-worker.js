@@ -1,4 +1,4 @@
-const CACHE_NAME = "delivery-system-v82-fixed";
+const CACHE_NAME = "delivery-system-v84-tenko";
 const FILES = [
   './',
   './index.html',

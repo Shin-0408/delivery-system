@@ -319,7 +319,7 @@ body{background:#e9edf2}
 <div class="app">
 <div class="header">M002 株式会社アローズ</div>
 <div class="pageNav">
-<a class="btn gray" href="./index.html" style="text-align:center;line-height:58px;text-decoration:none;color:white">トップへ戻る</a>
+<a class="btn gray" href="./index.html" style="text-align:center;line-height:58px;text-decoration:none;color:white">点呼ページへ戻る</a>
 <button id="btnComplete" class="btn red" type="button">業務完了</button><button id="btnPageDailySend" class="btn dark" type="button">日報送信</button>
 </div>
 <div class="smallInfo"><b>セブンイレブン メールケース配送</b></div>
@@ -507,6 +507,28 @@ window.onload=function(){load();id("btnSave").onclick=function(){saveWork(false)
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
   setTimeout(bind,800);
+})();
+</script>
+
+
+<style id="v84-m002-tenko-clean-css">
+/* ===== V84：業務完了・日報送信は点呼ページへ集約 ===== */
+body.v84-customer-clean #btnComplete,
+body.v84-customer-clean #btnPageDailySend,
+body.v84-customer-clean #btnMail,
+body.v84-customer-clean #btnDailySend{display:none!important;}
+body.v84-customer-clean .pageNav{grid-template-columns:1fr!important;}
+</style>
+<script id="v84-m002-tenko-clean-js">
+(function(){
+  function id(x){return document.getElementById(x);}
+  function clean(){
+    document.body.className=(document.body.className||"").replace(/\bv84-customer-clean\b/g,"")+" v84-customer-clean";
+    var back=document.querySelector('a[href="./index.html"],a[href="index.html"]');if(back){back.textContent="点呼ページへ戻る";back.setAttribute("aria-label","点呼ページへ戻る");}
+    ["btnComplete","btnPageDailySend","btnMail","btnDailySend"].forEach(function(x){var b=id(x);if(b){b.style.display="none";b.disabled=true;b.onclick=function(){alert("業務完了・日報送信は点呼ページで押してください。");location.href="./index.html";return false;};}});
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",clean);else clean();
+  setTimeout(clean,300);setTimeout(clean,1200);setInterval(clean,1800);
 })();
 </script>
 

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>配送・集金管理システム</title>
+<title>配送・集金管理システム V84</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;width:100%;min-width:100%;background:#e9edf2;font-family:sans-serif;overflow-x:hidden}
@@ -290,7 +290,7 @@ body{background:#e9edf2}
 </head>
 <body>
 <div class="app">
-<div class="header">配送・集金管理システム</div>
+<div class="header">点呼ページ</div>
 
 <div class="topGrid">
 <div class="lbl">得意先</div><select id="customerCode"><option value="M001" >M001　株式会社松葉屋製麺</option>
@@ -345,7 +345,7 @@ body{background:#e9edf2}
 </div>
 
 <div class="v72Notice">
-<b>トップページ</b><br>
+<b>点呼ページ</b><br>
 得意先・ドライバー・車両・端末、走行距離、アルコール値を入力します。<br>
 得意先を選択すると、その得意先専用ページへ移動します。
 </div>
@@ -354,7 +354,7 @@ body{background:#e9edf2}
 <button id="btnBusinessStartV82" class="btn green" type="button">業務開始</button>
 <button id="btnGoCustomerPage" class="btn blue" type="button">得意先ページへ進む</button>
 <button id="btnMail" class="btn dark" type="button">日報送信</button>
-<button id="btnResetComplete" class="btn gray" type="button">業務完了解除</button>
+<button id="btnBusinessCompleteV84" class="btn red" type="button">業務完了</button><button id="btnResetComplete" class="btn gray" type="button" style="display:none">業務完了解除</button>
 </div>
 
 <div class="v72Notice">
@@ -680,6 +680,211 @@ window.addEventListener("load",function(){
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
   setTimeout(bind,500);setTimeout(bind,1500);
+})();
+</script>
+
+<script id="v83-index-start-button-release-js">
+/* ===== V83：業務完了後、トップページの業務開始ボタンを解除 ===== */
+(function(){
+  var START_KEYS=["DeliverySystemV82_workStartTime","DeliverySystemV81_workStartTime","DeliverySystemV79_workStartTime","DeliverySystemV78_workStartTime","DeliverySystemV72_workStartTime"];
+  var DONE_KEYS=["DeliverySystemV72_businessCompleted","DeliverySystemV64_businessCompleted"];
+  var RELEASE_KEY="DeliverySystemV83_startButtonReleased";
+  function id(x){return document.getElementById(x);} 
+  function rawGet(k){try{return localStorage.getItem(k)||"";}catch(e){return "";}}
+  function rawSet(k,v){try{localStorage.setItem(k,String(v||""));}catch(e){}}
+  function rawRemove(k){try{localStorage.removeItem(k);}catch(e){}}
+  function hm(v){var s=String(v||"");var m=s.match(/(\d{1,2}:\d{2})(?::\d{2})?/);return m?m[1]:s;}
+  function nowFull(){return new Date().toLocaleString("ja-JP");}
+  function nowHM(){var d=new Date();return ("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2);}
+  function writeAll(v){START_KEYS.forEach(function(k){rawSet(k,v);rawSet(k+"_hm",hm(v));});}
+  function clearDone(){DONE_KEYS.forEach(function(k){rawSet(k,"0");});}
+  function started(){for(var i=0;i<START_KEYS.length;i++){var v=rawGet(START_KEYS[i]);if(v)return v;}return "";}
+  function begin(){var t=nowFull();writeAll(t);rawRemove(RELEASE_KEY);clearDone();var b=id("btnBusinessStartV82");if(b){b.textContent="業務開始済 "+nowHM();b.disabled=true;b.style.opacity=".75";}alert("業務開始時間を記録しました。\n"+nowHM());}
+  function bind(){var b=id("btnBusinessStartV82");if(!b)return;b.onclick=begin;if(rawGet(RELEASE_KEY)==="1"){b.textContent="業務開始";b.disabled=false;b.style.opacity="";return;}var s=started();if(s){b.textContent="業務開始済 "+hm(s);b.disabled=true;b.style.opacity=".75";}else{b.textContent="業務開始";b.disabled=false;b.style.opacity="";}}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();setTimeout(bind,300);setTimeout(bind,1200);setInterval(bind,2000);
+})();
+</script>
+
+
+<script id="v84-tenko-page-js">
+/* ===== V84：点呼ページ化・業務開始/完了/日報送信をトップに集約 ===== */
+(function(){
+  var KEY="deliverySystemV45_";
+  var ENDPOINT="https://fukudakoken.com/daily/receive.php";
+  var TOKEN="FKK_DAILY_V61_20260620";
+  var COMPLETE_KEYS=["DeliverySystemV72_businessCompleted","DeliverySystemV64_businessCompleted"];
+  var START_KEYS=["DeliverySystemV84_workStartTime","DeliverySystemV83_workStartTime","DeliverySystemV82_workStartTime","DeliverySystemV81_workStartTime","DeliverySystemV79_workStartTime","DeliverySystemV78_workStartTime","DeliverySystemV72_workStartTime"];
+  var END_KEYS=["DeliverySystemV84_workEndTime","DeliverySystemV83_workEndTime","DeliverySystemV82_workEndTime","DeliverySystemV81_workEndTime","DeliverySystemV79_workEndTime","DeliverySystemV78_workEndTime","DeliverySystemV72_workEndTime"];
+  var RELEASE_KEYS=["DeliverySystemV84_startButtonReleased","DeliverySystemV83_startButtonReleased"];
+  var CUSTOMER_NAMES={M001:"株式会社松葉屋製麺",M002:"株式会社アローズ",M003:"株式会社カーゴジャパンアドバンスト",M004:"株式会社大将"};
+  var DRIVER_NAMES={D001:"福田",D002:"岸",D003:"森田"};
+  var VEHICLE_NAMES={V001:"京都480れ12-44",V002:"京都481り12-46",V003:"京都481り1-45",V004:"京都480り94-29",V005:"京都880り6-89"};
+  var TERMINAL_NAMES={S001:"FZ-N1①",S002:"FZ-N1②",S003:"FZ-N1③",S004:"FZ-N1④",S005:"FZ-N1⑤"};
+  var STORE_NAMES={
+    K0001:"アジョシ",K0002:"あんびしゃす花",K0003:"味鉄",K0004:"e-space",K0005:"イーサン",
+    K0006:"岩茶坊",K0007:"えなちゃん",K0008:"075食堂",K0009:"起福",K0010:"佳久",
+    K0011:"亀八（別）",K0012:"亀八（本）",K0013:"亀八（山）",K0014:"がぶり",K0015:"寄まっし",
+    K0016:"京亀",K0017:"京料理藤本",K0018:"金四郎食堂",K0019:"きん平",K0020:"ことら",
+    K0021:"幸",K0022:"鮨しん",K0023:"翠雲苑",K0024:"すぎのこ亭",K0025:"シャム",
+    K0026:"寿海",K0027:"秀寅",K0028:"新亀",K0029:"新福菜館（伏）",K0030:"新福菜館（本）",
+    K0031:"第一旭（寺田）",K0032:"田々",K0033:"坦々（本）",K0034:"中家",K0035:"ならび屋",
+    K0036:"ハイカラ亭",K0037:"はなはな",K0038:"ひのき",K0039:"冨美家（工場）",K0040:"冨美家（錦）",
+    K0041:"冨美家（本）",K0042:"まあご",K0043:"まるい食堂",K0044:"まるちゃん",K0045:"まる福",
+    K0046:"みずき",K0047:"みつ喜",K0048:"みまでり",K0049:"よこやまろうそく",K0050:"じゅん平"
+  };
+
+  function id(x){return document.getElementById(x);}
+  function rawGet(k){try{return localStorage.getItem(k)||"";}catch(e){return "";}}
+  function rawSet(k,v){try{localStorage.setItem(k,String(v||""));}catch(e){}}
+  function rawRemove(k){try{localStorage.removeItem(k);}catch(e){}}
+  function get(k,d){try{var v=localStorage.getItem(KEY+k);return v?JSON.parse(v):d;}catch(e){return d;}}
+  function set(k,v){try{localStorage.setItem(KEY+k,JSON.stringify(v));}catch(e){}}
+  function val(x){var e=id(x);return e?String(e.value||"").trim():"";}
+  function nowFull(){return new Date().toLocaleString("ja-JP");}
+  function hm(v){var s=String(v||"");var m=s.match(/(\d{1,2}:\d{2})(?::\d{2})?/);return m?m[1]:s;}
+  function first(keys){for(var i=0;i<keys.length;i++){var v=rawGet(keys[i]);if(v)return v;}return "";}
+  function writeAll(keys,v){for(var i=0;i<keys.length;i++){rawSet(keys[i],v);rawSet(keys[i]+"_hm",hm(v));}}
+  function setDone(v){for(var i=0;i<COMPLETE_KEYS.length;i++){rawSet(COMPLETE_KEYS[i],v?"1":"0");}}
+  function isDone(){for(var i=0;i<COMPLETE_KEYS.length;i++){if(rawGet(COMPLETE_KEYS[i])==="1")return true;}return false;}
+  function started(){return first(START_KEYS);}
+  function ended(){return first(END_KEYS);}
+  function workReadyStart(){return !!(val("startMeter") && val("startAlcohol"));}
+  function workReadyEnd(){return !!(val("startMeter") && val("startAlcohol") && val("endMeter") && val("endAlcohol"));}
+  function saveCommonV84(){
+    var c={customerCode:val("customerCode")||"M001",driverCode:val("driverCode"),vehicleCode:val("vehicleCode"),terminalCode:val("terminalCode")};
+    var w={startMeter:val("startMeter"),endMeter:val("endMeter"),startAlcohol:val("startAlcohol"),endAlcohol:val("endAlcohol"),dailyDistance:val("dailyDistance")};
+    set("config",c);set("workData",w);
+  }
+  function calcDistanceV84(){
+    var s=Number(val("startMeter")||0), e=Number(val("endMeter")||0), d=id("dailyDistance");
+    if(d)d.value=(!isNaN(s)&&!isNaN(e)&&e>=s)?String(e-s):"0";
+  }
+  function clean(v){var s=String(v||"").toUpperCase();var m=s.match(/K\d{4}/);return m?m[0]:s.trim();}
+  function ms(x){var t=Number(x&&x.time||0);if(!t&&x&&x.datetime){var d=new Date(x.datetime);if(!isNaN(d.getTime()))t=d.getTime();}return t||0;}
+  function optionText(code,x,opt){
+    opt=opt||{};var o=opt[code]||{}, a=[];
+    if((x&&x.deliveryItem)||o.deliveryItem)a.push("商品配送");
+    if((x&&x.invoiceItem)||o.invoiceItem)a.push("請求書");
+    if((x&&x.letterItem)||o.letterItem)a.push("手紙");
+    if((x&&x.collectionOnly)||o.collectionOnly)a.push("集金のみ");
+    if((x&&x.returnItem)||o.returnItem)a.push("回収あり");
+    return a.length?a.join("・"):"商品配送";
+  }
+  function collectText(st){if(st==="集金完了")return "完了";if(st==="未集金")return "未集金";if(st==="集金なし")return "なし";if(st==="配送不可")return "対象外";return "未確認";}
+  function buildRowsV84(){
+    var history=get("historyData",[]), carry=get("carryOutData",[]), state=get("stateData",{}), opt=get("optionData",{}), rows={}, order=[];
+    function ensure(code,name){code=clean(code);if(!/^K\d{4}$/.test(code))return null;if(!rows[code]){rows[code]={code:code,name:name||STORE_NAMES[code]||code,carryTime:"",deliveryTime:"",deliveryContent:"商品配送",status:"配送完了",collectionStatus:"未確認",last:0};order.push(code);}return rows[code];}
+    try{carry.forEach(function(x){var r=ensure(x&&x.code,x&&x.name);if(!r)return;var t=hm(x.datetime||x.time||x.carryTime||x.carryOutTime);if(t&&!r.carryTime)r.carryTime=t;var n=ms(x);if(n>r.last)r.last=n;});}catch(e){}
+    try{history.forEach(function(x){var r=ensure(x&&x.code,x&&x.name);if(!r)return;var st=String(x.status||""),t=hm(x.datetime||x.time),n=ms(x);r.name=(x&&x.name)||r.name;if(n>r.last)r.last=n;if(st==="持出"&&t)r.carryTime=t;if(st==="配送完了"&&t){r.deliveryTime=t;r.deliveryContent=optionText(r.code,x,opt);r.status="配送完了";}if(st==="配送不可"&&t){r.deliveryTime=t;r.deliveryContent="配送不可"+(x.reason?"（"+x.reason+"）":"");r.status="配送不可";r.collectionStatus="対象外";}if(st==="集金完了"||st==="未集金"||st==="集金なし"){if(!r.deliveryTime&&t)r.deliveryTime=t;r.deliveryContent=r.deliveryContent||optionText(r.code,x,opt);r.collectionStatus=collectText(st);}});}catch(e){}
+    var ws=started(), we=ended();
+    return order.map(function(k){var r=rows[k];var disp="業務開始 "+hm(ws)+" / 業務完了 "+hm(we)+" / 持出 "+(r.carryTime||"-")+" / 配送完了 "+(r.deliveryTime||"-");r.takeoutTime=r.carryTime;r.carryOutTime=r.carryTime;r.carriedAt=r.carryTime;r.deliveryCompleteTime=r.deliveryTime;r.deliveryCompletedTime=r.deliveryTime;r.completedTime=r.deliveryTime;r.deliveredAt=r.deliveryTime;r.time=disp;r.datetime=disp;r.displayTime=disp;r["時刻"]=disp;r["持出時間"]=r.carryTime;r["配送完了時間"]=r.deliveryTime;r["配送内容"]=r.deliveryContent;r["店舗コード"]=r.code;r["店舗名"]=r.name;r["集金"]=r.collectionStatus;return r;}).filter(function(r){return !!r.deliveryTime;}).sort(function(a,b){return (a.last||0)-(b.last||0);});
+  }
+  function openCarryV84(){
+    var carry=get("carryOutData",[]), state=get("stateData",{}), a=[],seen={};
+    try{carry.forEach(function(x){var c=clean(x&&x.code);if(!/^K\d{4}$/.test(c)||seen[c])return;var st=state&&state[c]&&state[c].status;if(st==="持出"){seen[c]=1;a.push(c);}});}catch(e){}
+    return a;
+  }
+  function makeBodyV84(p,rows){
+    var lines=["配送・集金日報","","業務開始時間："+(p.workStartTime||""),"業務完了時間："+(p.workEndTime||""),"","得意先："+p.customerCode+" "+p.customerName,"ドライバー："+p.driverCode+" "+p.driverName,"車両："+p.vehicleCode+" "+p.vehicleName,"端末："+p.terminalCode+" "+p.terminalName,"","業務開始前走行距離："+(p.startMeter||"")+" km","業務開始前アルコール値："+(p.startAlcohol||"")+" mg/L","業務終了後走行距離："+(p.endMeter||"")+" km","業務終了後アルコール値："+(p.endAlcohol||"")+" mg/L","本日の走行距離："+(p.dailyDistance||"0")+" km","","配送完了一覧"];
+    rows.forEach(function(r){lines.push("",r.code+" "+r.name,"時刻："+r.time,"持出時間："+(r.carryTime||""),"配送完了時間："+(r.deliveryTime||""),"配送内容："+(r.deliveryContent||""),"集金："+(r.collectionStatus||"未確認"));});
+    return lines.join("\n");
+  }
+  function buildPayloadV84(){
+    saveCommonV84();
+    var c=get("config",{}), w=get("workData",{}), rows=buildRowsV84().slice().reverse();
+    var ws=started(), we=ended();
+    var p={token:TOKEN,version:"V84",reportDate:new Date().toLocaleString("ja-JP"),sentAt:new Date().toLocaleString("ja-JP"),
+      common:c,workData:w,customerCode:c.customerCode||"M001",customerName:CUSTOMER_NAMES[c.customerCode]||"",driverCode:c.driverCode||"",driverName:DRIVER_NAMES[c.driverCode]||"",vehicleCode:c.vehicleCode||"",vehicleName:VEHICLE_NAMES[c.vehicleCode]||"",terminalCode:c.terminalCode||"",terminalName:TERMINAL_NAMES[c.terminalCode]||"",
+      workStartTime:ws,businessStartTime:ws,startTime:ws,startAt:ws,startedAt:ws,workEndTime:we,businessEndTime:we,endTime:we,endAt:we,completedAt:we,"業務開始時間":ws,"業務完了時間":we,
+      startMeter:w.startMeter||"",endMeter:w.endMeter||"",dailyDistance:w.dailyDistance||"",startAlcohol:w.startAlcohol||"",endAlcohol:w.endAlcohol||""};
+    var body=makeBodyV84(p,rows);
+    p.storeReports=rows;p.completedList=rows;p.dailyDetails=rows;p.details=rows;p.deliveryDetails=rows;p.storeDetails=rows;p.rows=rows;
+    ["body","text","message","reportText","dailyText","detailsText","content","dailyReport","mailBody","report"].forEach(function(k){p[k]=body;});
+    p.historyData=get("historyData",[]).slice(-1200);p.collectHistoryData=get("collectHistoryData",[]).slice(-1200);p.carryOutData=get("carryOutData",[]).slice(-1200);p.carryOutList=p.carryOutData;p.stateData=get("stateData",{});p.optionData=get("optionData",{});p.balanceData=get("balanceData",{});
+    p.m001={storeReports:rows,completedList:rows,dailyDetails:rows,details:rows,deliveryDetails:rows,storeDetails:rows,rows:rows,reportText:body,dailyText:body,text:body,body:body,message:body,detailsText:body,workStartTime:ws,workEndTime:we,businessStartTime:ws,businessEndTime:we,startTime:ws,endTime:we,"業務開始時間":ws,"業務完了時間":we};
+    p.customerWork=p.m001;set("m001ReportData",p.m001);set("lastDailyPayload",p);set("dailyPayloadV84",p);return p;
+  }
+  function postBodyV84(p){
+    var q=new URLSearchParams(), body=p.body||"";
+    function add(k,v){q.set(k,typeof v==="string"?v:JSON.stringify(v));}
+    add("payload",p);add("body",body);add("reportText",body);add("dailyText",body);add("text",body);add("message",body);add("version","V84");
+    ["customerCode","customerName","driverCode","driverName","vehicleCode","vehicleName","terminalCode","terminalName","startMeter","endMeter","dailyDistance","startAlcohol","endAlcohol","workStartTime","businessStartTime","startTime","workEndTime","businessEndTime","endTime"].forEach(function(k){add(k,p[k]||"");});
+    add("業務開始時間",p.workStartTime||"");add("業務完了時間",p.workEndTime||"");add("completedList",p.completedList||[]);add("storeReports",p.storeReports||[]);add("dailyDetails",p.dailyDetails||[]);add("details",p.details||[]);add("rows",p.rows||[]);
+    return q.toString();
+  }
+  function iframeFallbackV84(p){
+    var iframe=document.createElement("iframe");iframe.name="v84ReceiveFrame"+Date.now();iframe.style.display="none";document.body.appendChild(iframe);
+    var f=document.createElement("form");f.method="POST";f.action=ENDPOINT;f.target=iframe.name;f.style.display="none";
+    var data=new URLSearchParams(postBodyV84(p));data.forEach(function(v,k){var i=document.createElement("input");i.type="hidden";i.name=k;i.value=v;f.appendChild(i);});
+    document.body.appendChild(f);f.submit();setTimeout(function(){try{document.body.removeChild(f);}catch(e){}},1500);setTimeout(function(){try{document.body.removeChild(iframe);}catch(e){}},6500);
+  }
+  function showCardV84(){
+    var old=id("completeModalV72");if(old)old.style.display="flex";
+  }
+  function startV84(){
+    calcDistanceV84();saveCommonV84();
+    if(!workReadyStart()){alert("業務開始前走行距離と業務開始前アルコール値を入力してください。");refreshV84();return;}
+    var t=nowFull();writeAll(START_KEYS,t);for(var i=0;i<RELEASE_KEYS.length;i++)rawRemove(RELEASE_KEYS[i]);setDone(false);refreshV84();alert("業務開始時間を記録しました。\n"+hm(t));
+  }
+  function completeV84(){
+    calcDistanceV84();saveCommonV84();
+    if(!started()){alert("先に業務開始ボタンを押してください。");refreshV84();return false;}
+    if(!workReadyEnd()){alert("業務開始前走行距離、業務開始前アルコール値、業務終了後走行距離、業務終了後アルコール値をすべて入力してください。");refreshV84();return false;}
+    var c=val("customerCode")||"M001", rows=buildRowsV84(), open=openCarryV84();
+    if(c==="M001"){
+      if(rows.length<1){alert("最低1件以上、配送完了または配送不可まで処理してください。");setDone(false);refreshV84();return false;}
+      if(open.length){alert("未完了の店舗があります："+open.join("、"));setDone(false);refreshV84();return false;}
+    }
+    var t=nowFull();writeAll(END_KEYS,t);setDone(true);buildPayloadV84();refreshV84();showCardV84();return true;
+  }
+  function clearTodayV84(){
+    var keys=["workData","m001ReportData","m001DailyPayloadV83","dailyPayloadV84","lastDailyPayload","historyData","collectHistoryData","carryOutData","stateData","invoiceData","optionData","searchCountData","undoData"];
+    for(var i=0;i<keys.length;i++){try{localStorage.removeItem(KEY+keys[i]);}catch(e){}}
+    var raw=START_KEYS.concat(END_KEYS).concat(COMPLETE_KEYS).concat(RELEASE_KEYS);
+    raw.push("DeliverySystemV82_businessStarted","DeliverySystemV81_businessStarted");
+    for(var j=0;j<raw.length;j++)rawRemove(raw[j]);
+    ["startMeter","startAlcohol","endMeter","endAlcohol"].forEach(function(x){var e=id(x);if(e)e.value="";});
+    var d=id("dailyDistance");if(d)d.value="0";
+    setDone(false);saveCommonV84();refreshV84();
+  }
+  function sendV84(){
+    calcDistanceV84();saveCommonV84();
+    if(!isDone()){alert("先に業務完了ボタンを押してください。");refreshV84();return;}
+    if(!confirm("日報を送信すると本日入力された 業務開始前走行距離、業務開始前アルコール値、業務終了後走行距離、業務終了後アルコール値及び日報内容が削除されますがよろしいですか？")){return;}
+    if(!navigator.onLine){alert("通信できません。Wi-Fi接続後にもう一度、日報送信してください。");return;}
+    var p=buildPayloadV84(), btn=id("btnMail")||id("btnDailySend");
+    if((p.completedList||[]).length<1 && (p.customerCode==="M001")){alert("最低1件以上、配送完了または配送不可まで処理してください。");return;}
+    if(btn){btn.disabled=true;btn.textContent="送信中...";}
+    fetch(ENDPOINT,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"},body:postBodyV84(p),cache:"no-store"})
+      .then(function(r){return r.text().then(function(t){var j={};try{j=JSON.parse(t);}catch(e){}if(!r.ok)throw new Error(t||("送信エラー "+r.status));return j;});})
+      .then(function(j){clearTodayV84();alert("日報送信完了。\n本日の入力内容を削除しました。\n日報一覧で受信確認してください。"+(j.receivedAt?"\n受信時刻："+j.receivedAt:""));})
+      .catch(function(e){iframeFallbackV84(p);clearTodayV84();alert("日報送信を別方式で実行しました。\n本日の入力内容を削除しました。\n日報一覧で受信確認してください。");})
+      .finally(function(){if(btn){btn.disabled=false;btn.textContent="日報送信";}refreshV84();});
+  }
+  function refreshV84(){
+    try{document.title="配送・集金管理システム V84";var h=document.querySelector(".header");if(h)h.textContent="点呼ページ";}catch(e){}
+    calcDistanceV84();
+    var bStart=id("btnBusinessStartV82"), bComplete=id("btnBusinessCompleteV84"), bSend=id("btnMail"), bReset=id("btnResetComplete");
+    var s=started(), done=isDone();
+    if(bStart){
+      bStart.onclick=startV84;
+      bStart.disabled=!workReadyStart() || !!s;
+      bStart.textContent=s ? "業務開始済 "+hm(s) : "業務開始";
+      if(s){bStart.style.opacity=".75";}else{bStart.style.opacity=workReadyStart()?"":".45";}
+    }
+    if(bComplete){bComplete.onclick=completeV84;bComplete.disabled=!(!!s && workReadyEnd());bComplete.style.opacity=(!bComplete.disabled)?"":".45";bComplete.textContent="業務完了";}
+    if(bSend){bSend.onclick=sendV84;bSend.disabled=!done;bSend.style.opacity=done?"":".45";bSend.style.filter=done?"":"grayscale(1)";bSend.textContent="日報送信";}
+    if(bReset)bReset.style.display="none";
+  }
+  function bindV84(){
+    ["customerCode","driverCode","vehicleCode","terminalCode"].forEach(function(k){var e=id(k);if(e&&!e.__v84){e.__v84=1;e.addEventListener("change",function(){saveCommonV84();refreshV84();});}});
+    ["startMeter","startAlcohol","endMeter","endAlcohol"].forEach(function(k){var e=id(k);if(e&&!e.__v84){e.__v84=1;e.addEventListener("input",refreshV84);e.addEventListener("change",function(){calcDistanceV84();saveCommonV84();refreshV84();});e.addEventListener("blur",function(){calcDistanceV84();saveCommonV84();refreshV84();});}});
+    var go=id("btnGoCustomerPage");if(go){go.textContent="得意先ページへ進む";}
+    refreshV84();
+  }
+  window.buildPayloadV84=buildPayloadV84;window.sendDailyV84=sendV84;window.completeV84=completeV84;
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bindV84);else bindV84();
+  setTimeout(bindV84,300);setTimeout(bindV84,1000);setTimeout(bindV84,2500);setInterval(refreshV84,1200);
 })();
 </script>
 

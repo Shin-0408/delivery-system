@@ -3901,5 +3901,34 @@ body.v86-customer-page-clean .topGrid{display:none!important;}
 })();
 </script>
 
+<script id="v98-m001-save-report-snapshot-safe-js">
+/* ===== V98：点呼ページへ戻る前に金額入り配送完了一覧を確実保存 ===== */
+(function(){
+  var KEY="deliverySystemV45_";
+  function get(k,d){try{var v=localStorage.getItem(KEY+k);return v?JSON.parse(v):d;}catch(e){return d;}}
+  function set(k,v){try{localStorage.setItem(KEY+k,JSON.stringify(v));}catch(e){}}
+  function yen(n){n=Number(n||0);return n.toLocaleString('ja-JP')+'円';}
+  function hm(v){var s=String(v||'');var m=s.match(/(\d{1,2}:\d{2})(?::\d{2})?/);return m?m[1]:s;}
+  function ms(x){var t=Number(x&&x.time||0);if(!t&&x&&x.datetime){var d=new Date(x.datetime);if(!isNaN(d.getTime()))t=d.getTime();}return t||0;}
+  function clean(v){var s=String(v||'').toUpperCase();var m=s.match(/K\d{4}/);return m?m[0]:s.trim();}
+  function sname(c){return (window.stores&&window.stores[c])||c;}
+  function ctext(st){if(st==='集金完了')return '集金完了';if(st==='未集金')return '未集金';if(st==='集金なし')return '集金なし';if(st==='配送不可')return '対象外';return st||'未確認';}
+  function opt(code,x){var o=(window.optionData||{})[code]||{},a=[];if((x&&x.deliveryItem)||o.deliveryItem)a.push('商品配送');if((x&&x.invoiceItem)||o.invoiceItem)a.push('請求書');if((x&&x.letterItem)||o.letterItem)a.push('手紙');if((x&&x.collectionOnly)||o.collectionOnly)a.push('集金のみ');if((x&&x.returnItem)||o.returnItem)a.push('回収あり');return a.length?a.join('・'):'商品配送';}
+  function rows(){
+    var hist=(window.historyData||get('historyData',[])||[]).slice(), carry=(window.carryOutData||get('carryOutData',[])||[]).slice(), collect=(window.collectHistoryData||get('collectHistoryData',[])||[]).slice(), map={}, order=[];
+    function touch(code,name){code=clean(code);if(!/^K\d{4}$/.test(code))return null;if(!map[code]){map[code]={code:code,name:name||sname(code),carryTime:'',deliveryTime:'',deliveryContent:'商品配送',status:'配送完了',collectionStatus:'未確認',amount:0,amountText:'',reason:'',last:0};order.push(code);}return map[code];}
+    carry.forEach(function(x){var r=touch(x&&x.code,x&&x.name);if(!r)return;var t=hm((x&&x.datetime)||(x&&x.time));if(t&&!r.carryTime)r.carryTime=t;var n=ms(x);if(n>r.last)r.last=n;});
+    hist.forEach(function(x){if(!x)return;var r=touch(x.code,x.name);if(!r)return;var st=String(x.status||''),t=hm(x.datetime||x.time),amt=Number(x.amount||0),n=ms(x);r.name=x.name||r.name;if(n>r.last)r.last=n;if(st==='持出'&&t)r.carryTime=t;if(st==='配送完了'&&t){r.deliveryTime=t;r.deliveryContent=opt(r.code,x);r.status='配送完了';}if(st==='配送不可'&&t){r.deliveryTime=t;r.status='配送不可';r.deliveryContent='配送不可'+(x.reason?'（'+x.reason+'）':'');r.collectionStatus='対象外';r.reason=x.reason||'';}if(st==='集金完了'||st==='未集金'||st==='集金なし'){if(!r.deliveryTime&&t)r.deliveryTime=t;r.collectionStatus=ctext(st);r.status=st;r.deliveryContent=r.deliveryContent||opt(r.code,x);if(amt>0)r.amount=amt;if(x.reason)r.reason=x.reason;}});
+    collect.forEach(function(x){var r=touch(x&&x.code,x&&x.name);if(!r)return;var amt=Number((x&&x.amount)||0),n=ms(x);if(n>r.last)r.last=n;if(amt>0)r.amount=amt;if(!r.collectionStatus||r.collectionStatus==='未確認')r.collectionStatus='集金完了';});
+    return order.map(function(c){var r=map[c],disp='持出 '+(r.carryTime||'-')+' / 配送完了 '+(r.deliveryTime||'-');r.amount=Number(r.amount||0);r.amountText=r.amount>0?yen(r.amount):'';r.time=disp;r.datetime=disp;r.displayTime=disp;r['時刻']=disp;r['店舗コード']=r.code;r['店舗名']=r.name;r['持出時間']=r.carryTime;r['配送完了時間']=r.deliveryTime;r['配送内容']=r.deliveryContent;r['状態']=r.status;r['集金']=r.collectionStatus;r['金額']=r.amountText;r.collectionAmount=r.amount;r.collectAmount=r.amount;r.money=r.amount;r['集金金額']=r.amountText;r['理由']=r.reason||'';return r;}).filter(function(r){return r.deliveryTime||r.amount>0||r.collectionStatus!=='未確認';});
+  }
+  function saveSnap(){var r=rows(), text='配送完了一覧\n';r.forEach(function(x){text+='\n'+x.code+' '+x.name+'\n時刻：'+x.time+'\n配送内容：'+x.deliveryContent+'\n集金：'+x.collectionStatus+'\n金額：'+(x.amountText||'')+'\n理由：'+(x.reason||'')+'\n';});var p={version:'V98',customerCode:'M001',customerName:'株式会社松葉屋製麺',storeReports:r,completedList:r,dailyDetails:r,details:r,rows:r,reportText:text,dailyText:text,text:text,body:text,message:text,historyData:window.historyData||get('historyData',[]),collectHistoryData:window.collectHistoryData||get('collectHistoryData',[]),carryOutData:window.carryOutData||get('carryOutData',[]),stateData:window.stateData||get('stateData',{}),optionData:window.optionData||get('optionData',{}),balanceData:window.balanceData||get('balanceData',{})};set('m001ReportData',p);set('lastDailyPayload',p);return p;}
+  window.saveM001ReportSnapshotV98=saveSnap;
+  var old=window.goHome||window.goIndex;
+  function bind(){var btns=document.querySelectorAll('button,a');for(var i=0;i<btns.length;i++){var b=btns[i],txt=(b.textContent||'').trim();if(txt.indexOf('点呼ページへ戻る')>=0||txt.indexOf('一覧へ戻る')>=0){if(!b.__v98snap){b.__v98snap=1;b.addEventListener('click',saveSnap,true);}}}}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else bind();window.addEventListener('pagehide',saveSnap);
+})();
+</script>
+
 </body>
 </html>

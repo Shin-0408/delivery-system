@@ -554,9 +554,45 @@ window.addEventListener("load",function(){
     var collect=[]; try{collect=(window.collectHistoryData||[]).slice(-700);}catch(e){collect=(m001Local.collectHistoryData||[]).slice(-700);}
     var carry=[]; try{carry=(window.carryOutData||[]).slice(-700);}catch(e){carry=(m001Local.carryOutData||[]).slice(-700);}
     var bal={}; try{bal=window.balanceData||{};}catch(e){bal=m001Local.balanceData||{};}
+
+    function _v109Item(label,value){
+      if(value===undefined||value===null)value="";
+      return {name:String(label||""), value:String(value)};
+    }
+    function _v109GenericWork(code,name,work){
+      work=work||{};
+      if(code==="M001"){
+        return {mode:"detailed_matsubaya", title:"株式会社松葉屋製麺 詳細日報", items:[]};
+      }
+      if(code==="M002"){
+        return {
+          mode:"generic",
+          title:"株式会社アローズ 業務内容",
+          items:[
+            _v109Item("配送件数", work.count ? (String(work.count)+"件") : ""),
+            _v109Item("京都駅サポート", work.support||""),
+            _v109Item("連絡事項", work.noticeFlag||""),
+            _v109Item("連絡事項内容", work.noticeText||""),
+            _v109Item("入力保存日時", work.savedAt||"")
+          ]
+        };
+      }
+      var items=[];
+      for(var k in work){
+        if(!Object.prototype.hasOwnProperty.call(work,k))continue;
+        if(k==="customerCode"||k==="customerName"||k==="type")continue;
+        if(typeof work[k]==="object")continue;
+        items.push(_v109Item(k,work[k]));
+      }
+      return {mode:"generic", title:(name||code||"得意先")+" 業務内容", items:items};
+    }
+    var selectedCustomerWork = c==="M002" ? m002Local : (c==="M003" ? m003Local : (c==="M004" ? m004Local : m001Local));
+    var selectedReportType = c==="M001" ? "detailed_matsubaya" : "generic";
+    var selectedCustomerWorkDisplay = _v109GenericWork(c, common.customerName, selectedCustomerWork);
+
     return {
       token:TOKEN,
-      version:"V95",
+      version:"V109",
       reportDate:new Date().toLocaleString("ja-JP"),
       sentAt:new Date().toLocaleString("ja-JP"),
       customerCode:common.customerCode,
@@ -572,6 +608,18 @@ window.addEventListener("load",function(){
       dailyDistance:common.dailyDistance,
       startAlcohol:common.startAlcohol,
       endAlcohol:common.endAlcohol,
+      reportType:selectedReportType,
+      reportTemplate:selectedReportType,
+      customerWorkDisplay:selectedCustomerWorkDisplay,
+      commonReportFields:{
+        startMeter:common.startMeter,
+        startAlcohol:common.startAlcohol,
+        startTime:(common.workStartTime||common.businessStartTime||common.startTime||""),
+        endMeter:common.endMeter,
+        endAlcohol:common.endAlcohol,
+        endTime:(common.workEndTime||common.businessEndTime||common.endTime||""),
+        dailyDistance:common.dailyDistance
+      },
       summary:{
         carryCount:safeText("carryCount") || (m001Local.summary&&m001Local.summary.carryCount)||"",
         deliveryCount:safeText("deliveryCount") || (m001Local.summary&&m001Local.summary.deliveryCount)||"",
@@ -582,7 +630,7 @@ window.addEventListener("load",function(){
         pendingAmountText:safeText("pendingAmount") || (m001Local.summary&&m001Local.summary.pendingAmount)||"",
         grandBalanceText:safeText("grandBalance") || (m001Local.summary&&m001Local.summary.grandBalance)||""
       },
-      customerWork: c==="M002" ? m002Local : (c==="M003" ? m003Local : (c==="M004" ? m004Local : m001Local)),
+      customerWork:selectedCustomerWork,
       m001:m001Local,
       m002:m002Local,
       m003:m003Local,
@@ -2985,6 +3033,123 @@ window.addEventListener("load",function(){
   window.addEventListener("pagehide",saveWork);
   setTimeout(bind,0);
   setTimeout(bind,300);
+})();
+</script>
+
+
+<script id="v107-daily-send-tenko-clear-js">
+/* ===== V107：日報送信成功後、点呼入力4項目と開始/完了状態を確実に削除 ===== */
+(function(){
+  var KEY="deliverySystemV45_";
+  var ENDPOINT="https://fukudakoken.com/daily/receive.php";
+  var FIELDS=["startMeter","startAlcohol","endMeter","endAlcohol","dailyDistance"];
+  var START_KEYS=[
+    "DeliverySystemV104_workStartTime","DeliverySystemV103_workStartTime","DeliverySystemV102_workStartTime","DeliverySystemV100_workStartTime","DeliverySystemV99_workStartTime",
+    "DeliverySystemV97_workStartTime","DeliverySystemV96_workStartTime","DeliverySystemV95_workStartTime","DeliverySystemV94_workStartTime","DeliverySystemV87_workStartTime",
+    "DeliverySystemV85_workStartTime","DeliverySystemV84_workStartTime","DeliverySystemV83_workStartTime","DeliverySystemV82_workStartTime","DeliverySystemV81_workStartTime",
+    "DeliverySystemV79_workStartTime","DeliverySystemV78_workStartTime","DeliverySystemV72_workStartTime"
+  ];
+  var END_KEYS=[
+    "DeliverySystemV104_workEndTime","DeliverySystemV103_workEndTime","DeliverySystemV102_workEndTime","DeliverySystemV100_workEndTime","DeliverySystemV99_workEndTime",
+    "DeliverySystemV97_workEndTime","DeliverySystemV96_workEndTime","DeliverySystemV95_workEndTime","DeliverySystemV94_workEndTime","DeliverySystemV85_workEndTime",
+    "DeliverySystemV84_workEndTime","DeliverySystemV83_workEndTime","DeliverySystemV82_workEndTime","DeliverySystemV81_workEndTime","DeliverySystemV79_workEndTime",
+    "DeliverySystemV78_workEndTime","DeliverySystemV72_workEndTime"
+  ];
+  var START_FLAGS=[
+    "DeliverySystemV104_tenkoStarted","DeliverySystemV103_tenkoStarted","DeliverySystemV102_tenkoStarted","DeliverySystemV100_tenkoStarted","DeliverySystemV99_tenkoStarted",
+    "DeliverySystemV97_tenkoStarted","DeliverySystemV82_businessStarted","DeliverySystemV81_businessStarted","DeliverySystemV104_startManual","DeliverySystemV103_startManual",
+    "DeliverySystemV102_startManual","DeliverySystemV99_startManual","DeliverySystemV97_startManual"
+  ];
+  var DONE_KEYS=[
+    "DeliverySystemV104_businessCompleted","DeliverySystemV103_businessCompleted","DeliverySystemV102_businessCompleted","DeliverySystemV100_businessCompleted","DeliverySystemV99_businessCompleted",
+    "DeliverySystemV97_businessCompleted","DeliverySystemV96_businessCompleted","DeliverySystemV95_businessCompleted","DeliverySystemV85_businessCompleted","DeliverySystemV84_businessCompleted",
+    "DeliverySystemV83_businessCompleted","DeliverySystemV72_businessCompleted","DeliverySystemV64_businessCompleted","deliverySystemV45_businessCompleted"
+  ];
+  var WORK_BACKUPS=[
+    KEY+"workData",
+    "DeliverySystemV104_tenkoWorkBackup",KEY+"DeliverySystemV104_tenkoWorkBackup",
+    "DeliverySystemV103_tenkoWorkBackup",KEY+"DeliverySystemV103_tenkoWorkBackup",
+    "DeliverySystemV102_tenkoWorkBackup",KEY+"DeliverySystemV102_tenkoWorkBackup",
+    "DeliverySystemV100_tenkoWorkBackup",KEY+"DeliverySystemV100_tenkoWorkBackup",
+    "DeliverySystemV97_tenkoWorkBackup",KEY+"DeliverySystemV97_tenkoWorkBackup"
+  ];
+  var DAILY_NAMES=["m001ReportData","m001DailyPayloadV83","dailyPayloadV91","dailyPayloadV89","dailyPayloadV88","dailyPayloadV85","dailyPayloadV84","lastDailyPayload","historyData","collectHistoryData","carryOutData","stateData","invoiceData","optionData","searchCountData","undoData","m002WorkData"];
+  function id(x){return document.getElementById(x);}
+  function del(k){try{localStorage.removeItem(k);}catch(e){}}
+  function putJson(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+  function getJson(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
+  function clearKeyAndHm(k){del(k);del(k+"_hm");del(KEY+k);del(KEY+k+"_hm");}
+  function clearTenkoAfterDailySend(){
+    var balance=getJson(KEY+"balanceData",{});
+    WORK_BACKUPS.forEach(del);
+    START_KEYS.forEach(clearKeyAndHm);
+    END_KEYS.forEach(clearKeyAndHm);
+    START_FLAGS.forEach(function(k){del(k);del(KEY+k);});
+    DONE_KEYS.forEach(function(k){del(k);del(KEY+k);});
+    DAILY_NAMES.forEach(function(k){del(KEY+k);del(k);});
+    putJson(KEY+"workData",{startMeter:"",startAlcohol:"",endMeter:"",endAlcohol:"",dailyDistance:"0"});
+    putJson("DeliverySystemV104_tenkoWorkBackup",{startMeter:"",startAlcohol:"",endMeter:"",endAlcohol:"",dailyDistance:"0"});
+    putJson(KEY+"DeliverySystemV104_tenkoWorkBackup",{startMeter:"",startAlcohol:"",endMeter:"",endAlcohol:"",dailyDistance:"0"});
+    putJson(KEY+"balanceData",balance||{});
+    FIELDS.forEach(function(k){
+      var e=id(k);
+      if(!e)return;
+      e.value=(k==="dailyDistance")?"0":"";
+      try{e.defaultValue=e.value;}catch(err){}
+    });
+    try{if(window.refreshV106Buttons)window.refreshV106Buttons();}catch(e){}
+    try{if(window.refreshV105Buttons)window.refreshV105Buttons();}catch(e){}
+    try{if(window.refreshV104Buttons)window.refreshV104Buttons();}catch(e){}
+  }
+  function hookFetchOnce(){
+    if(window.__v107FetchHooked)return;
+    window.__v107FetchHooked=true;
+    var originalFetch=window.fetch;
+    if(typeof originalFetch!=="function")return;
+    window.fetch=function(input,init){
+      var url=String((input&&input.url)||input||"");
+      var p=originalFetch.apply(this,arguments);
+      if(url.indexOf(ENDPOINT)>=0 || url.indexOf("/daily/receive.php")>=0){
+        return p.then(function(resp){
+          if(resp && resp.ok){
+            setTimeout(clearTenkoAfterDailySend,150);
+            setTimeout(clearTenkoAfterDailySend,800);
+          }
+          return resp;
+        });
+      }
+      return p;
+    };
+  }
+  function isDone(){
+    for(var i=0;i<DONE_KEYS.length;i++){
+      try{if(localStorage.getItem(DONE_KEYS[i])==="1"||localStorage.getItem(KEY+DONE_KEYS[i])==="1")return true;}catch(e){}
+    }
+    return false;
+  }
+  function bind(){
+    try{document.title="配送・集金管理システム V107";}catch(e){}
+    hookFetchOnce();
+    var bm=id("btnMail");
+    if(bm && !bm.__v107clear){
+      bm.__v107clear=true;
+      bm.addEventListener("click",function(){
+        if(!isDone())return;
+        hookFetchOnce();
+      },true);
+    }
+    var dm=id("btnDailySend");
+    if(dm && !dm.__v107clear){
+      dm.__v107clear=true;
+      dm.addEventListener("click",function(){
+        if(!isDone())return;
+        hookFetchOnce();
+      },true);
+    }
+  }
+  window.clearTenkoAfterDailySendV107=clearTenkoAfterDailySend;
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
+  window.addEventListener("pageshow",bind);
 })();
 </script>
 

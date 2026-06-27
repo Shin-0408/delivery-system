@@ -1303,6 +1303,18 @@ if ("serviceWorker" in navigator) {
       terminalCode:t, terminalName:mapName(window.terminals,t),
       startMeter:val("startMeter"), endMeter:val("endMeter"), dailyDistance:val("dailyDistance"),
       startAlcohol:val("startAlcohol"), endAlcohol:val("endAlcohol"),
+      reportType:selectedReportType,
+      reportTemplate:selectedReportType,
+      customerWorkDisplay:selectedCustomerWorkDisplay,
+      commonReportFields:{
+        startMeter:common.startMeter,
+        startAlcohol:common.startAlcohol,
+        startTime:(common.workStartTime||common.businessStartTime||common.startTime||""),
+        endMeter:common.endMeter,
+        endAlcohol:common.endAlcohol,
+        endTime:(common.workEndTime||common.businessEndTime||common.endTime||""),
+        dailyDistance:common.dailyDistance
+      },
       summary:{
         carryCount:text("carryCount"), deliveryCount:text("deliveryCount"), remainCount:text("remainCount"),
         collectCount:text("collectCount"), collectAmountText:text("collectAmount"),
@@ -1481,9 +1493,45 @@ if ("serviceWorker" in navigator) {
     var collect=[]; try{collect=(window.collectHistoryData||[]).slice(-700);}catch(e){collect=(m001Local.collectHistoryData||[]).slice(-700);}
     var carry=[]; try{carry=(window.carryOutData||[]).slice(-700);}catch(e){carry=(m001Local.carryOutData||[]).slice(-700);}
     var bal={}; try{bal=window.balanceData||{};}catch(e){bal=m001Local.balanceData||{};}
+
+    function _v109Item(label,value){
+      if(value===undefined||value===null)value="";
+      return {name:String(label||""), value:String(value)};
+    }
+    function _v109GenericWork(code,name,work){
+      work=work||{};
+      if(code==="M001"){
+        return {mode:"detailed_matsubaya", title:"株式会社松葉屋製麺 詳細日報", items:[]};
+      }
+      if(code==="M002"){
+        return {
+          mode:"generic",
+          title:"株式会社アローズ 業務内容",
+          items:[
+            _v109Item("配送件数", work.count ? (String(work.count)+"件") : ""),
+            _v109Item("京都駅サポート", work.support||""),
+            _v109Item("連絡事項", work.noticeFlag||""),
+            _v109Item("連絡事項内容", work.noticeText||""),
+            _v109Item("入力保存日時", work.savedAt||"")
+          ]
+        };
+      }
+      var items=[];
+      for(var k in work){
+        if(!Object.prototype.hasOwnProperty.call(work,k))continue;
+        if(k==="customerCode"||k==="customerName"||k==="type")continue;
+        if(typeof work[k]==="object")continue;
+        items.push(_v109Item(k,work[k]));
+      }
+      return {mode:"generic", title:(name||code||"得意先")+" 業務内容", items:items};
+    }
+    var selectedCustomerWork = c==="M002" ? m002Local : (c==="M003" ? m003Local : (c==="M004" ? m004Local : m001Local));
+    var selectedReportType = c==="M001" ? "detailed_matsubaya" : "generic";
+    var selectedCustomerWorkDisplay = _v109GenericWork(c, common.customerName, selectedCustomerWork);
+
     return {
       token:TOKEN,
-      version:"V72",
+      version:"V109",
       reportDate:new Date().toLocaleString("ja-JP"),
       sentAt:new Date().toLocaleString("ja-JP"),
       customerCode:common.customerCode,
@@ -1509,7 +1557,7 @@ if ("serviceWorker" in navigator) {
         pendingAmountText:safeText("pendingAmount") || (m001Local.summary&&m001Local.summary.pendingAmount)||"",
         grandBalanceText:safeText("grandBalance") || (m001Local.summary&&m001Local.summary.grandBalance)||""
       },
-      customerWork: c==="M002" ? m002Local : (c==="M003" ? m003Local : (c==="M004" ? m004Local : m001Local)),
+      customerWork:selectedCustomerWork,
       m001:m001Local,
       m002:m002Local,
       m003:m003Local,

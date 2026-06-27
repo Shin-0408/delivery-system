@@ -532,5 +532,53 @@ body.v84-customer-clean .pageNav{grid-template-columns:1fr!important;}
 })();
 </script>
 
+
+
+<style id="v86-customer-page-clean-css">
+/* ===== V86：得意先・ドライバー・車両・端末の選択は点呼ページのみ表示 ===== */
+body.v86-customer-page-clean .topGrid{display:none!important;}
+</style>
+<script id="v86-customer-page-clean-js">
+/* ===== V86：得意先ページでは点呼情報を消さず、点呼ページへ戻す ===== */
+(function(){
+  var KEY="deliverySystemV45_";
+  var BACKUP_KEY="DeliverySystemV86_tenkoBackup";
+  function id(x){return document.getElementById(x);}
+  function rawGet(k){try{return localStorage.getItem(k)||"";}catch(e){return "";}}
+  function rawSet(k,v){try{localStorage.setItem(k,String(v||""));}catch(e){}}
+  function get(k,d){try{var v=localStorage.getItem(KEY+k);return v?JSON.parse(v):d;}catch(e){return d;}}
+  function set(k,v){try{localStorage.setItem(KEY+k,JSON.stringify(v));}catch(e){}}
+  function backup(){try{return JSON.parse(rawGet(BACKUP_KEY)||"{}")||{};}catch(e){return {};}}
+  function preserveTenko(){
+    try{
+      var b=backup(), w=get("workData",{}), c=get("config",{});
+      if(b.work){
+        ["startMeter","startAlcohol","endMeter","endAlcohol","dailyDistance"].forEach(function(k){
+          if(!w[k] && b.work[k])w[k]=b.work[k];
+        });
+      }
+      if(b.config){
+        ["customerCode","driverCode","vehicleCode","terminalCode"].forEach(function(k){
+          if(!c[k] && b.config[k])c[k]=b.config[k];
+        });
+      }
+      set("workData",w);set("config",c);
+      rawSet(BACKUP_KEY,JSON.stringify({work:w,config:c,savedAt:new Date().toISOString()}));
+    }catch(e){}
+  }
+  function bind(){
+    document.body.className=(document.body.className||"").replace(/\bv86-customer-page-clean\b/g,"")+" v86-customer-page-clean";
+    try{document.title=document.title.replace(/V85/g,"V86");}catch(e){}
+    var back=document.querySelector('a[href="./index.html"],a[href="index.html"]');
+    if(back){back.textContent="点呼ページへ戻る";back.addEventListener("click",preserveTenko,true);}
+    preserveTenko();
+  }
+  window.addEventListener("pagehide",preserveTenko);
+  window.addEventListener("beforeunload",preserveTenko);
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
+  setTimeout(bind,300);setTimeout(bind,1200);setTimeout(bind,2500);
+})();
+</script>
+
 </body>
 </html>

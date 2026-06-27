@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>配送・集金管理システム V84</title>
+<title>配送・集金管理システム V85</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;width:100%;min-width:100%;background:#e9edf2;font-family:sans-serif;overflow-x:hidden}
@@ -713,9 +713,9 @@ window.addEventListener("load",function(){
   var ENDPOINT="https://fukudakoken.com/daily/receive.php";
   var TOKEN="FKK_DAILY_V61_20260620";
   var COMPLETE_KEYS=["DeliverySystemV72_businessCompleted","DeliverySystemV64_businessCompleted"];
-  var START_KEYS=["DeliverySystemV84_workStartTime","DeliverySystemV83_workStartTime","DeliverySystemV82_workStartTime","DeliverySystemV81_workStartTime","DeliverySystemV79_workStartTime","DeliverySystemV78_workStartTime","DeliverySystemV72_workStartTime"];
-  var END_KEYS=["DeliverySystemV84_workEndTime","DeliverySystemV83_workEndTime","DeliverySystemV82_workEndTime","DeliverySystemV81_workEndTime","DeliverySystemV79_workEndTime","DeliverySystemV78_workEndTime","DeliverySystemV72_workEndTime"];
-  var RELEASE_KEYS=["DeliverySystemV84_startButtonReleased","DeliverySystemV83_startButtonReleased"];
+  var START_KEYS=["DeliverySystemV85_workStartTime","DeliverySystemV84_workStartTime","DeliverySystemV83_workStartTime","DeliverySystemV82_workStartTime","DeliverySystemV81_workStartTime","DeliverySystemV79_workStartTime","DeliverySystemV78_workStartTime","DeliverySystemV72_workStartTime"];
+  var END_KEYS=["DeliverySystemV85_workEndTime","DeliverySystemV84_workEndTime","DeliverySystemV83_workEndTime","DeliverySystemV82_workEndTime","DeliverySystemV81_workEndTime","DeliverySystemV79_workEndTime","DeliverySystemV78_workEndTime","DeliverySystemV72_workEndTime"];
+  var RELEASE_KEYS=["DeliverySystemV85_startButtonReleased","DeliverySystemV84_startButtonReleased","DeliverySystemV83_startButtonReleased"];
   var CUSTOMER_NAMES={M001:"株式会社松葉屋製麺",M002:"株式会社アローズ",M003:"株式会社カーゴジャパンアドバンスト",M004:"株式会社大将"};
   var DRIVER_NAMES={D001:"福田",D002:"岸",D003:"森田"};
   var VEHICLE_NAMES={V001:"京都480れ12-44",V002:"京都481り12-46",V003:"京都481り1-45",V004:"京都480り94-29",V005:"京都880り6-89"};
@@ -793,7 +793,7 @@ window.addEventListener("load",function(){
     saveCommonV84();
     var c=get("config",{}), w=get("workData",{}), rows=buildRowsV84().slice().reverse();
     var ws=started(), we=ended();
-    var p={token:TOKEN,version:"V84",reportDate:new Date().toLocaleString("ja-JP"),sentAt:new Date().toLocaleString("ja-JP"),
+    var p={token:TOKEN,version:"V85",reportDate:new Date().toLocaleString("ja-JP"),sentAt:new Date().toLocaleString("ja-JP"),
       common:c,workData:w,customerCode:c.customerCode||"M001",customerName:CUSTOMER_NAMES[c.customerCode]||"",driverCode:c.driverCode||"",driverName:DRIVER_NAMES[c.driverCode]||"",vehicleCode:c.vehicleCode||"",vehicleName:VEHICLE_NAMES[c.vehicleCode]||"",terminalCode:c.terminalCode||"",terminalName:TERMINAL_NAMES[c.terminalCode]||"",
       workStartTime:ws,businessStartTime:ws,startTime:ws,startAt:ws,startedAt:ws,workEndTime:we,businessEndTime:we,endTime:we,endAt:we,completedAt:we,"業務開始時間":ws,"業務完了時間":we,
       startMeter:w.startMeter||"",endMeter:w.endMeter||"",dailyDistance:w.dailyDistance||"",startAlcohol:w.startAlcohol||"",endAlcohol:w.endAlcohol||""};
@@ -802,12 +802,12 @@ window.addEventListener("load",function(){
     ["body","text","message","reportText","dailyText","detailsText","content","dailyReport","mailBody","report"].forEach(function(k){p[k]=body;});
     p.historyData=get("historyData",[]).slice(-1200);p.collectHistoryData=get("collectHistoryData",[]).slice(-1200);p.carryOutData=get("carryOutData",[]).slice(-1200);p.carryOutList=p.carryOutData;p.stateData=get("stateData",{});p.optionData=get("optionData",{});p.balanceData=get("balanceData",{});
     p.m001={storeReports:rows,completedList:rows,dailyDetails:rows,details:rows,deliveryDetails:rows,storeDetails:rows,rows:rows,reportText:body,dailyText:body,text:body,body:body,message:body,detailsText:body,workStartTime:ws,workEndTime:we,businessStartTime:ws,businessEndTime:we,startTime:ws,endTime:we,"業務開始時間":ws,"業務完了時間":we};
-    p.customerWork=p.m001;set("m001ReportData",p.m001);set("lastDailyPayload",p);set("dailyPayloadV84",p);return p;
+    p.customerWork=p.m001;set("m001ReportData",p.m001);set("lastDailyPayload",p);set("dailyPayloadV85",p);set("dailyPayloadV84",p);return p;
   }
   function postBodyV84(p){
     var q=new URLSearchParams(), body=p.body||"";
     function add(k,v){q.set(k,typeof v==="string"?v:JSON.stringify(v));}
-    add("payload",p);add("body",body);add("reportText",body);add("dailyText",body);add("text",body);add("message",body);add("version","V84");
+    add("payload",p);add("body",body);add("reportText",body);add("dailyText",body);add("text",body);add("message",body);add("version","V85");
     ["customerCode","customerName","driverCode","driverName","vehicleCode","vehicleName","terminalCode","terminalName","startMeter","endMeter","dailyDistance","startAlcohol","endAlcohol","workStartTime","businessStartTime","startTime","workEndTime","businessEndTime","endTime"].forEach(function(k){add(k,p[k]||"");});
     add("業務開始時間",p.workStartTime||"");add("業務完了時間",p.workEndTime||"");add("completedList",p.completedList||[]);add("storeReports",p.storeReports||[]);add("dailyDetails",p.dailyDetails||[]);add("details",p.details||[]);add("rows",p.rows||[]);
     return q.toString();
@@ -838,7 +838,7 @@ window.addEventListener("load",function(){
     var t=nowFull();writeAll(END_KEYS,t);setDone(true);buildPayloadV84();refreshV84();showCardV84();return true;
   }
   function clearTodayV84(){
-    var keys=["workData","m001ReportData","m001DailyPayloadV83","dailyPayloadV84","lastDailyPayload","historyData","collectHistoryData","carryOutData","stateData","invoiceData","optionData","searchCountData","undoData"];
+    var keys=["workData","m001ReportData","m001DailyPayloadV83","dailyPayloadV85","dailyPayloadV84","lastDailyPayload","historyData","collectHistoryData","carryOutData","stateData","invoiceData","optionData","searchCountData","undoData"];
     for(var i=0;i<keys.length;i++){try{localStorage.removeItem(KEY+keys[i]);}catch(e){}}
     var raw=START_KEYS.concat(END_KEYS).concat(COMPLETE_KEYS).concat(RELEASE_KEYS);
     raw.push("DeliverySystemV82_businessStarted","DeliverySystemV81_businessStarted");
@@ -862,7 +862,7 @@ window.addEventListener("load",function(){
       .finally(function(){if(btn){btn.disabled=false;btn.textContent="日報送信";}refreshV84();});
   }
   function refreshV84(){
-    try{document.title="配送・集金管理システム V84";var h=document.querySelector(".header");if(h)h.textContent="点呼ページ";}catch(e){}
+    try{document.title="配送・集金管理システム V85";var h=document.querySelector(".header");if(h)h.textContent="点呼ページ";}catch(e){}
     calcDistanceV84();
     var bStart=id("btnBusinessStartV82"), bComplete=id("btnBusinessCompleteV84"), bSend=id("btnMail"), bReset=id("btnResetComplete");
     var s=started(), done=isDone();
@@ -885,6 +885,74 @@ window.addEventListener("load",function(){
   window.buildPayloadV84=buildPayloadV84;window.sendDailyV84=sendV84;window.completeV84=completeV84;
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bindV84);else bindV84();
   setTimeout(bindV84,300);setTimeout(bindV84,1000);setTimeout(bindV84,2500);setInterval(refreshV84,1200);
+})();
+</script>
+
+
+
+<style id="v85-tenko-retain-modal-clean-css">
+/* ===== V85：ミッドナイトくん完了画面の下部ボタン削除 ===== */
+#completeModalV72 #btnDailySend,
+#completeModalV72 .closeCompleteV72{display:none!important;}
+#completeModalV72 div[style*="grid-template-columns"]{display:none!important;}
+</style>
+
+<script id="v85-tenko-retain-modal-clean-js">
+/* ===== V85：点呼入力は日報送信まで保持。得意先移動・戻りで消えないように強制保存/復元 ===== */
+(function(){
+  var KEY="deliverySystemV45_";
+  var FIELDS=["startMeter","startAlcohol","endMeter","endAlcohol","dailyDistance"];
+  function id(x){return document.getElementById(x);}
+  function get(k,d){try{var v=localStorage.getItem(KEY+k);return v?JSON.parse(v):d;}catch(e){return d;}}
+  function set(k,v){try{localStorage.setItem(KEY+k,JSON.stringify(v));}catch(e){}}
+  function val(k){var e=id(k);return e?String(e.value||""):"";}
+  function calc(){
+    var s=Number(val("startMeter")||0), e=Number(val("endMeter")||0), d=id("dailyDistance");
+    if(d)d.value=(!isNaN(s)&&!isNaN(e)&&e>=s)?String(e-s):"0";
+  }
+  function save(){
+    try{
+      calc();
+      var old=get("workData",{}), w={};
+      FIELDS.forEach(function(k){w[k]=val(k)||old[k]||"";});
+      if(id("startMeter"))w.startMeter=val("startMeter");
+      if(id("startAlcohol"))w.startAlcohol=val("startAlcohol");
+      if(id("endMeter"))w.endMeter=val("endMeter");
+      if(id("endAlcohol"))w.endAlcohol=val("endAlcohol");
+      if(id("dailyDistance"))w.dailyDistance=val("dailyDistance")||"0";
+      set("workData",w);
+      var c=get("config",{});
+      ["customerCode","driverCode","vehicleCode","terminalCode"].forEach(function(k){if(id(k))c[k]=val(k);});
+      set("config",c);
+    }catch(e){}
+  }
+  function restore(){
+    try{
+      var w=get("workData",{});
+      FIELDS.forEach(function(k){var e=id(k);if(e && w[k]!==undefined && String(e.value||"")==="")e.value=w[k]||"";});
+      calc();
+    }catch(e){}
+  }
+  function cleanModal(){
+    try{
+      var m=id("completeModalV72");if(!m)return;
+      var bs=m.querySelectorAll("#btnDailySend,.closeCompleteV72");
+      for(var i=0;i<bs.length;i++){bs[i].style.display="none";bs[i].disabled=true;}
+      var grids=m.querySelectorAll('div[style*="grid-template-columns"]');
+      for(var j=0;j<grids.length;j++){grids[j].style.display="none";}
+    }catch(e){}
+  }
+  function bind(){
+    restore();cleanModal();
+    FIELDS.forEach(function(k){var e=id(k);if(e&&!e.__v85retain){e.__v85retain=1;["input","change","blur","keyup"].forEach(function(ev){e.addEventListener(ev,function(){save();});});}});
+    ["customerCode","driverCode","vehicleCode","terminalCode"].forEach(function(k){var e=id(k);if(e&&!e.__v85retain){e.__v85retain=1;e.addEventListener("change",save);}});
+    var go=id("btnGoCustomerPage");if(go&&!go.__v85retain){var old=go.onclick;go.__v85retain=1;go.onclick=function(ev){save(); if(typeof old==="function")return old.call(this,ev);};}
+  }
+  window.addEventListener("pagehide",save);
+  window.addEventListener("beforeunload",save);
+  document.addEventListener("visibilitychange",function(){if(document.visibilityState==="hidden")save();else restore();});
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
+  setTimeout(bind,200);setTimeout(bind,800);setTimeout(bind,1800);setInterval(function(){restore();cleanModal();},1500);
 })();
 </script>
 

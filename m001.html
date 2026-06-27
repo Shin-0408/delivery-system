@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>M001 株式会社松葉屋製麺 V87</title>
+<title>M001 株式会社松葉屋製麺 V88</title>
 <!-- V72: M001松葉屋専用ページ。V74データ互換維持。 -->
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -3508,7 +3508,7 @@ body.v84-m001-clean .footerBtns{grid-template-columns:1fr 1fr!important;}
   function ended(){return rawGet("DeliverySystemV87_workEndTime")||rawGet("DeliverySystemV84_workEndTime")||rawGet("DeliverySystemV83_workEndTime")||rawGet("DeliverySystemV82_workEndTime")||rawGet("DeliverySystemV81_workEndTime")||rawGet("DeliverySystemV79_workEndTime")||rawGet("DeliverySystemV72_workEndTime")||"";}
   function applyClean(){
     document.body.className=(document.body.className||"").replace(/\bv84-m001-clean\b/g,"")+" v84-m001-clean";
-    try{document.title="M001 株式会社松葉屋製麺 V87";var h=document.querySelector(".header");if(h)h.textContent="株式会社松葉屋製麺";}catch(e){}
+    try{document.title="M001 株式会社松葉屋製麺 V88";var h=document.querySelector(".header");if(h)h.textContent="株式会社松葉屋製麺";}catch(e){}
     var back=document.querySelector('a[href="./index.html"],a[href="index.html"]');if(back){back.textContent="点呼ページへ戻る";back.setAttribute("aria-label","点呼ページへ戻る");}
     ["btnM001CompleteMark","btnPageDailySend","btnComplete","btnMail","btnDailySend"].forEach(function(x){var b=id(x);if(b){b.style.display="none";b.disabled=true;b.onclick=function(){location.href="./index.html";return false;};}});
     try{if(typeof window.buildPayloadV83==="function"){var p=window.buildPayloadV83(); if(p&&p.m001){set("m001ReportData",p.m001);}}}catch(e){}
@@ -3538,7 +3538,7 @@ body.v84-m001-clean .footerBtns{grid-template-columns:1fr 1fr!important;}
     }catch(e){}
   }
   function bind(){
-    try{document.title="M001 株式会社松葉屋製麺 V87";}catch(e){}
+    try{document.title="M001 株式会社松葉屋製麺 V88";}catch(e){}
     var backs=document.querySelectorAll('a[href="./index.html"],a[href="index.html"]');
     for(var i=0;i<backs.length;i++){if(!backs[i].__v85save){backs[i].__v85save=1;backs[i].addEventListener("click",saveWork);}}
     window.addEventListener("pagehide",saveWork);
@@ -3593,6 +3593,56 @@ body.v86-customer-page-clean .topGrid{display:none!important;}
   window.addEventListener("beforeunload",preserveTenko);
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
   setTimeout(bind,300);setTimeout(bind,1200);setTimeout(bind,2500);
+})();
+</script>
+
+
+<script id="v88-m001-daily-row-sanitize-js">
+/* ===== V88：M001側で保存する日報材料も、店舗別行から業務開始/完了を外す ===== */
+(function(){
+  function hm(v){var s=String(v||"");var m=s.match(/(\d{1,2}:\d{2})(?::\d{2})?/);return m?m[1]:s;}
+  function cleanRows(rows){
+    return (rows||[]).map(function(r){
+      var x={};for(var k in r){x[k]=r[k];}
+      var c=x.carryTime||x.takeoutTime||x.carryOutTime||x["持出時間"]||"";
+      var d=x.deliveryTime||x.deliveryCompleteTime||x.deliveryCompletedTime||x.completedTime||x.deliveredAt||x["配送完了時間"]||"";
+      x.carryTime=hm(c);x.takeoutTime=x.carryTime;x.carryOutTime=x.carryTime;x["持出時間"]=x.carryTime;
+      x.deliveryTime=hm(d);x.deliveryCompleteTime=x.deliveryTime;x.deliveryCompletedTime=x.deliveryTime;x.completedTime=x.deliveryTime;x.deliveredAt=x.deliveryTime;x["配送完了時間"]=x.deliveryTime;
+      x.time="持出 "+(x.carryTime||"-")+" / 配送完了 "+(x.deliveryTime||"-");
+      x.datetime=x.time;x.displayTime=x.time;x["時刻"]=x.time;
+      delete x.workStartTime;delete x.workEndTime;delete x.businessStartTime;delete x.businessEndTime;delete x["業務開始時間"];delete x["業務完了時間"];
+      return x;
+    });
+  }
+  function rebuild(p,rows){
+    var wl="開始 "+(hm(p.workStartTime)||"-")+" / 完了 "+(hm(p.workEndTime)||"-");
+    var lines=["配送・集金日報","","得意先："+(p.customerCode||"M001")+" "+(p.customerName||"株式会社松葉屋製麺"),"ドライバー："+(p.driverCode||"")+" "+(p.driverName||""),"車両："+(p.vehicleCode||"")+" "+(p.vehicleName||""),"端末："+(p.terminalCode||"")+" "+(p.terminalName||""),"","業務時間："+wl,"業務開始時間："+(p.workStartTime||""),"業務完了時間："+(p.workEndTime||""),"","配送完了一覧"];
+    rows.forEach(function(r){lines.push("",(r.code||"")+" "+(r.name||""),"時刻："+(r.time||""),"持出時間："+(r.carryTime||""),"配送完了時間："+(r.deliveryTime||""),"配送内容："+(r.deliveryContent||""),"集金："+(r.collectionStatus||"未確認"));});
+    return lines.join("\n");
+  }
+  function enrich(p){
+    if(!p)return p;
+    var rows=cleanRows(p.completedList||p.storeReports||p.dailyDetails||p.details||p.rows||[]);
+    p.version="V88";
+    var ws=p.workStartTime||p.businessStartTime||p.startTime||p["業務開始時間"]||"";
+    var we=p.workEndTime||p.businessEndTime||p.endTime||p["業務完了時間"]||"";
+    p.workStartTime=ws;p.businessStartTime=ws;p.startTime=ws;p["業務開始時間"]=ws;
+    p.workEndTime=we;p.businessEndTime=we;p.endTime=we;p["業務完了時間"]=we;
+    p.workTime="開始 "+(hm(ws)||"-")+" / 完了 "+(hm(we)||"-");p.businessTime=p.workTime;p.workTimeText=p.workTime;p["業務時間"]=p.workTime;p["業務開始/完了時間"]=p.workTime;
+    p.workTimeDetail={label:"業務時間",start:ws,end:we,text:p.workTime};
+    p.storeReports=rows;p.completedList=rows;p.dailyDetails=rows;p.details=rows;p.deliveryDetails=rows;p.storeDetails=rows;p.rows=rows;
+    var body=rebuild(p,rows);["body","text","message","reportText","dailyText","detailsText","content","dailyReport","mailBody","report"].forEach(function(k){p[k]=body;});
+    if(p.m001){p.m001.storeReports=rows;p.m001.completedList=rows;p.m001.dailyDetails=rows;p.m001.details=rows;p.m001.rows=rows;p.m001.workTime=p.workTime;p.m001["業務時間"]=p.workTime;p.m001.workTimeDetail=p.workTimeDetail;["body","text","message","reportText","dailyText","detailsText"].forEach(function(k){p.m001[k]=body;});}
+    try{localStorage.setItem("deliverySystemV45_m001ReportData",JSON.stringify(p.m001||p));}catch(e){}
+    return p;
+  }
+  ["buildPayloadV83","buildPayloadV82","buildPayloadV81","buildPayloadV79"].forEach(function(name){
+    var old=window[name];
+    if(typeof old==="function"&&!old.__v88){
+      var fn=function(){return enrich(old.apply(this,arguments));};
+      fn.__v88=true;window[name]=fn;
+    }
+  });
 })();
 </script>
 

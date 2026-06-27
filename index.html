@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>配送・集金管理システム V87</title>
+<title>配送・集金管理システム V88</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;width:100%;min-width:100%;background:#e9edf2;font-family:sans-serif;overflow-x:hidden}
@@ -776,8 +776,7 @@ window.addEventListener("load",function(){
     function ensure(code,name){code=clean(code);if(!/^K\d{4}$/.test(code))return null;if(!rows[code]){rows[code]={code:code,name:name||STORE_NAMES[code]||code,carryTime:"",deliveryTime:"",deliveryContent:"商品配送",status:"配送完了",collectionStatus:"未確認",last:0};order.push(code);}return rows[code];}
     try{carry.forEach(function(x){var r=ensure(x&&x.code,x&&x.name);if(!r)return;var t=hm(x.datetime||x.time||x.carryTime||x.carryOutTime);if(t&&!r.carryTime)r.carryTime=t;var n=ms(x);if(n>r.last)r.last=n;});}catch(e){}
     try{history.forEach(function(x){var r=ensure(x&&x.code,x&&x.name);if(!r)return;var st=String(x.status||""),t=hm(x.datetime||x.time),n=ms(x);r.name=(x&&x.name)||r.name;if(n>r.last)r.last=n;if(st==="持出"&&t)r.carryTime=t;if(st==="配送完了"&&t){r.deliveryTime=t;r.deliveryContent=optionText(r.code,x,opt);r.status="配送完了";}if(st==="配送不可"&&t){r.deliveryTime=t;r.deliveryContent="配送不可"+(x.reason?"（"+x.reason+"）":"");r.status="配送不可";r.collectionStatus="対象外";}if(st==="集金完了"||st==="未集金"||st==="集金なし"){if(!r.deliveryTime&&t)r.deliveryTime=t;r.deliveryContent=r.deliveryContent||optionText(r.code,x,opt);r.collectionStatus=collectText(st);}});}catch(e){}
-    var ws=started(), we=ended();
-    return order.map(function(k){var r=rows[k];var disp="業務開始 "+hm(ws)+" / 業務完了 "+hm(we)+" / 持出 "+(r.carryTime||"-")+" / 配送完了 "+(r.deliveryTime||"-");r.takeoutTime=r.carryTime;r.carryOutTime=r.carryTime;r.carriedAt=r.carryTime;r.deliveryCompleteTime=r.deliveryTime;r.deliveryCompletedTime=r.deliveryTime;r.completedTime=r.deliveryTime;r.deliveredAt=r.deliveryTime;r.time=disp;r.datetime=disp;r.displayTime=disp;r["時刻"]=disp;r["持出時間"]=r.carryTime;r["配送完了時間"]=r.deliveryTime;r["配送内容"]=r.deliveryContent;r["店舗コード"]=r.code;r["店舗名"]=r.name;r["集金"]=r.collectionStatus;return r;}).filter(function(r){return !!r.deliveryTime;}).sort(function(a,b){return (a.last||0)-(b.last||0);});
+    return order.map(function(k){var r=rows[k];var disp="持出 "+(r.carryTime||"-")+" / 配送完了 "+(r.deliveryTime||"-");r.takeoutTime=r.carryTime;r.carryOutTime=r.carryTime;r.carriedAt=r.carryTime;r.deliveryCompleteTime=r.deliveryTime;r.deliveryCompletedTime=r.deliveryTime;r.completedTime=r.deliveryTime;r.deliveredAt=r.deliveryTime;r.time=disp;r.datetime=disp;r.displayTime=disp;r["時刻"]=disp;r["持出時間"]=r.carryTime;r["配送完了時間"]=r.deliveryTime;r["配送内容"]=r.deliveryContent;r["店舗コード"]=r.code;r["店舗名"]=r.name;r["集金"]=r.collectionStatus;return r;}).filter(function(r){return !!r.deliveryTime;}).sort(function(a,b){return (a.last||0)-(b.last||0);});
   }
   function openCarryV84(){
     var carry=get("carryOutData",[]), state=get("stateData",{}), a=[],seen={};
@@ -862,7 +861,7 @@ window.addEventListener("load",function(){
       .finally(function(){if(btn){btn.disabled=false;btn.textContent="日報送信";}refreshV84();});
   }
   function refreshV84(){
-    try{document.title="配送・集金管理システム V87";var h=document.querySelector(".header");if(h)h.textContent="点呼ページ";}catch(e){}
+    try{document.title="配送・集金管理システム V88";var h=document.querySelector(".header");if(h)h.textContent="点呼ページ";}catch(e){}
     calcDistanceV84();
     var bStart=id("btnBusinessStartV82"), bComplete=id("btnBusinessCompleteV84"), bSend=id("btnMail"), bReset=id("btnResetComplete");
     var s=started(), done=isDone();
@@ -1188,6 +1187,101 @@ window.addEventListener("load",function(){
   setTimeout(ensureV87Close,800);
   setTimeout(ensureV87Close,1800);
   setInterval(ensureV87Close,1000);
+})();
+</script>
+
+
+<style id="v88-daily-detail-time-css">
+/* ===== V88：日報の業務開始/終了時間は店舗別行ではなく日報詳細用データへ分離 ===== */
+</style>
+<script id="v88-daily-detail-time-js">
+/* ===== V88：配送完了一覧から業務開始/業務完了を除外し、日報詳細用の業務時間枠データを追加 ===== */
+(function(){
+  function hm(v){var s=String(v||"");var m=s.match(/(\d{1,2}:\d{2})(?::\d{2})?/);return m?m[1]:s;}
+  function sanitizeRows(rows){
+    rows=(rows||[]).map(function(r){
+      var x={};
+      for(var k in r){x[k]=r[k];}
+      var carry=x.carryTime||x.takeoutTime||x.carryOutTime||x["持出時間"]||"";
+      var del=x.deliveryTime||x.deliveryCompleteTime||x.deliveryCompletedTime||x.completedTime||x.deliveredAt||x["配送完了時間"]||"";
+      var disp="持出 "+(hm(carry)||"-")+" / 配送完了 "+(hm(del)||"-");
+      x.carryTime=hm(carry); x.takeoutTime=x.carryTime; x.carryOutTime=x.carryTime; x["持出時間"]=x.carryTime;
+      x.deliveryTime=hm(del); x.deliveryCompleteTime=x.deliveryTime; x.deliveryCompletedTime=x.deliveryTime; x.completedTime=x.deliveryTime; x.deliveredAt=x.deliveryTime; x["配送完了時間"]=x.deliveryTime;
+      x.time=disp; x.datetime=disp; x.displayTime=disp; x["時刻"]=disp;
+      delete x.workStartTime; delete x.workEndTime; delete x.businessStartTime; delete x.businessEndTime;
+      delete x.startTime; delete x.endTime; delete x.startedAt; delete x.completedAt;
+      delete x["業務開始時間"]; delete x["業務完了時間"];
+      return x;
+    });
+    return rows;
+  }
+  function rebuildBody(p,rows){
+    var workLine="開始 "+(hm(p.workStartTime)||"-")+" / 完了 "+(hm(p.workEndTime)||"-");
+    var lines=[
+      "配送・集金日報",
+      "",
+      "得意先："+(p.customerCode||"")+" "+(p.customerName||""),
+      "ドライバー："+(p.driverCode||"")+" "+(p.driverName||""),
+      "車両："+(p.vehicleCode||"")+" "+(p.vehicleName||""),
+      "端末："+(p.terminalCode||"")+" "+(p.terminalName||""),
+      "",
+      "業務時間："+workLine,
+      "業務開始時間："+(p.workStartTime||""),
+      "業務完了時間："+(p.workEndTime||""),
+      "",
+      "業務開始前走行距離："+(p.startMeter||"")+" km",
+      "業務開始前アルコール値："+(p.startAlcohol||"")+" mg/L",
+      "業務終了後走行距離："+(p.endMeter||"")+" km",
+      "業務終了後アルコール値："+(p.endAlcohol||"")+" mg/L",
+      "本日の走行距離："+(p.dailyDistance||"0")+" km",
+      "",
+      "配送完了一覧"
+    ];
+    rows.forEach(function(r){
+      lines.push("",(r.code||"")+" "+(r.name||""),"時刻："+(r.time||""),"持出時間："+(r.carryTime||""),"配送完了時間："+(r.deliveryTime||""),"配送内容："+(r.deliveryContent||""),"集金："+(r.collectionStatus||"未確認"));
+    });
+    return lines.join("\n");
+  }
+  function enrich(p){
+    if(!p)return p;
+    var rows=sanitizeRows(p.completedList||p.storeReports||p.dailyDetails||p.details||p.rows||[]);
+    p.version="V88";
+    var ws=p.workStartTime||p.businessStartTime||p.startTime||p.startAt||p.startedAt||p["業務開始時間"]||"";
+    var we=p.workEndTime||p.businessEndTime||p.endTime||p.endAt||p.completedAt||p["業務完了時間"]||"";
+    p.workStartTime=ws;p.businessStartTime=ws;p.startTime=ws;p.startAt=ws;p.startedAt=ws;p["業務開始時間"]=ws;
+    p.workEndTime=we;p.businessEndTime=we;p.endTime=we;p.endAt=we;p.completedAt=we;p["業務完了時間"]=we;
+    p.workTime="開始 "+(hm(ws)||"-")+" / 完了 "+(hm(we)||"-");
+    p.businessTime=p.workTime;p.workTimeText=p.workTime;p.attendanceTime=p.workTime;p["業務時間"]=p.workTime;p["業務開始/完了時間"]=p.workTime;
+    p.workTimeDetail={label:"業務時間",start:ws,end:we,text:p.workTime};
+    p.dailyDetailWorkTime=p.workTimeDetail;
+    p.storeReports=rows;p.completedList=rows;p.dailyDetails=rows;p.details=rows;p.deliveryDetails=rows;p.storeDetails=rows;p.rows=rows;
+    var body=rebuildBody(p,rows);
+    ["body","text","message","reportText","dailyText","detailsText","content","dailyReport","mailBody","report"].forEach(function(k){p[k]=body;});
+    if(p.m001){
+      p.m001.storeReports=rows;p.m001.completedList=rows;p.m001.dailyDetails=rows;p.m001.details=rows;p.m001.deliveryDetails=rows;p.m001.storeDetails=rows;p.m001.rows=rows;
+      p.m001.workTime=p.workTime;p.m001.businessTime=p.workTime;p.m001.workTimeText=p.workTime;p.m001["業務時間"]=p.workTime;p.m001["業務開始/完了時間"]=p.workTime;p.m001.workTimeDetail=p.workTimeDetail;
+      ["body","text","message","reportText","dailyText","detailsText","content","dailyReport","mailBody","report"].forEach(function(k){p.m001[k]=body;});
+    }
+    try{
+      var KEY="deliverySystemV45_";
+      localStorage.setItem(KEY+"lastDailyPayload",JSON.stringify(p));
+      localStorage.setItem(KEY+"dailyPayloadV88",JSON.stringify(p));
+      localStorage.setItem(KEY+"m001ReportData",JSON.stringify(p.m001||p));
+    }catch(e){}
+    return p;
+  }
+  var oldBuild=window.buildPayloadV84;
+  if(typeof oldBuild==="function" && !oldBuild.__v88){
+    var wrapped=function(){return enrich(oldBuild.apply(this,arguments));};
+    wrapped.__v88=true;
+    window.buildPayloadV84=wrapped;
+  }
+  var oldPost=window.postBodyV84;
+  if(typeof oldPost==="function" && !oldPost.__v88){
+    var post=function(p){return oldPost.call(this,enrich(p));};
+    post.__v88=true;
+    window.postBodyV84=post;
+  }
 })();
 </script>
 

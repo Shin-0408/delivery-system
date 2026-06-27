@@ -510,14 +510,14 @@ body.v84-customer-clean .pageNav{grid-template-columns:1fr!important;}
 
 
 <style id="v86-customer-page-clean-css">
-/* ===== V88：得意先・ドライバー・車両・端末の選択は点呼ページのみ表示 ===== */
+/* ===== V89：得意先・ドライバー・車両・端末の選択は点呼ページのみ表示 ===== */
 body.v86-customer-page-clean .topGrid{display:none!important;}
 </style>
 <script id="v86-customer-page-clean-js">
-/* ===== V88：得意先ページでは点呼情報を消さず、点呼ページへ戻す ===== */
+/* ===== V89：得意先ページでは点呼情報を消さず、点呼ページへ戻す ===== */
 (function(){
   var KEY="deliverySystemV45_";
-  var BACKUP_KEY="DeliverySystemV88_tenkoBackup";
+  var BACKUP_KEY="DeliverySystemV89_tenkoBackup";
   function id(x){return document.getElementById(x);}
   function rawGet(k){try{return localStorage.getItem(k)||"";}catch(e){return "";}}
   function rawSet(k,v){try{localStorage.setItem(k,String(v||""));}catch(e){}}
@@ -543,7 +543,7 @@ body.v86-customer-page-clean .topGrid{display:none!important;}
   }
   function bind(){
     document.body.className=(document.body.className||"").replace(/\bv86-customer-page-clean\b/g,"")+" v86-customer-page-clean";
-    try{document.title=document.title.replace(/V85/g,"V88");}catch(e){}
+    try{document.title=document.title.replace(/V85/g,"V89");}catch(e){}
     var back=document.querySelector('a[href="./index.html"],a[href="index.html"]');
     if(back){back.textContent="点呼ページへ戻る";back.addEventListener("click",preserveTenko,true);}
     preserveTenko();

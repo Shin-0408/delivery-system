@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>M001 株式会社松葉屋製麺 V88</title>
+<title>M001 株式会社松葉屋製麺 V89</title>
 <!-- V72: M001松葉屋専用ページ。V74データ互換維持。 -->
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -3508,7 +3508,7 @@ body.v84-m001-clean .footerBtns{grid-template-columns:1fr 1fr!important;}
   function ended(){return rawGet("DeliverySystemV87_workEndTime")||rawGet("DeliverySystemV84_workEndTime")||rawGet("DeliverySystemV83_workEndTime")||rawGet("DeliverySystemV82_workEndTime")||rawGet("DeliverySystemV81_workEndTime")||rawGet("DeliverySystemV79_workEndTime")||rawGet("DeliverySystemV72_workEndTime")||"";}
   function applyClean(){
     document.body.className=(document.body.className||"").replace(/\bv84-m001-clean\b/g,"")+" v84-m001-clean";
-    try{document.title="M001 株式会社松葉屋製麺 V88";var h=document.querySelector(".header");if(h)h.textContent="株式会社松葉屋製麺";}catch(e){}
+    try{document.title="M001 株式会社松葉屋製麺 V89";var h=document.querySelector(".header");if(h)h.textContent="株式会社松葉屋製麺";}catch(e){}
     var back=document.querySelector('a[href="./index.html"],a[href="index.html"]');if(back){back.textContent="点呼ページへ戻る";back.setAttribute("aria-label","点呼ページへ戻る");}
     ["btnM001CompleteMark","btnPageDailySend","btnComplete","btnMail","btnDailySend"].forEach(function(x){var b=id(x);if(b){b.style.display="none";b.disabled=true;b.onclick=function(){location.href="./index.html";return false;};}});
     try{if(typeof window.buildPayloadV83==="function"){var p=window.buildPayloadV83(); if(p&&p.m001){set("m001ReportData",p.m001);}}}catch(e){}
@@ -3538,7 +3538,7 @@ body.v84-m001-clean .footerBtns{grid-template-columns:1fr 1fr!important;}
     }catch(e){}
   }
   function bind(){
-    try{document.title="M001 株式会社松葉屋製麺 V88";}catch(e){}
+    try{document.title="M001 株式会社松葉屋製麺 V89";}catch(e){}
     var backs=document.querySelectorAll('a[href="./index.html"],a[href="index.html"]');
     for(var i=0;i<backs.length;i++){if(!backs[i].__v85save){backs[i].__v85save=1;backs[i].addEventListener("click",saveWork);}}
     window.addEventListener("pagehide",saveWork);
@@ -3598,7 +3598,7 @@ body.v86-customer-page-clean .topGrid{display:none!important;}
 
 
 <script id="v88-m001-daily-row-sanitize-js">
-/* ===== V88：M001側で保存する日報材料も、店舗別行から業務開始/完了を外す ===== */
+/* ===== V89：M001側で保存する日報材料も、店舗別行から業務開始/完了を外す ===== */
 (function(){
   function hm(v){var s=String(v||"");var m=s.match(/(\d{1,2}:\d{2})(?::\d{2})?/);return m?m[1]:s;}
   function cleanRows(rows){
@@ -3623,7 +3623,7 @@ body.v86-customer-page-clean .topGrid{display:none!important;}
   function enrich(p){
     if(!p)return p;
     var rows=cleanRows(p.completedList||p.storeReports||p.dailyDetails||p.details||p.rows||[]);
-    p.version="V88";
+    p.version="V89";
     var ws=p.workStartTime||p.businessStartTime||p.startTime||p["業務開始時間"]||"";
     var we=p.workEndTime||p.businessEndTime||p.endTime||p["業務完了時間"]||"";
     p.workStartTime=ws;p.businessStartTime=ws;p.startTime=ws;p["業務開始時間"]=ws;
@@ -3643,6 +3643,42 @@ body.v86-customer-page-clean .topGrid{display:none!important;}
       fn.__v88=true;window[name]=fn;
     }
   });
+})();
+</script>
+
+
+
+<script id="v89-m001-unpaid-balance-guard-js">
+/* ===== V89：M001側でも未集金残高を日報削除から保護 ===== */
+(function(){
+  var KEY=(window.KEY||"deliverySystemV45_");
+  function get(k,d){try{var v=localStorage.getItem(KEY+k);return v?JSON.parse(v):d;}catch(e){return d;}}
+  function set(k,v){try{localStorage.setItem(KEY+k,JSON.stringify(v));}catch(e){}}
+  function preserve(){
+    var src={};
+    try{src=window.balanceData||get("balanceData",{});}catch(e){src=get("balanceData",{});} 
+    var keep={};
+    try{Object.keys(src||{}).forEach(function(code){var x=src[code]||{},p=Number(x.previous||0),c=Number(x.current||0);if(p>0||c>0)keep[code]={previous:p,current:c};});}catch(e){}
+    return keep;
+  }
+  function restore(keep){
+    try{
+      var cur=window.balanceData||get("balanceData",{}), merged={};
+      Object.keys(cur||{}).forEach(function(code){merged[code]=cur[code];});
+      Object.keys(keep||{}).forEach(function(code){merged[code]=keep[code];});
+      window.balanceData=merged; set("balanceData",merged);
+    }catch(e){}
+  }
+  var oldReset=window.reset;
+  if(typeof oldReset==="function" && !oldReset.__v89){
+    window.reset=function(){var keep=preserve();var r=oldReset.apply(this,arguments);restore(keep);try{if(typeof window.renderAll==="function")window.renderAll();}catch(e){}return r;};
+    window.reset.__v89=true;
+  }
+  var oldSave=window.saveAll;
+  if(typeof oldSave==="function" && !oldSave.__v89){
+    window.saveAll=function(){var keep=preserve();var r=oldSave.apply(this,arguments);restore(keep);return r;};
+    window.saveAll.__v89=true;
+  }
 })();
 </script>
 

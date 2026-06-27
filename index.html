@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>配送・集金管理システム V88</title>
+<title>配送・集金管理システム V89</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;width:100%;min-width:100%;background:#e9edf2;font-family:sans-serif;overflow-x:hidden}
@@ -861,7 +861,7 @@ window.addEventListener("load",function(){
       .finally(function(){if(btn){btn.disabled=false;btn.textContent="日報送信";}refreshV84();});
   }
   function refreshV84(){
-    try{document.title="配送・集金管理システム V88";var h=document.querySelector(".header");if(h)h.textContent="点呼ページ";}catch(e){}
+    try{document.title="配送・集金管理システム V89";var h=document.querySelector(".header");if(h)h.textContent="点呼ページ";}catch(e){}
     calcDistanceV84();
     var bStart=id("btnBusinessStartV82"), bComplete=id("btnBusinessCompleteV84"), bSend=id("btnMail"), bReset=id("btnResetComplete");
     var s=started(), done=isDone();
@@ -1245,7 +1245,7 @@ window.addEventListener("load",function(){
   function enrich(p){
     if(!p)return p;
     var rows=sanitizeRows(p.completedList||p.storeReports||p.dailyDetails||p.details||p.rows||[]);
-    p.version="V88";
+    p.version="V89";
     var ws=p.workStartTime||p.businessStartTime||p.startTime||p.startAt||p.startedAt||p["業務開始時間"]||"";
     var we=p.workEndTime||p.businessEndTime||p.endTime||p.endAt||p.completedAt||p["業務完了時間"]||"";
     p.workStartTime=ws;p.businessStartTime=ws;p.startTime=ws;p.startAt=ws;p.startedAt=ws;p["業務開始時間"]=ws;
@@ -1282,6 +1282,80 @@ window.addEventListener("load",function(){
     post.__v88=true;
     window.postBodyV84=post;
   }
+})();
+</script>
+
+
+
+<style id="v89-unpaid-and-clear-css">
+/* ===== V89：未集金残高は日報送信クリア対象外。点呼入力は送信後に確実クリア ===== */
+</style>
+<script id="v89-unpaid-and-clear-js">
+/* ===== V89：日報送信後クリアを安全化。未集金残高は集金完了まで保持 ===== */
+(function(){
+  var KEY="deliverySystemV45_";
+  var VERS="V89";
+  var WORK_KEYS=["workData"];
+  var DAILY_KEYS=["m001ReportData","m001DailyPayloadV83","dailyPayloadV89","dailyPayloadV88","dailyPayloadV85","dailyPayloadV84","lastDailyPayload","historyData","collectHistoryData","carryOutData","stateData","invoiceData","optionData","searchCountData","undoData"];
+  var RAW_START=["DeliverySystemV85_workStartTime","DeliverySystemV84_workStartTime","DeliverySystemV83_workStartTime","DeliverySystemV82_workStartTime","DeliverySystemV81_workStartTime","DeliverySystemV79_workStartTime","DeliverySystemV72_workStartTime"];
+  var RAW_END=["DeliverySystemV85_workEndTime","DeliverySystemV84_workEndTime","DeliverySystemV83_workEndTime","DeliverySystemV82_workEndTime","DeliverySystemV81_workEndTime","DeliverySystemV79_workEndTime","DeliverySystemV72_workEndTime"];
+  var RAW_DONE=["DeliverySystemV85_businessCompleted","DeliverySystemV84_businessCompleted","DeliverySystemV83_businessCompleted","DeliverySystemV72_businessCompleted","deliverySystemV45_businessCompleted"];
+  var RAW_BACKUP=["DeliverySystemV87_tenkoBackup","DeliverySystemV86_tenkoBackup","DeliverySystemV85_tenkoBackup","DeliverySystemV84_tenkoBackup"];
+  function id(x){return document.getElementById(x);} 
+  function getJSON(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
+  function setJSON(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+  function rm(k){try{localStorage.removeItem(k);}catch(e){}}
+  function setRaw(k,v){try{localStorage.setItem(k,String(v));}catch(e){}}
+  function preserveBalance(){
+    var b=getJSON(KEY+"balanceData",{});
+    var keep={};
+    try{
+      Object.keys(b||{}).forEach(function(code){
+        var x=b[code]||{}, prev=Number(x.previous||0), cur=Number(x.current||0);
+        if(prev>0 || cur>0) keep[code]={previous:prev,current:cur};
+      });
+    }catch(e){}
+    return keep;
+  }
+  function restoreBalance(keep){
+    try{
+      var now=getJSON(KEY+"balanceData",{}), merged={};
+      Object.keys(now||{}).forEach(function(code){merged[code]=now[code];});
+      Object.keys(keep||{}).forEach(function(code){merged[code]=keep[code];});
+      setJSON(KEY+"balanceData",merged);
+    }catch(e){}
+  }
+  function clearInputs(){
+    ["startMeter","startAlcohol","endMeter","endAlcohol"].forEach(function(k){var e=id(k);if(e)e.value="";});
+    var d=id("dailyDistance"); if(d)d.value="0";
+  }
+  function clearTodayV89(){
+    var keep=preserveBalance();
+    DAILY_KEYS.concat(WORK_KEYS).forEach(function(k){rm(KEY+k);});
+    RAW_START.concat(RAW_END).concat(RAW_DONE).concat(RAW_BACKUP).forEach(rm);
+    restoreBalance(keep);
+    clearInputs();
+    RAW_DONE.forEach(function(k){setRaw(k,"0");});
+    try{ if(typeof window.refreshV84==="function") window.refreshV84(); }catch(e){}
+    try{document.title="配送・集金管理システム V89";}catch(e){}
+  }
+  var oldClear=window.clearTodayV84;
+  window.clearTodayV84=function(){ clearTodayV89(); };
+  var oldBuild=window.buildPayloadV84;
+  if(typeof oldBuild==="function" && !oldBuild.__v89){
+    var wrapped=function(){var p=oldBuild.apply(this,arguments); if(p){p.version="V89"; try{setJSON(KEY+"dailyPayloadV89",p);}catch(e){}} return p;};
+    wrapped.__v89=true; window.buildPayloadV84=wrapped;
+  }
+  var oldSend=window.sendV84;
+  if(typeof oldSend==="function" && !oldSend.__v89){
+    var send=function(){return oldSend.apply(this,arguments);};
+    send.__v89=true; window.sendV84=send;
+  }
+  function refresh(){
+    try{document.title="配送・集金管理システム V89";var h=document.querySelector(".header");if(h)h.textContent="点呼ページ";}catch(e){}
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",refresh);else refresh();
+  setTimeout(refresh,300);setTimeout(refresh,1200);
 })();
 </script>
 

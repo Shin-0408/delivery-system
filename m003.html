@@ -503,7 +503,7 @@ body.v84-customer-clean .pageNav{grid-template-columns:1fr!important;}
     ["btnComplete","btnPageDailySend","btnMail","btnDailySend"].forEach(function(x){var b=id(x);if(b){b.style.display="none";b.disabled=true;b.onclick=function(){alert("業務完了・日報送信は点呼ページで押してください。");location.href="./index.html";return false;};}});
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",clean);else clean();
-  setTimeout(clean,300);setTimeout(clean,1200);setInterval(clean,1800);
+  setTimeout(clean,300);setTimeout(clean,1200);setTimeout(clean,1800);
 })();
 </script>
 

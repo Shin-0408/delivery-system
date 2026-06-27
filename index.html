@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>配送・集金管理システム V93</title>
+<title>配送・集金管理システム V94</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;width:100%;min-width:100%;background:#e9edf2;font-family:sans-serif;overflow-x:hidden}
@@ -397,7 +397,7 @@ function updateMailLock(){
 }
 function collectAllPayload(){
   saveCommon();
-  var payload={token:TOKEN,version:"V76",sentAt:new Date().toLocaleString("ja-JP"),common:parse("config",{}),workData:parse("workData",{}),
+  var payload={token:TOKEN,version:"V95",sentAt:new Date().toLocaleString("ja-JP"),common:parse("config",{}),workData:parse("workData",{}),
     m001:parse("m001ReportData",{}),m002:parse("m002WorkData",{}),m003:parse("m003WorkData",{}),m004:parse("m004WorkData",{}),
     legacy:{historyData:parse("historyData",[]),collectHistoryData:parse("collectHistoryData",[]),carryOutData:parse("carryOutData",[]),balanceData:parse("balanceData",{})}};
   return payload;
@@ -423,7 +423,7 @@ window.addEventListener("load",function(){
   id("btnMail").onclick=sendDaily;
   id("btnResetComplete").onclick=function(){localStorage.setItem(COMPLETE_KEY,"0");updateMailLock();alert("業務完了状態を解除しました。");};
   updateMailLock();
-  if("serviceWorker" in navigator){navigator.serviceWorker.register("./service-worker.js?v=91").catch(function(){});}
+  if("serviceWorker" in navigator){navigator.serviceWorker.register("./service-worker.js?v=95").catch(function(){});}
 });
 </script>
 
@@ -556,7 +556,7 @@ window.addEventListener("load",function(){
     var bal={}; try{bal=window.balanceData||{};}catch(e){bal=m001Local.balanceData||{};}
     return {
       token:TOKEN,
-      version:"V76",
+      version:"V95",
       reportDate:new Date().toLocaleString("ja-JP"),
       sentAt:new Date().toLocaleString("ja-JP"),
       customerCode:common.customerCode,
@@ -701,7 +701,7 @@ window.addEventListener("load",function(){
   function started(){for(var i=0;i<START_KEYS.length;i++){var v=rawGet(START_KEYS[i]);if(v)return v;}return "";}
   function begin(){var t=nowFull();writeAll(t);rawRemove(RELEASE_KEY);clearDone();var b=id("btnBusinessStartV82");if(b){b.textContent="業務開始済";b.disabled=true;b.style.opacity=".75";}alert("業務開始時間を記録しました。\n"+nowHM());}
   function bind(){var b=id("btnBusinessStartV82");if(!b)return;b.onclick=begin;if(rawGet(RELEASE_KEY)==="1"){b.textContent="業務開始";b.disabled=false;b.style.opacity="";return;}var s=started();if(s){b.textContent="業務開始済";b.disabled=true;b.style.opacity=".75";}else{b.textContent="業務開始";b.disabled=false;b.style.opacity="";}}
-  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();setTimeout(bind,300);setTimeout(bind,1200);setInterval(bind,2000);
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();setTimeout(bind,300);setTimeout(bind,1200);setTimeout(bind,2000);
 })();
 </script>
 
@@ -861,7 +861,7 @@ window.addEventListener("load",function(){
       .finally(function(){if(btn){btn.disabled=false;btn.textContent="日報送信";}refreshV84();});
   }
   function refreshV84(){
-    try{document.title="配送・集金管理システム V93";var h=document.querySelector(".header");if(h)h.textContent="点呼ページ";}catch(e){}
+    try{document.title="配送・集金管理システム V94";var h=document.querySelector(".header");if(h)h.textContent="点呼ページ";}catch(e){}
     calcDistanceV84();
     var bStart=id("btnBusinessStartV82"), bComplete=id("btnBusinessCompleteV84"), bSend=id("btnMail"), bReset=id("btnResetComplete");
     var s=started(), done=isDone();
@@ -883,7 +883,7 @@ window.addEventListener("load",function(){
   }
   window.buildPayloadV84=buildPayloadV84;window.sendDailyV84=sendV84;window.completeV84=completeV84;
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bindV84);else bindV84();
-  setTimeout(bindV84,300);setTimeout(bindV84,1000);setTimeout(bindV84,2500);setInterval(refreshV84,1200);
+  setTimeout(bindV84,300);setTimeout(bindV84,1000);setTimeout(bindV84,2500);setTimeout(refreshV84,1200);
 })();
 </script>
 
@@ -951,7 +951,7 @@ window.addEventListener("load",function(){
   window.addEventListener("beforeunload",save);
   document.addEventListener("visibilitychange",function(){if(document.visibilityState==="hidden")save();else restore();});
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
-  setTimeout(bind,200);setTimeout(bind,800);setTimeout(bind,1800);setInterval(function(){restore();cleanModal();},1500);
+  setTimeout(bind,200);setTimeout(bind,800);setTimeout(bind,1800);setTimeout(function(){restore();cleanModal();},1500);
 })();
 </script>
 
@@ -1100,7 +1100,7 @@ window.addEventListener("load",function(){
   window.addEventListener("pageshow",function(){restoreStrong();refreshButtons();});
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
   setTimeout(bind,200);setTimeout(bind,800);setTimeout(bind,1800);setTimeout(bind,3000);
-  setInterval(function(){restoreStrong();refreshButtons();},500);
+  setTimeout(function(){restoreStrong();refreshButtons();},500);
 })();
 </script>
 
@@ -1186,7 +1186,7 @@ window.addEventListener("load",function(){
   setTimeout(ensureV87Close,200);
   setTimeout(ensureV87Close,800);
   setTimeout(ensureV87Close,1800);
-  setInterval(ensureV87Close,1000);
+  setTimeout(ensureV87Close,1000);
 })();
 </script>
 
@@ -1383,7 +1383,7 @@ window.addEventListener("load",function(){
     return false;
   }
   function bind(){
-    try{document.title="配送・集金管理システム V93";var h=document.querySelector(".header");if(h)h.textContent="点呼ページ";}catch(e){}
+    try{document.title="配送・集金管理システム V94";var h=document.querySelector(".header");if(h)h.textContent="点呼ページ";}catch(e){}
     restoreUnpaid();
     ["btnMail","btnDailySend"].forEach(function(x){var b=id(x);if(b&&!b.__v90send){b.__v90send=1;b.addEventListener("click",sendV91,true);b.onclick=sendV91;}});
   }
@@ -1392,7 +1392,7 @@ window.addEventListener("load",function(){
   window.sendV84=sendV91;
   window.addEventListener("storage",function(){restoreUnpaid();});
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
-  setTimeout(bind,200);setTimeout(bind,800);setTimeout(bind,2000);setInterval(restoreUnpaid,1000);
+  setTimeout(bind,200);setTimeout(bind,800);setTimeout(bind,2000);setTimeout(restoreUnpaid,1000);
 })();
 </script>
 
@@ -1426,11 +1426,13 @@ window.addEventListener("load",function(){
     return order.map(function(k){var r=map[k]; var disp='持出 '+(r.carryTime||'-')+' / 配送完了 '+(r.deliveryTime||'-'); r.time=disp;r.datetime=disp;r.displayTime=disp;r.takeoutTime=r.carryTime;r.carryOutTime=r.carryTime;r.deliveryCompleteTime=r.deliveryTime;r.deliveryCompletedTime=r.deliveryTime;r.completedTime=r.deliveryTime;r.deliveredAt=r.deliveryTime;r['時刻']=disp;r['店舗コード']=r.code;r['店舗名']=r.name;r['持出時間']=r.carryTime;r['配送完了時間']=r.deliveryTime;r['配送内容']=r.deliveryContent;r['状態']=r.status;r['集金']=r.collectionStatus;r['金額']=r.amount||'';r['理由']=r.reason||''; return r;}).filter(function(r){return !!r.deliveryTime;}).sort(function(a,b){return (a.last||0)-(b.last||0);});
   }
   function buildSummary(rows){
-    var history=get('historyData',[]), carry=get('carryOutData',[]), state=get('stateData',{}); var ca=0,de=0,co=0,coA=0,pe=0,peA=0,no=0,fa=0,open={};
+    var history=get('historyData',[]), collectHist=get('collectHistoryData',[]), carry=get('carryOutData',[]), state=get('stateData',{}); var ca=0,de=0,co=0,coA=0,pe=0,peA=0,no=0,fa=0,open={},chA=0;
     try{carry.forEach(function(x){var c=clean(x&&x.code); if(/^K\d{4}$/.test(c)){ca++; if(state[c]&&state[c].status==='持出')open[c]=1;}});}catch(e){}
     try{history.forEach(function(x){if(!x)return; var st=String(x.status||''); if(st==='配送完了')de++; if(st==='配送不可')fa++; if(st==='集金完了'){co++;coA+=Number(x.amount||0);} if(st==='未集金'){pe++;peA+=Number(x.amount||0);} if(st==='集金なし')no++;});}catch(e){}
+    try{collectHist.forEach(function(x){chA+=Number((x&&x.amount)||0);});}catch(e){}
+    var todayTotal=Math.max(coA,chA);
     if(rows&&rows.length){de=Math.max(de,rows.filter(function(r){return r.status!=='配送不可';}).length);fa=Math.max(fa,rows.filter(function(r){return r.status==='配送不可';}).length);}
-    return {carryCount:ca+'件',deliveryCount:de+'件',remainCount:Object.keys(open).length+'件',collectCount:co+'件',collectAmountText:yen(coA),collectAmount:coA,pendingCount:pe+'件',pendingAmountText:yen(peA),pendingAmount:peA,noCollectCount:no+'件',failCount:fa+'件'};
+    return {carryCount:ca+'件',deliveryCount:de+'件',remainCount:Object.keys(open).length+'件',collectCount:co+'件',collectAmountText:yen(coA),collectAmount:coA,todayTotalCollectAmountText:yen(todayTotal),todayTotalCollectAmount:todayTotal,totalCollectAmountText:yen(todayTotal),totalCollectAmount:todayTotal,pendingCount:pe+'件',pendingAmountText:yen(peA),pendingAmount:peA,noCollectCount:no+'件',failCount:fa+'件'};
   }
   function buildUnpaid(){
     var b=get('balanceData',{}), list=[], total=0;
@@ -1439,7 +1441,7 @@ window.addEventListener("load",function(){
   }
   function addBodySections(body,summary,unpaid){
     var lines=String(body||'').split('\n');
-    lines.push('', '日報集計', '持出件数：'+summary.carryCount, '配送完了件数：'+summary.deliveryCount, '持出中件数：'+summary.remainCount, '集金完了件数：'+summary.collectCount, '集金完了金額：'+summary.collectAmountText, '未集金件数：'+summary.pendingCount, '未集金金額：'+summary.pendingAmountText, '総未集金残高：'+unpaid.totalText, '', '未集金一覧');
+    lines.push('', '日報集計', '持出件数：'+summary.carryCount, '配送完了件数：'+summary.deliveryCount, '持出中件数：'+summary.remainCount, '集金完了件数：'+summary.collectCount, '集金完了金額：'+summary.collectAmountText, '本日の合計集金総額：'+(summary.todayTotalCollectAmountText||summary.totalCollectAmountText||summary.collectAmountText), '未集金件数：'+summary.pendingCount, '未集金金額：'+summary.pendingAmountText, '総未集金残高：'+unpaid.totalText, '', '未集金一覧');
     if(unpaid.list.length){unpaid.list.forEach(function(u){lines.push(u.code+' '+u.name+' '+u.amountText);});}else{lines.push('未集金残高なし');}
     return lines.join('\n');
   }
@@ -1549,7 +1551,7 @@ window.addEventListener("load",function(){
   window.enrichDailyPayloadV93=enrichPayload;
   window.postClearAfterDailySendV93=postClearV93;
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",function(){sanitizeButton();try{if(typeof window.buildPayloadV84==="function")window.buildPayloadV84();}catch(e){}});else{sanitizeButton();try{if(typeof window.buildPayloadV84==="function")window.buildPayloadV84();}catch(e){}}
-  setTimeout(sanitizeButton,200);setTimeout(sanitizeButton,1000);setInterval(watchClear,500);
+  setTimeout(sanitizeButton,200);setTimeout(sanitizeButton,1000);setTimeout(watchClear,500);
 })();
 </script>
 
@@ -1611,6 +1613,151 @@ window.addEventListener("load",function(){
   window.addEventListener("pagehide",backupWork);
   setTimeout(function(){restoreWork();clearStartButtonTimeOnly();},250);
   setTimeout(function(){restoreWork();clearStartButtonTimeOnly();},1200);
+})();
+</script>
+
+
+<script id="v94-stable-complete-button-light-js">
+/* ===== V94：V93を軽量化。業務完了ボタンを点呼4項目＋開始済で安定制御 ===== */
+(function(){
+  var KEY="deliverySystemV45_";
+  var VERSION="V94";
+  var START_KEYS=[
+    "DeliverySystemV94_workStartTime","DeliverySystemV85_workStartTime","DeliverySystemV84_workStartTime","DeliverySystemV83_workStartTime",
+    "DeliverySystemV82_workStartTime","DeliverySystemV81_workStartTime","DeliverySystemV79_workStartTime","DeliverySystemV78_workStartTime","DeliverySystemV72_workStartTime"
+  ];
+  var END_KEYS=[
+    "DeliverySystemV94_workEndTime","DeliverySystemV85_workEndTime","DeliverySystemV84_workEndTime","DeliverySystemV83_workEndTime",
+    "DeliverySystemV82_workEndTime","DeliverySystemV81_workEndTime","DeliverySystemV79_workEndTime","DeliverySystemV78_workEndTime","DeliverySystemV72_workEndTime"
+  ];
+  var DONE_KEYS=["DeliverySystemV85_businessCompleted","DeliverySystemV84_businessCompleted","DeliverySystemV83_businessCompleted","DeliverySystemV72_businessCompleted","DeliverySystemV64_businessCompleted","deliverySystemV45_businessCompleted"];
+  var BACKUP_KEY="DeliverySystemV94_tenkoBackup";
+  var FIELDS=["startMeter","startAlcohol","endMeter","endAlcohol","dailyDistance"];
+  function id(x){return document.getElementById(x);}
+  function val(x){var e=id(x);return e?String(e.value||"").trim():"";}
+  function raw(k){try{return localStorage.getItem(k)||"";}catch(e){return "";}}
+  function setRaw(k,v){try{localStorage.setItem(k,String(v));}catch(e){}}
+  function getJSON(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
+  function setJSON(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+  function first(keys){for(var i=0;i<keys.length;i++){var v=raw(keys[i]);if(v)return v;}return "";}
+  function nowFull(){return new Date().toLocaleString("ja-JP");}
+  function hm(v){var s=String(v||"");var m=s.match(/(\d{1,2}:\d{2})(?::\d{2})?/);return m?m[1]:s;}
+  function writeAll(keys,v){for(var i=0;i<keys.length;i++){setRaw(keys[i],v);setRaw(keys[i]+"_hm",hm(v));}}
+  function saveWork(){
+    try{
+      var w=getJSON(KEY+"workData",{});
+      FIELDS.forEach(function(k){var v=val(k); if(v!=="" || k==="dailyDistance")w[k]=v;});
+      setJSON(KEY+"workData",w);
+      setJSON(BACKUP_KEY,w);
+      var cfg=getJSON(KEY+"config",{});
+      ["customerCode","driverCode","vehicleCode","terminalCode"].forEach(function(k){var e=id(k);if(e)cfg[k]=e.value||cfg[k]||"";});
+      setJSON(KEY+"config",cfg);
+    }catch(e){}
+  }
+  function restoreWork(){
+    try{
+      var w=getJSON(KEY+"workData",null)||getJSON(BACKUP_KEY,{});
+      FIELDS.forEach(function(k){var e=id(k);if(e && String(e.value||"")==="" && w[k])e.value=w[k];});
+      calcDistance();
+    }catch(e){}
+  }
+  function calcDistance(){
+    var s=Number(val("startMeter")||0), e=Number(val("endMeter")||0), d=id("dailyDistance");
+    if(d)d.value=(!isNaN(s)&&!isNaN(e)&&e>=s)?String(e-s):"0";
+  }
+  function startReady(){return !!(val("startMeter") && val("startAlcohol"));}
+  function endReady(){return !!(val("startMeter") && val("startAlcohol") && val("endMeter") && val("endAlcohol"));}
+  function isStarted(){return !!first(START_KEYS);}
+  function isDone(){for(var i=0;i<DONE_KEYS.length;i++){if(raw(DONE_KEYS[i])==="1")return true;}return false;}
+  function setDone(v){for(var i=0;i<DONE_KEYS.length;i++)setRaw(DONE_KEYS[i],v?"1":"0");}
+  function refresh(){
+    restoreWork();
+    var bs=id("btnBusinessStartV82"), bc=id("btnBusinessCompleteV84"), bm=id("btnMail"), br=id("btnResetComplete");
+    var started=isStarted(), done=isDone();
+    if(bs){
+      bs.textContent=started?"業務開始済":"業務開始";
+      bs.disabled=started || !startReady();
+      bs.style.opacity=started?".75":(startReady()?"":".45");
+    }
+    if(bc){
+      var ok=started && endReady();
+      bc.disabled=!ok;
+      bc.style.opacity=ok?"":".45";
+      bc.textContent="業務完了";
+    }
+    if(bm){
+      bm.disabled=!done;
+      bm.style.opacity=done?"":".45";
+      bm.style.filter=done?"":"grayscale(1)";
+      bm.textContent="日報送信";
+    }
+    if(br)br.style.display="none";
+  }
+  function onStart(ev){
+    if(!startReady()){
+      ev.preventDefault();ev.stopPropagation();ev.stopImmediatePropagation();
+      alert("業務開始前走行距離と業務開始前アルコール値を入力してください。");
+      refresh();return false;
+    }
+    saveWork();
+    var t=first(START_KEYS)||nowFull();
+    writeAll(START_KEYS,t);
+    setDone(false);
+    setTimeout(refresh,0);
+  }
+  function onComplete(ev){
+    if(!endReady()){
+      ev.preventDefault();ev.stopPropagation();ev.stopImmediatePropagation();
+      alert("業務開始前走行距離、業務開始前アルコール値、業務終了後走行距離、業務終了後アルコール値をすべて入力してください。");
+      refresh();return false;
+    }
+    if(!isStarted()){
+      ev.preventDefault();ev.stopPropagation();ev.stopImmediatePropagation();
+      alert("先に業務開始ボタンを押してください。");
+      refresh();return false;
+    }
+    saveWork();
+    var t=nowFull();
+    writeAll(END_KEYS,t);
+    if(typeof window.completeV84==="function"){
+      setTimeout(refresh,0);
+      return window.completeV84();
+    }
+    setDone(true);
+    refresh();
+    return true;
+  }
+  function addDetailTimes(){
+    try{
+      var p=getJSON(KEY+"lastDailyPayload",null); if(!p)return;
+      var ws=p.workStartTime||p.businessStartTime||p["業務開始時間"]||first(START_KEYS)||"";
+      var we=p.workEndTime||p.businessEndTime||p["業務終了時間"]||p["業務完了時間"]||first(END_KEYS)||"";
+      p.version=VERSION;
+      p.workStartTime=ws;p.businessStartTime=ws;p["業務開始時間"]=ws;
+      p.workEndTime=we;p.businessEndTime=we;p["業務終了時間"]=we;p["業務完了時間"]=we;
+      p.dailyDetailFields=p.dailyDetailFields||[];
+      var hasStart=false,hasEnd=false;
+      for(var i=0;i<p.dailyDetailFields.length;i++){if(p.dailyDetailFields[i]&&p.dailyDetailFields[i].label==="業務開始時間")hasStart=true;if(p.dailyDetailFields[i]&&p.dailyDetailFields[i].label==="業務終了時間")hasEnd=true;}
+      if(!hasEnd)p.dailyDetailFields.unshift({label:"業務終了時間",value:we});
+      if(!hasStart)p.dailyDetailFields.unshift({label:"業務開始時間",value:ws});
+      setJSON(KEY+"lastDailyPayload",p);
+    }catch(e){}
+  }
+  function bind(){
+    try{document.title="配送・集金管理システム V94";var h=document.querySelector(".header");if(h)h.textContent="点呼ページ";}catch(e){}
+    restoreWork();addDetailTimes();
+    FIELDS.forEach(function(k){var e=id(k);if(e&&!e.__v94){e.__v94=1;["input","change","blur"].forEach(function(ev){e.addEventListener(ev,function(){calcDistance();saveWork();refresh();});});}});
+    var go=id("btnGoCustomerPage");if(go&&!go.__v94){go.__v94=1;go.addEventListener("click",saveWork,true);}
+    var bs=id("btnBusinessStartV82");if(bs&&!bs.__v94){bs.__v94=1;bs.addEventListener("click",onStart,true);}
+    var bc=id("btnBusinessCompleteV84");if(bc&&!bc.__v94){bc.__v94=1;bc.addEventListener("click",onComplete,true);}
+    var bm=id("btnMail");if(bm&&!bm.__v94){bm.__v94=1;bm.addEventListener("click",function(){addDetailTimes();},true);}
+    refresh();
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
+  window.addEventListener("pageshow",bind);
+  window.addEventListener("pagehide",saveWork);
+  setTimeout(bind,250);
+  setTimeout(bind,1200);
 })();
 </script>
 

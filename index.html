@@ -668,7 +668,7 @@ window.addEventListener("load",function(){
     rawSet("DeliverySystemV82_businessStarted","1");
     rawSet("DeliverySystemV81_businessStarted","1");
     var b=id("btnBusinessStartV82");
-    if(b){b.textContent="業務開始済 "+hm;b.disabled=true;b.style.opacity=".75";}
+    if(b){b.textContent="業務開始済";b.disabled=true;b.style.opacity=".75";}
     alert("業務開始時間を記録しました。\n"+hm);
   }
   function bind(){
@@ -676,7 +676,7 @@ window.addEventListener("load",function(){
     if(!b)return;
     b.onclick=saveStart;
     var s=rawGet("DeliverySystemV82_workStartTime")||rawGet("DeliverySystemV81_workStartTime")||rawGet("DeliverySystemV79_workStartTime");
-    if(s){b.textContent="業務開始済 "+(rawGet("DeliverySystemV82_workStartTime_hm")||rawGet("DeliverySystemV81_workStartTime_hm")||s);b.disabled=true;b.style.opacity=".75";}
+    if(s){b.textContent="業務開始済";b.disabled=true;b.style.opacity=".75";}
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
   setTimeout(bind,500);setTimeout(bind,1500);
@@ -699,8 +699,8 @@ window.addEventListener("load",function(){
   function writeAll(v){START_KEYS.forEach(function(k){rawSet(k,v);rawSet(k+"_hm",hm(v));});}
   function clearDone(){DONE_KEYS.forEach(function(k){rawSet(k,"0");});}
   function started(){for(var i=0;i<START_KEYS.length;i++){var v=rawGet(START_KEYS[i]);if(v)return v;}return "";}
-  function begin(){var t=nowFull();writeAll(t);rawRemove(RELEASE_KEY);clearDone();var b=id("btnBusinessStartV82");if(b){b.textContent="業務開始済 "+nowHM();b.disabled=true;b.style.opacity=".75";}alert("業務開始時間を記録しました。\n"+nowHM());}
-  function bind(){var b=id("btnBusinessStartV82");if(!b)return;b.onclick=begin;if(rawGet(RELEASE_KEY)==="1"){b.textContent="業務開始";b.disabled=false;b.style.opacity="";return;}var s=started();if(s){b.textContent="業務開始済 "+hm(s);b.disabled=true;b.style.opacity=".75";}else{b.textContent="業務開始";b.disabled=false;b.style.opacity="";}}
+  function begin(){var t=nowFull();writeAll(t);rawRemove(RELEASE_KEY);clearDone();var b=id("btnBusinessStartV82");if(b){b.textContent="業務開始済";b.disabled=true;b.style.opacity=".75";}alert("業務開始時間を記録しました。\n"+nowHM());}
+  function bind(){var b=id("btnBusinessStartV82");if(!b)return;b.onclick=begin;if(rawGet(RELEASE_KEY)==="1"){b.textContent="業務開始";b.disabled=false;b.style.opacity="";return;}var s=started();if(s){b.textContent="業務開始済";b.disabled=true;b.style.opacity=".75";}else{b.textContent="業務開始";b.disabled=false;b.style.opacity="";}}
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();setTimeout(bind,300);setTimeout(bind,1200);setInterval(bind,2000);
 })();
 </script>
@@ -868,7 +868,7 @@ window.addEventListener("load",function(){
     if(bStart){
       bStart.onclick=startV84;
       bStart.disabled=!workReadyStart() || !!s;
-      bStart.textContent=s ? "業務開始済 "+hm(s) : "業務開始";
+      bStart.textContent=s ? "業務開始済" : "業務開始";
       if(s){bStart.style.opacity=".75";}else{bStart.style.opacity=workReadyStart()?"":".45";}
     }
     if(bComplete){bComplete.onclick=completeV84;bComplete.disabled=!(!!s && workReadyEnd());bComplete.style.opacity=(!bComplete.disabled)?"":".45";bComplete.textContent="業務完了";}
@@ -1334,6 +1334,7 @@ window.addEventListener("load",function(){
     WORK_FIELDS.forEach(function(k){var e=id(k);if(e)e.value=(k==="dailyDistance"?"0":"");});
   }
   function hardClearAfterSend(){
+    try{localStorage.removeItem("DeliverySystemV93_workDataBackup");}catch(e){}
     var keep=backupUnpaid();
     rawSet(CLEAR_STAMP,String(Date.now()));
     DAILY_NAMES.forEach(function(k){rm(KEY+k);});
@@ -1460,12 +1461,12 @@ window.addEventListener("load",function(){
 
 
 <style id="v92-worktime-detail-and-clear-css">
-/* ===== V92：業務開始ボタン時刻非表示・日報詳細へ業務開始/終了時間を明示送信 ===== */
+/* ===== V93：業務開始ボタン時刻非表示・日報詳細へ業務開始/終了時間を明示送信 ===== */
 </style>
 <script id="v92-worktime-detail-and-clear-js">
 (function(){
   var KEY="deliverySystemV45_";
-  var VERSION="V92";
+  var VERSION="V93";
   var START_KEYS=["DeliverySystemV85_workStartTime","DeliverySystemV84_workStartTime","DeliverySystemV83_workStartTime","DeliverySystemV82_workStartTime","DeliverySystemV81_workStartTime","DeliverySystemV79_workStartTime","DeliverySystemV78_workStartTime","DeliverySystemV72_workStartTime"];
   var END_KEYS=["DeliverySystemV85_workEndTime","DeliverySystemV84_workEndTime","DeliverySystemV83_workEndTime","DeliverySystemV82_workEndTime","DeliverySystemV81_workEndTime","DeliverySystemV79_workEndTime","DeliverySystemV78_workEndTime","DeliverySystemV72_workEndTime"];
   var COMPLETE_KEYS=["DeliverySystemV85_businessCompleted","DeliverySystemV84_businessCompleted","DeliverySystemV83_businessCompleted","DeliverySystemV72_businessCompleted","DeliverySystemV64_businessCompleted","deliverySystemV45_businessCompleted"];
@@ -1512,7 +1513,7 @@ window.addEventListener("load",function(){
     p.m001.workEndTime=we;p.m001.businessEndTime=we;p.m001.endTime=we;p.m001["業務終了時間"]=we;p.m001["業務完了時間"]=we;
     p.m001.workTime=p.workTime;p.m001.workTimeDetail=p.workTimeDetail;p.m001.dailyDetailFields=p.dailyDetailFields;
     ["body","text","message","reportText","dailyText","detailsText"].forEach(function(k){p.m001[k]=p[k]||p.body||"";});
-    setJSON(KEY+"dailyPayloadV92",p);setJSON(KEY+"lastDailyPayload",p);setJSON(KEY+"m001ReportData",p.m001);
+    setJSON(KEY+"dailyPayloadV93",p);setJSON(KEY+"lastDailyPayload",p);setJSON(KEY+"m001ReportData",p.m001);
     return p;
   }
   var oldBuild=window.buildPayloadV84;
@@ -1521,7 +1522,7 @@ window.addEventListener("load",function(){
     wrapped.__v92=true;
     window.buildPayloadV84=wrapped;
   }
-  function postClearV92(){
+  function postClearV93(){
     START_KEYS.concat(END_KEYS).forEach(function(k){rm(k);rm(k+"_hm");});
     COMPLETE_KEYS.forEach(rm);
     RELEASE_KEYS.forEach(function(k){setRaw(k,"1");});
@@ -1532,7 +1533,7 @@ window.addEventListener("load",function(){
   }
   var oldClear=window.clearTodayV84;
   if(typeof oldClear==="function" && !oldClear.__v92){
-    var c=function(){var r=oldClear.apply(this,arguments);postClearV92();return r;};
+    var c=function(){var r=oldClear.apply(this,arguments);postClearV93();return r;};
     c.__v92=true;window.clearTodayV84=c;
   }
   function sanitizeButton(){
@@ -1541,12 +1542,12 @@ window.addEventListener("load",function(){
   }
   var lastStamp="";
   function watchClear(){
-    var st=raw("DeliverySystemV91_afterDailySendClear")||raw("DeliverySystemV92_afterDailySendClear");
-    if(st && st!==lastStamp){lastStamp=st;postClearV92();}
+    var st=raw("DeliverySystemV91_afterDailySendClear")||raw("DeliverySystemV93_afterDailySendClear");
+    if(st && st!==lastStamp){lastStamp=st;postClearV93();}
     sanitizeButton();
   }
-  window.enrichDailyPayloadV92=enrichPayload;
-  window.postClearAfterDailySendV92=postClearV92;
+  window.enrichDailyPayloadV93=enrichPayload;
+  window.postClearAfterDailySendV93=postClearV93;
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",function(){sanitizeButton();try{if(typeof window.buildPayloadV84==="function")window.buildPayloadV84();}catch(e){}});else{sanitizeButton();try{if(typeof window.buildPayloadV84==="function")window.buildPayloadV84();}catch(e){}}
   setTimeout(sanitizeButton,200);setTimeout(sanitizeButton,1000);setInterval(watchClear,500);
 })();
@@ -1554,118 +1555,62 @@ window.addEventListener("load",function(){
 
 
 
-<style id="v93-stable-start-and-retain-css">
-/* ===== V93：業務開始ボタンの時刻表示を完全停止。点呼4項目は日報送信まで保持 ===== */
-</style>
-<script id="v93-stable-start-and-retain-js">
+<script id="v93-index-stable-tenko-safe-js">
+/* ===== V93：V93基準の軽量修正。常時監視なし。点呼入力は日報送信まで保持。 ===== */
 (function(){
   var KEY="deliverySystemV45_";
-  var VERSION="V93";
-  var FIELDS=["startMeter","startAlcohol","endMeter","endAlcohol","dailyDistance"];
-  var BACKUP_KEYS=["DeliverySystemV93_tenkoBackup","DeliverySystemV87_tenkoBackup","DeliverySystemV86_tenkoBackup","DeliverySystemV85_tenkoBackup","DeliverySystemV84_tenkoBackup"];
-  var START_KEYS=["DeliverySystemV85_workStartTime","DeliverySystemV84_workStartTime","DeliverySystemV83_workStartTime","DeliverySystemV82_workStartTime","DeliverySystemV81_workStartTime","DeliverySystemV79_workStartTime","DeliverySystemV78_workStartTime","DeliverySystemV72_workStartTime"];
-  var END_KEYS=["DeliverySystemV85_workEndTime","DeliverySystemV84_workEndTime","DeliverySystemV83_workEndTime","DeliverySystemV82_workEndTime","DeliverySystemV81_workEndTime","DeliverySystemV79_workEndTime","DeliverySystemV78_workEndTime","DeliverySystemV72_workEndTime"];
+  var BACKUP_KEY="DeliverySystemV93_workDataBackup";
+  var WORK_FIELDS=["startMeter","startAlcohol","endMeter","endAlcohol","dailyDistance"];
+  var START_KEYS=["DeliverySystemV87_workStartTime","DeliverySystemV84_workStartTime","DeliverySystemV83_workStartTime","DeliverySystemV82_workStartTime","DeliverySystemV81_workStartTime","DeliverySystemV79_workStartTime","DeliverySystemV72_workStartTime"];
+  var END_KEYS=["DeliverySystemV87_workEndTime","DeliverySystemV84_workEndTime","DeliverySystemV83_workEndTime","DeliverySystemV82_workEndTime","DeliverySystemV81_workEndTime","DeliverySystemV79_workEndTime","DeliverySystemV72_workEndTime"];
   function id(x){return document.getElementById(x);}
-  function raw(k){try{return localStorage.getItem(k)||"";}catch(e){return "";}}
-  function setRaw(k,v){try{localStorage.setItem(k,String(v||""));}catch(e){}}
-  function rm(k){try{localStorage.removeItem(k);}catch(e){}}
-  function getJSON(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
-  function setJSON(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
-  function val(k){var e=id(k);return e?String(e.value||""):"";}
-  function first(keys){for(var i=0;i<keys.length;i++){var v=raw(keys[i]);if(v)return v;}return "";}
-  function hm(v){var s=String(v||"");var m=s.match(/(\d{1,2}:\d{2})(?::\d{2})?/);return m?m[1]:s;}
-  function readBestBackup(){
-    var best={};
-    BACKUP_KEYS.forEach(function(k){try{var b=JSON.parse(raw(k)||"{}"); if(b&&b.work){FIELDS.forEach(function(f){if(!best[f]&&b.work[f])best[f]=b.work[f];});}}catch(e){}});
-    return best;
+  function rawGet(k){try{return localStorage.getItem(k)||"";}catch(e){return "";}}
+  function rawSet(k,v){try{localStorage.setItem(k,String(v||""));}catch(e){}}
+  function rawRemove(k){try{localStorage.removeItem(k);}catch(e){}}
+  function get(k,d){try{var v=localStorage.getItem(KEY+k);return v?JSON.parse(v):d;}catch(e){return d;}}
+  function set(k,v){try{localStorage.setItem(KEY+k,JSON.stringify(v));}catch(e){}}
+  function val(k){var e=id(k);return e?String(e.value||"").trim():"";}
+  function nowFull(){return new Date().toLocaleString("ja-JP");}
+  function first(keys){for(var i=0;i<keys.length;i++){var v=rawGet(keys[i]);if(v)return v;}return "";}
+  function calc(w){var s=Number(w.startMeter||0), e=Number(w.endMeter||0); if(w.startMeter!=="" && w.endMeter!=="" && !isNaN(s) && !isNaN(e) && e>=s){w.dailyDistance=String(e-s);} return w;}
+  function readWork(){var w=get("workData",{});WORK_FIELDS.forEach(function(k){var v=val(k); if(v!=="")w[k]=v;}); return calc(w);}
+  function backupWork(){var w=readWork(); set("workData",w); rawSet(BACKUP_KEY,JSON.stringify(w)); return w;}
+  function restoreWork(){
+    var w=get("workData",{}), b={};
+    try{b=JSON.parse(rawGet(BACKUP_KEY)||"{}");}catch(e){b={};}
+    WORK_FIELDS.forEach(function(k){if((!w[k] || w[k]==="") && b[k])w[k]=b[k];});
+    calc(w); set("workData",w);
+    WORK_FIELDS.forEach(function(k){var e=id(k); if(e && (e.value==="" || e.value==null) && w[k])e.value=w[k];});
   }
-  function mergeWorkData(){
-    var w=getJSON(KEY+"workData",{}), b=readBestBackup(), changed=false;
-    FIELDS.forEach(function(f){
-      var v=val(f);
-      if(v){w[f]=v;changed=true;}
-      else if(!w[f] && b[f]){w[f]=b[f];changed=true;}
-    });
-    if(!w.dailyDistance && (w.startMeter||w.endMeter)){
-      var s=Number(w.startMeter||0), e=Number(w.endMeter||0);
-      if(!isNaN(s)&&!isNaN(e)&&e>=s)w.dailyDistance=String(e-s);
-    }
-    setJSON(KEY+"workData",w);
-    setRaw("DeliverySystemV93_tenkoBackup",JSON.stringify({work:w,savedAt:new Date().toISOString()}));
-    return w;
+  function sanitizeStartButton(){var b=id("btnBusinessStartV82")||id("btnBusinessStart")||document.querySelector("button[id*='BusinessStart']"); if(b && first(START_KEYS)){b.textContent="業務開始済";}}
+  function clearStartButtonTimeOnly(){sanitizeStartButton();}
+  function clearAfterDailySend(){
+    rawRemove(BACKUP_KEY);
+    START_KEYS.concat(END_KEYS).forEach(rawRemove);
+    var b=id("btnBusinessStartV82")||id("btnBusinessStart")||document.querySelector("button[id*='BusinessStart']");
+    if(b){b.textContent="業務開始";b.disabled=false;b.style.opacity="";}
   }
-  function restoreFields(){
-    var w=mergeWorkData();
-    FIELDS.forEach(function(f){var e=id(f); if(e && !String(e.value||"") && w[f]!==undefined)e.value=(f==="dailyDistance"?(w[f]||"0"):(w[f]||""));});
-    calcDistance();
-  }
-  function calcDistance(){
-    var d=id("dailyDistance"); if(!d)return;
-    var s=Number(val("startMeter")||0), e=Number(val("endMeter")||0);
-    if(!isNaN(s)&&!isNaN(e)&&e>=s)d.value=String(e-s); else if(!d.value)d.value="0";
-  }
-  function saveFields(){calcDistance();mergeWorkData();}
-  function stableStartButton(){
-    var b=id("btnBusinessStartV82"); if(!b)return;
-    var started=!!first(START_KEYS);
-    b.textContent=started?"業務開始済":"業務開始";
-    if(started){b.disabled=true;b.style.opacity=".75";}else{b.disabled=false;b.style.opacity="";}
-  }
-  function addBodyTime(body,ws,we){
-    body=String(body||"").replace(/業務完了時間：/g,"業務終了時間：");
-    var hasStart=/業務開始時間：/.test(body), hasEnd=/業務終了時間：/.test(body);
-    if(!hasStart||!hasEnd){
-      var lines=body.split("\n"), add=[];
-      if(!hasStart)add.push("業務開始時間："+(ws||""));
-      if(!hasEnd)add.push("業務終了時間："+(we||""));
-      lines.splice(Math.min(2,lines.length),0,add.join("\n"));
-      body=lines.join("\n");
-    }
-    return body;
-  }
-  function enrich(p){
-    p=p||{}; var w=mergeWorkData();
+  function ensureReportTimes(){
+    var p=get("lastDailyPayload",null); if(!p)return;
     var ws=p.workStartTime||p.businessStartTime||p.startTime||p.startAt||p.startedAt||p["業務開始時間"]||first(START_KEYS)||"";
     var we=p.workEndTime||p.businessEndTime||p.endTime||p.endAt||p.completedAt||p["業務終了時間"]||p["業務完了時間"]||first(END_KEYS)||"";
-    p.version=VERSION;
     p.workStartTime=ws;p.businessStartTime=ws;p.startTime=ws;p.startAt=ws;p.startedAt=ws;p["業務開始時間"]=ws;
     p.workEndTime=we;p.businessEndTime=we;p.endTime=we;p.endAt=we;p.completedAt=we;p["業務終了時間"]=we;p["業務完了時間"]=we;
-    FIELDS.forEach(function(f){if(!p[f]&&w[f])p[f]=w[f];});
-    p.workTime="開始 "+(hm(ws)||"-")+" / 終了 "+(hm(we)||"-");
-    p.workTimeDetail={label:"業務時間",start:ws,end:we,text:p.workTime};
-    p.dailyDetailFields=p.dailyDetailFields||[];
-    var labels={}; try{p.dailyDetailFields.forEach(function(x){labels[x&&x.label]=1;});}catch(e){}
-    if(!labels["業務終了時間"])p.dailyDetailFields.unshift({label:"業務終了時間",value:we});
-    if(!labels["業務開始時間"])p.dailyDetailFields.unshift({label:"業務開始時間",value:ws});
-    ["body","text","message","reportText","dailyText","detailsText","content","dailyReport","mailBody","report"].forEach(function(k){p[k]=addBodyTime(p[k]||p.body||p.reportText||p.dailyText||"",ws,we);});
-    p.m001=p.m001||{};
-    ["storeReports","completedList","dailyDetails","details","deliveryDetails","storeDetails","rows"].forEach(function(k){if(p[k])p.m001[k]=p[k];});
-    FIELDS.forEach(function(f){p.m001[f]=p[f]||w[f]||"";});
-    p.m001.workStartTime=ws;p.m001.businessStartTime=ws;p.m001.startTime=ws;p.m001["業務開始時間"]=ws;
-    p.m001.workEndTime=we;p.m001.businessEndTime=we;p.m001.endTime=we;p.m001["業務終了時間"]=we;p.m001["業務完了時間"]=we;
-    p.m001.workTime=p.workTime;p.m001.workTimeDetail=p.workTimeDetail;p.m001.dailyDetailFields=p.dailyDetailFields;
-    ["body","text","message","reportText","dailyText","detailsText"].forEach(function(k){p.m001[k]=p[k]||p.body||"";});
-    setJSON(KEY+"dailyPayloadV93",p);setJSON(KEY+"lastDailyPayload",p);setJSON(KEY+"m001ReportData",p.m001);
-    return p;
-  }
-  function hookBuild(){
-    var old=window.buildPayloadV84;
-    if(typeof old==="function" && !old.__v93){var w=function(){return enrich(old.apply(this,arguments));};w.__v93=true;window.buildPayloadV84=w;}
+    set("lastDailyPayload",p);
   }
   function bind(){
-    try{document.title="配送・集金管理システム V93";var h=document.querySelector(".header");if(h)h.textContent="点呼ページ";}catch(e){}
-    restoreFields(); hookBuild(); stableStartButton();
-    FIELDS.forEach(function(f){var e=id(f);if(e&&!e.__v93keep){e.__v93keep=1;e.addEventListener("input",saveFields);e.addEventListener("change",saveFields);e.addEventListener("blur",saveFields);}});
-    var go=id("btnGoCustomerPage"); if(go&&!go.__v93keep){go.__v93keep=1;go.addEventListener("click",saveFields,true);}
-    var b=id("btnBusinessStartV82");
-    if(b&&!b.__v93observer){b.__v93observer=1; try{new MutationObserver(stableStartButton).observe(b,{childList:true,characterData:true,subtree:true});}catch(e){}}
+    restoreWork(); sanitizeStartButton(); ensureReportTimes();
+    WORK_FIELDS.forEach(function(k){var e=id(k); if(e&&!e.__v93keep){e.__v93keep=1;e.addEventListener("input",backupWork);e.addEventListener("change",backupWork);e.addEventListener("blur",backupWork);}});
+    var start=id("btnBusinessStartV82")||id("btnBusinessStart")||document.querySelector("button[id*='BusinessStart']");
+    if(start&&!start.__v93start){start.__v93start=1;start.addEventListener("click",function(){setTimeout(function(){backupWork();sanitizeStartButton();},0);setTimeout(sanitizeStartButton,250);},true);}
+    var send=id("btnDailySend")||id("btnPageDailySend")||document.querySelector("button[id*='DailySend']");
+    if(send&&!send.__v93send){send.__v93send=1;send.addEventListener("click",function(){setTimeout(ensureReportTimes,400);},false);}
+    var m001=document.querySelector('a[href="./m001.html"],a[href="m001.html"]'); if(m001&&!m001.__v93){m001.__v93=1;m001.addEventListener("click",backupWork,true);}
   }
-  window.enrichDailyPayloadV93=enrich;
-  window.saveTenkoV93=saveFields;
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
-  window.addEventListener("pageshow",function(){restoreFields();stableStartButton();});
-  window.addEventListener("pagehide",saveFields);
-  setTimeout(bind,200);setTimeout(bind,800);setTimeout(bind,1600);setInterval(function(){stableStartButton();},400);
+  window.addEventListener("pagehide",backupWork);
+  setTimeout(function(){restoreWork();clearStartButtonTimeOnly();},250);
+  setTimeout(function(){restoreWork();clearStartButtonTimeOnly();},1200);
 })();
 </script>
 

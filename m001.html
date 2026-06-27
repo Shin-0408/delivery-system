@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>M001 株式会社松葉屋製麺 V93</title>
+<title>M001 株式会社松葉屋製麺 V91</title>
 <!-- V72: M001松葉屋専用ページ。V74データ互換維持。 -->
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -3508,7 +3508,7 @@ body.v84-m001-clean .footerBtns{grid-template-columns:1fr 1fr!important;}
   function ended(){return rawGet("DeliverySystemV87_workEndTime")||rawGet("DeliverySystemV84_workEndTime")||rawGet("DeliverySystemV83_workEndTime")||rawGet("DeliverySystemV82_workEndTime")||rawGet("DeliverySystemV81_workEndTime")||rawGet("DeliverySystemV79_workEndTime")||rawGet("DeliverySystemV72_workEndTime")||"";}
   function applyClean(){
     document.body.className=(document.body.className||"").replace(/\bv84-m001-clean\b/g,"")+" v84-m001-clean";
-    try{document.title="M001 株式会社松葉屋製麺 V93";var h=document.querySelector(".header");if(h)h.textContent="株式会社松葉屋製麺";}catch(e){}
+    try{document.title="M001 株式会社松葉屋製麺 V91";var h=document.querySelector(".header");if(h)h.textContent="株式会社松葉屋製麺";}catch(e){}
     var back=document.querySelector('a[href="./index.html"],a[href="index.html"]');if(back){back.textContent="点呼ページへ戻る";back.setAttribute("aria-label","点呼ページへ戻る");}
     ["btnM001CompleteMark","btnPageDailySend","btnComplete","btnMail","btnDailySend"].forEach(function(x){var b=id(x);if(b){b.style.display="none";b.disabled=true;b.onclick=function(){location.href="./index.html";return false;};}});
     try{if(typeof window.buildPayloadV83==="function"){var p=window.buildPayloadV83(); if(p&&p.m001){set("m001ReportData",p.m001);}}}catch(e){}
@@ -3538,7 +3538,7 @@ body.v84-m001-clean .footerBtns{grid-template-columns:1fr 1fr!important;}
     }catch(e){}
   }
   function bind(){
-    try{document.title="M001 株式会社松葉屋製麺 V93";}catch(e){}
+    try{document.title="M001 株式会社松葉屋製麺 V91";}catch(e){}
     var backs=document.querySelectorAll('a[href="./index.html"],a[href="index.html"]');
     for(var i=0;i<backs.length;i++){if(!backs[i].__v85save){backs[i].__v85save=1;backs[i].addEventListener("click",saveWork);}}
     window.addEventListener("pagehide",saveWork);
@@ -3730,42 +3730,50 @@ body.v86-customer-page-clean .topGrid{display:none!important;}
 
 
 
-<script id="v93-m001-preserve-tenko-js">
-/* ===== V93：M001から点呼ページへ戻る時、空欄で点呼入力を上書きしない ===== */
+<script id="v93-m001-preserve-tenko-no-heavy-js">
+/* ===== V93：M001から点呼ページへ戻っても点呼入力を消さない。常時監視なし。 ===== */
 (function(){
   var KEY="deliverySystemV45_";
-  var FIELDS=["startMeter","startAlcohol","endMeter","endAlcohol","dailyDistance"];
+  var BACKUP_KEY="DeliverySystemV93_workDataBackup";
+  var WORK_FIELDS=["startMeter","startAlcohol","endMeter","endAlcohol","dailyDistance"];
   function id(x){return document.getElementById(x);}
-  function val(k){var e=id(k);return e?String(e.value||""):"";}
-  function getJSON(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
-  function setJSON(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
-  function setRaw(k,v){try{localStorage.setItem(k,String(v||""));}catch(e){}}
-  function calc(w){
-    if(!w.dailyDistance && (w.startMeter||w.endMeter)){
-      var s=Number(w.startMeter||0), e=Number(w.endMeter||0);
-      if(!isNaN(s)&&!isNaN(e)&&e>=s)w.dailyDistance=String(e-s);
-    }
+  function rawGet(k){try{return localStorage.getItem(k)||"";}catch(e){return "";}}
+  function rawSet(k,v){try{localStorage.setItem(k,String(v||""));}catch(e){}}
+  function get(k,d){try{var v=localStorage.getItem(KEY+k);return v?JSON.parse(v):d;}catch(e){return d;}}
+  function set(k,v){try{localStorage.setItem(KEY+k,JSON.stringify(v));}catch(e){}}
+  function val(k){var e=id(k);return e?String(e.value||"").trim():"";}
+  function calc(w){var s=Number(w.startMeter||0), e=Number(w.endMeter||0); if(w.startMeter!=="" && w.endMeter!=="" && !isNaN(s) && !isNaN(e) && e>=s){w.dailyDistance=String(e-s);} return w;}
+  function mergeWork(){
+    var w=get("workData",{}), b={};
+    try{b=JSON.parse(rawGet(BACKUP_KEY)||"{}");}catch(e){b={};}
+    WORK_FIELDS.forEach(function(k){
+      var v=val(k);
+      if(v!=="")w[k]=v;
+      else if((!w[k] || w[k]==="") && b[k])w[k]=b[k];
+    });
+    calc(w); set("workData",w); rawSet(BACKUP_KEY,JSON.stringify(w)); return w;
   }
-  function preserve(){
+  function restoreAfterOldScripts(){
+    var b={}; try{b=JSON.parse(rawGet(BACKUP_KEY)||"{}");}catch(e){b={};}
+    var w=get("workData",{});
+    WORK_FIELDS.forEach(function(k){if((!w[k] || w[k]==="") && b[k])w[k]=b[k];});
+    calc(w); set("workData",w);
+  }
+  function patchGlobalSave(){
     try{
-      var w=getJSON(KEY+"workData",{}), changed=false;
-      FIELDS.forEach(function(k){var v=val(k); if(v){w[k]=v;changed=true;}});
-      calc(w);
-      setJSON(KEY+"workData",w);
-      setRaw("DeliverySystemV93_tenkoBackup",JSON.stringify({work:w,savedAt:new Date().toISOString()}));
-      setRaw("DeliverySystemV87_tenkoBackup",JSON.stringify({work:w,savedAt:new Date().toISOString()}));
+      window.saveWorkInfo=function(){mergeWork();};
     }catch(e){}
   }
   function bind(){
-    try{document.title="M001 株式会社松葉屋製麺 V93";}catch(e){}
-    var backs=document.querySelectorAll('a[href="./index.html"],a[href="index.html"]');
-    for(var i=0;i<backs.length;i++){if(!backs[i].__v93preserve){backs[i].__v93preserve=1;backs[i].addEventListener("click",preserve,true);}}
+    patchGlobalSave(); restoreAfterOldScripts();
+    var back=document.querySelector('a[href="./index.html"],a[href="index.html"]');
+    if(back&&!back.__v93keep){back.__v93keep=1;back.textContent="点呼ページへ戻る";back.addEventListener("click",function(){mergeWork();},true);}
   }
-  window.preserveTenkoV93=preserve;
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
-  window.addEventListener("pagehide",preserve);
-  window.addEventListener("beforeunload",preserve);
-  setTimeout(bind,300);setTimeout(bind,1200);
+  window.addEventListener("pagehide",function(){setTimeout(restoreAfterOldScripts,0);mergeWork();});
+  window.addEventListener("beforeunload",function(){restoreAfterOldScripts();mergeWork();});
+  setTimeout(bind,300);
+  setTimeout(restoreAfterOldScripts,1200);
 })();
 </script>
 

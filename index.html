@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>配送・集金管理システム V103</title>
+<title>配送・集金管理システム V106</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;width:100%;min-width:100%;background:#e9edf2;font-family:sans-serif;overflow-x:hidden}
@@ -2482,7 +2482,7 @@ window.addEventListener("load",function(){
   function onGo(e){
     saveWork();
     if(!started()){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();alert("先に業務開始ボタンを押してください。");updateButtons();return false;}
-    var c=val("customerCode")||"M001";
+    var c=currentCustomer();
     location.href=(c==="M002"?"m002.html":c==="M003"?"m003.html":c==="M004"?"m004.html":"m001.html");
     return false;
   }
@@ -2631,7 +2631,7 @@ window.addEventListener("load",function(){
     saveWork();
     if(!started()){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();alert("先に業務開始ボタンを押してください。");update();return false;}
     put("DeliverySystemV102_returnedFromCustomer","1");
-    var c=val("customerCode")||"M001";
+    var c=currentCustomer();
     location.href=(c==="M002"?"m002.html":c==="M003"?"m003.html":c==="M004"?"m004.html":"m001.html");
     return false;
   }
@@ -2767,7 +2767,7 @@ window.addEventListener("load",function(){
     }
     put("DeliverySystemV103_returnedFromCustomer","1");
     put("DeliverySystemV102_returnedFromCustomer","1");
-    var c=val("customerCode")||"M001";
+    var c=currentCustomer();
     location.href=(c==="M002"?"m002.html":c==="M003"?"m003.html":c==="M004"?"m004.html":"m001.html");
     return false;
   }
@@ -2791,6 +2791,200 @@ window.addEventListener("load",function(){
   window.addEventListener("pageshow",bind);
   window.addEventListener("focus",update);
   window.addEventListener("pagehide",saveWork);
+})();
+</script>
+
+
+
+<script id="v104-start-button-final-gate-js">
+/* ===== V105：V104補正。入力中に復元処理で現在入力値を上書きしない。開始前2項目が揃った時だけ開始ボタンを有効化。 ===== */
+(function(){
+  var KEY="deliverySystemV45_";
+  var FIELDS=["startMeter","startAlcohol","endMeter","endAlcohol","dailyDistance"];
+  var V104_STARTED="DeliverySystemV104_tenkoStarted";
+  var V104_MANUAL="DeliverySystemV104_startManual";
+  var V104_START_TIME="DeliverySystemV104_workStartTime";
+  var V104_END_TIME="DeliverySystemV104_workEndTime";
+  var START_KEYS=[
+    "DeliverySystemV104_workStartTime","DeliverySystemV103_workStartTime","DeliverySystemV102_workStartTime","DeliverySystemV100_workStartTime","DeliverySystemV99_workStartTime",
+    "DeliverySystemV97_workStartTime","DeliverySystemV96_workStartTime","DeliverySystemV95_workStartTime","DeliverySystemV94_workStartTime","DeliverySystemV87_workStartTime",
+    "DeliverySystemV85_workStartTime","DeliverySystemV84_workStartTime","DeliverySystemV83_workStartTime","DeliverySystemV82_workStartTime","DeliverySystemV81_workStartTime",
+    "DeliverySystemV79_workStartTime","DeliverySystemV78_workStartTime","DeliverySystemV72_workStartTime"
+  ];
+  var END_KEYS=[
+    "DeliverySystemV104_workEndTime","DeliverySystemV103_workEndTime","DeliverySystemV102_workEndTime","DeliverySystemV100_workEndTime","DeliverySystemV99_workEndTime",
+    "DeliverySystemV97_workEndTime","DeliverySystemV96_workEndTime","DeliverySystemV95_workEndTime","DeliverySystemV94_workEndTime","DeliverySystemV85_workEndTime",
+    "DeliverySystemV84_workEndTime","DeliverySystemV83_workEndTime","DeliverySystemV82_workEndTime","DeliverySystemV81_workEndTime","DeliverySystemV79_workEndTime",
+    "DeliverySystemV78_workEndTime","DeliverySystemV72_workEndTime"
+  ];
+  var START_FLAGS=[
+    "DeliverySystemV104_tenkoStarted","DeliverySystemV103_tenkoStarted","DeliverySystemV102_tenkoStarted","DeliverySystemV100_tenkoStarted","DeliverySystemV99_tenkoStarted",
+    "DeliverySystemV97_tenkoStarted","DeliverySystemV82_businessStarted","DeliverySystemV81_businessStarted","DeliverySystemV104_startManual","DeliverySystemV103_startManual",
+    "DeliverySystemV102_startManual","DeliverySystemV99_startManual","DeliverySystemV97_startManual"
+  ];
+  var DONE_KEYS=[
+    "DeliverySystemV104_businessCompleted","DeliverySystemV103_businessCompleted","DeliverySystemV102_businessCompleted","DeliverySystemV100_businessCompleted","DeliverySystemV99_businessCompleted",
+    "DeliverySystemV97_businessCompleted","DeliverySystemV96_businessCompleted","DeliverySystemV95_businessCompleted","DeliverySystemV85_businessCompleted","DeliverySystemV84_businessCompleted",
+    "DeliverySystemV83_businessCompleted","DeliverySystemV72_businessCompleted","DeliverySystemV64_businessCompleted","deliverySystemV45_businessCompleted"
+  ];
+  function id(x){return document.getElementById(x);}
+  function raw(k){try{return localStorage.getItem(k)||"";}catch(e){return "";}}
+  function put(k,v){try{localStorage.setItem(k,String(v));}catch(e){}}
+  function del(k){try{localStorage.removeItem(k);}catch(e){}}
+  function get(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
+  function set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+  function val(x){var e=id(x);return e?String(e.value||"").trim():"";}
+  function now(){return new Date().toLocaleString("ja-JP");}
+  function hm(v){var s=String(v||"");var m=s.match(/(\d{1,2}:\d{2})(?::\d{2})?/);return m?m[1]:s;}
+  function first(keys){for(var i=0;i<keys.length;i++){var v=raw(keys[i]);if(v)return v;}return "";}
+  function writeAll(keys,v){for(var i=0;i<keys.length;i++){put(keys[i],v);put(keys[i]+"_hm",hm(v));}}
+  function readyStart(){return val("startMeter")!=="" && val("startAlcohol")!=="";}
+  function readyEnd(){return readyStart() && val("endMeter")!=="" && val("endAlcohol")!=="";}
+  function isStarted(){return raw(V104_STARTED)==="1" && raw(V104_MANUAL)==="1" && !!raw(V104_START_TIME);}
+  function isDone(){for(var i=0;i<DONE_KEYS.length;i++){if(raw(DONE_KEYS[i])==="1")return true;}return false;}
+  function setDone(v){for(var i=0;i<DONE_KEYS.length;i++)put(DONE_KEYS[i],v?"1":"0");}
+  function clearOldStartOnly(){
+    for(var i=0;i<START_KEYS.length;i++){del(START_KEYS[i]);del(START_KEYS[i]+"_hm");}
+    for(var j=0;j<START_FLAGS.length;j++)del(START_FLAGS[j]);
+  }
+  function saveWork(){
+    var w=get(KEY+"workData",{});
+    FIELDS.forEach(function(k){var e=id(k);if(e)w[k]=String(e.value||"").trim();});
+    var sm=Number(w.startMeter||0),em=Number(w.endMeter||0);
+    if(w.startMeter!==""&&w.endMeter!==""&&!isNaN(sm)&&!isNaN(em)&&em>=sm)w.dailyDistance=String(em-sm);
+    else if(!w.dailyDistance)w.dailyDistance="0";
+    var d=id("dailyDistance");if(d)d.value=w.dailyDistance||"0";
+    set(KEY+"workData",w);set("DeliverySystemV104_tenkoWorkBackup",w);set(KEY+"DeliverySystemV104_tenkoWorkBackup",w);
+    var c=get(KEY+"config",{});
+    ["customerCode","driverCode","vehicleCode","terminalCode"].forEach(function(k){var e=id(k);if(e)c[k]=e.value||c[k]||"";});
+    set(KEY+"config",c);
+  }
+  function restoreWork(){
+    var w=get("DeliverySystemV104_tenkoWorkBackup",null)||get(KEY+"DeliverySystemV104_tenkoWorkBackup",null)||get(KEY+"workData",{});
+    FIELDS.forEach(function(k){
+      var e=id(k);
+      if(e && w && w[k]!=null && String(e.value||"").trim()===""){
+        e.value=String(w[k]||"");
+      }
+    });
+    var d=id("dailyDistance");
+    if(d){
+      var sm=Number(val("startMeter")||0), em=Number(val("endMeter")||0);
+      d.value=(!isNaN(sm)&&!isNaN(em)&&val("startMeter")!==""&&val("endMeter")!==""&&em>=sm)?String(em-sm):(d.value||"0");
+    }
+  }
+  function hasM001Activity(){
+    try{if(typeof window.buildPayloadV84==="function"){var p=window.buildPayloadV84()||{};var r=p.completedList||p.storeReports||p.dailyDetails||p.details||p.rows||[];if(r&&r.length)return true;}}catch(e){}
+    try{var p2=get(KEY+"m001ReportData",{}),r2=p2.completedList||p2.storeReports||p2.dailyDetails||p2.details||p2.rows||[];if(r2&&r2.length)return true;}catch(e){}
+    try{var h=get(KEY+"historyData",[]);if(h&&h.length)return true;}catch(e){}
+    try{var st=get(KEY+"stateData",{});for(var k in st){if(st.hasOwnProperty(k)){var x=st[k]||{};if(x.status||x.deliveryStatus||x.collectionStatus)return true;}}}catch(e){}
+    return false;
+  }
+  function setSelectValue(idName,v){
+    var e=id(idName);
+    if(e && v){e.value=v;}
+  }
+  function restoreCustomerSelection(){
+    var active=raw("DeliverySystemV106_activeCustomer")||raw("DeliverySystemV105_activeCustomer")||"";
+    var cfg=get(KEY+"config",{});
+    var c=(active||cfg.customerCode||val("customerCode")||"M001");
+    if(["M001","M002","M003","M004"].indexOf(c)<0)c="M001";
+    setSelectValue("customerCode",c);
+    cfg.customerCode=c;
+    set(KEY+"config",cfg);
+    return c;
+  }
+  function currentCustomer(){
+    return restoreCustomerSelection();
+  }
+  function hasM002Activity(){
+    var d=get(KEY+"m002WorkData",{});
+    var count=Number(d.count||0);
+    var support=String(d.support||"").trim();
+    var noticeFlag=String(d.noticeFlag||"").trim();
+    var noticeText=String(d.noticeText||"").trim();
+    if(!(count>=1))return false;
+    if(!support)return false;
+    if(!noticeFlag)return false;
+    if(noticeFlag==="あり" && !noticeText)return false;
+    return true;
+  }
+  function update(){
+    restoreCustomerSelection();
+    restoreWork();
+    if(!isStarted()){
+      for(var i=0;i<START_FLAGS.length;i++){if(START_FLAGS[i]!==V104_STARTED&&START_FLAGS[i]!==V104_MANUAL)del(START_FLAGS[i]);}
+      for(var j=0;j<START_KEYS.length;j++){if(START_KEYS[j]!==V104_START_TIME){del(START_KEYS[j]);del(START_KEYS[j]+"_hm");}}
+    }
+    if(!readyStart() && !isStarted())clearOldStartOnly();
+    var st=isStarted(), dn=isDone();
+    var bs=id("btnBusinessStartV82"),go=id("btnGoCustomerPage"),bc=id("btnBusinessCompleteV84"),bm=id("btnMail"),br=id("btnResetComplete");
+    if(bs){
+      bs.textContent=st?"業務開始済":"業務開始";
+      bs.disabled=st || !readyStart();
+      bs.style.opacity=st?".75":(readyStart()?"1":".45");
+      bs.style.filter=(!st&&readyStart())?"none":"grayscale(1)";
+      if(!st&&readyStart()){bs.className="btn green";}
+    }
+    if(go){go.disabled=!st;go.style.opacity=st?"1":".45";go.style.filter=st?"none":"grayscale(1)";go.textContent="得意先ページへ進む";}
+    if(bc){var ok=st&&readyEnd();bc.disabled=!ok;bc.style.opacity=ok?"1":".45";bc.style.filter=ok?"none":"grayscale(1)";bc.textContent="業務完了";}
+    if(bm){bm.disabled=!dn;bm.style.opacity=dn?"1":".45";bm.style.filter=dn?"none":"grayscale(1)";bm.textContent="日報送信";}
+    if(br)br.style.display="none";
+  }
+  function replaceButton(idName,fn){
+    var old=id(idName);if(!old||old.__v104)return;
+    var c=old.cloneNode(true);c.__v104=true;old.parentNode.replaceChild(c,old);c.addEventListener("click",fn,false);
+  }
+  function onStart(e){
+    e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
+    saveWork();
+    if(!readyStart()){clearOldStartOnly();alert("業務開始前走行距離と業務開始前アルコール値を入力してください。");update();return false;}
+    var t=now();
+    writeAll(START_KEYS,t);
+    for(var i=0;i<START_FLAGS.length;i++)put(START_FLAGS[i],"1");
+    put(V104_STARTED,"1");put(V104_MANUAL,"1");put(V104_START_TIME,t);put(V104_START_TIME+"_hm",hm(t));
+    setDone(false);update();alert("業務開始時間を記録しました。\n"+hm(t));return false;
+  }
+  function onGo(e){
+    saveWork();
+    if(!isStarted()){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();alert("先に業務開始ボタンを押してください。");update();return false;}
+    var c=currentCustomer();
+    location.href=(c==="M002"?"m002.html":c==="M003"?"m003.html":c==="M004"?"m004.html":"m001.html");
+    return false;
+  }
+  function onComplete(e){
+    e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
+    saveWork();
+    if(!isStarted()){alert("先に業務開始ボタンを押してください。");update();return false;}
+    if(!readyEnd()){alert("業務開始前走行距離、業務開始前アルコール値、業務終了後走行距離、業務終了後アルコール値をすべて入力してください。");update();return false;}
+    var customer=currentCustomer();
+    if(customer==="M001"&&!hasM001Activity()){alert("最低1件以上、配送完了または配送不可まで処理してください。");update();return false;}
+    if(customer==="M002"&&!hasM002Activity()){alert("株式会社アローズの業務内容を入力してください。");update();return false;}
+    var t=now();writeAll(END_KEYS,t);put(V104_END_TIME,t);put(V104_END_TIME+"_hm",hm(t));setDone(true);
+    try{if(typeof window.buildPayloadV84==="function")window.buildPayloadV84();}catch(e){}
+    update();var m=id("completeModalV72")||id("completeModal");if(m)m.style.display="flex";else alert("業務完了しました。日報送信してください。");return false;
+  }
+  function onMail(e){saveWork();if(!isDone()){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();alert("先に業務完了ボタンを押してください。");update();return false;}return true;}
+  function bind(){
+    try{document.title="配送・集金管理システム V106";var h=document.querySelector(".header");if(h)h.textContent="点呼ページ";}catch(e){}
+    restoreWork();
+    if(!isStarted())clearOldStartOnly();
+    FIELDS.forEach(function(k){var e=id(k);if(e&&!e.__v104input){e.__v104input=true;e.addEventListener("input",update,false);e.addEventListener("change",update,false);e.addEventListener("blur",saveWork,false);}});
+    replaceButton("btnBusinessStartV82",onStart);
+    replaceButton("btnGoCustomerPage",onGo);
+    replaceButton("btnBusinessCompleteV84",onComplete);
+    replaceButton("btnMail",onMail);
+    update();
+  }
+  window.refreshV104Buttons=update;
+  window.refreshV105Buttons=update;
+  window.refreshV106Buttons=update;
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
+  window.addEventListener("pageshow",bind);
+  window.addEventListener("focus",update);
+  window.addEventListener("pagehide",saveWork);
+  setTimeout(bind,0);
+  setTimeout(bind,300);
 })();
 </script>
 

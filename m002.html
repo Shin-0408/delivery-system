@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>M002 アローズ V72</title>
+<title>M002 アローズ V106</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;width:100%;min-width:100%;background:#e9edf2;font-family:sans-serif;overflow-x:hidden}
@@ -577,6 +577,55 @@ body.v86-customer-page-clean .topGrid{display:none!important;}
   window.addEventListener("beforeunload",preserveTenko);
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
   setTimeout(bind,300);setTimeout(bind,1200);setTimeout(bind,2500);
+})();
+</script>
+
+
+<script id="v106-m002-independent-complete-marker">
+/* ===== V106：M002株式会社アローズをM001業務条件から完全分離。点呼ページ復帰後もM002選択を保持。 ===== */
+(function(){
+  var KEY="deliverySystemV45_";
+  function id(x){return document.getElementById(x);}
+  function get(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
+  function set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+  function markM002(){
+    try{
+      localStorage.setItem("DeliverySystemV106_activeCustomer","M002");
+      localStorage.setItem("DeliverySystemV105_activeCustomer","M002");
+      var cfg=get(KEY+"config",{});
+      cfg.customerCode="M002";
+      set(KEY+"config",cfg);
+    }catch(e){}
+  }
+  function bind(){
+    markM002();
+    ["m002Count","m002Support","m002NoticeFlag","m002NoticeText"].forEach(function(k){
+      var e=id(k);
+      if(e&&!e.__v106m002){
+        e.__v106m002=true;
+        e.addEventListener("input",markM002,false);
+        e.addEventListener("change",markM002,false);
+        e.addEventListener("blur",markM002,false);
+      }
+    });
+    var a=document.querySelector('a[href="./index.html"],a[href="index.html"]');
+    if(a&&!a.__v106m002){
+      a.__v106m002=true;
+      a.addEventListener("click",markM002,false);
+    }
+    var save=id("btnSave");
+    if(save&&!save.__v106m002){
+      save.__v106m002=true;
+      save.addEventListener("click",markM002,false);
+    }
+    var complete=id("btnComplete");
+    if(complete&&!complete.__v106m002){
+      complete.__v106m002=true;
+      complete.addEventListener("click",markM002,false);
+    }
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
+  window.addEventListener("pageshow",bind);
 })();
 </script>
 

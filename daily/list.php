@@ -41,25 +41,47 @@ function find_rows($p) {
     foreach (['completedList','storeReports','dailyDetails','details','deliveryDetails','storeDetails','rows'] as $k) {
         if (isset($p[$k]) && is_array($p[$k]) && count($p[$k]) > 0) return $p[$k];
     }
-    if (isset($p['m001']) && is_array($p['m001'])) {
-        foreach (['completedList','storeReports','dailyDetails','details','deliveryDetails','storeDetails','rows'] as $k) {
-            if (isset($p['m001'][$k]) && is_array($p['m001'][$k]) && count($p['m001'][$k]) > 0) return $p['m001'][$k];
+    foreach (['m001','customerWork'] as $parent) {
+        if (isset($p[$parent]) && is_array($p[$parent])) {
+            foreach (['completedList','storeReports','dailyDetails','details','deliveryDetails','storeDetails','rows'] as $k) {
+                if (isset($p[$parent][$k]) && is_array($p[$parent][$k]) && count($p[$parent][$k]) > 0) return $p[$parent][$k];
+            }
         }
     }
     return [];
+}
+function label_value($p, $label) {
+    foreach (['dailyDetailFields','detailFields','日報詳細'] as $k) {
+        if (isset($p[$k]) && is_array($p[$k])) {
+            foreach ($p[$k] as $x) {
+                if (is_array($x) && isset($x['label']) && $x['label'] === $label) return getv($x, ['value','text'], '');
+            }
+        }
+    }
+    return '';
 }
 function work_time($p, $type) {
     $startKeys = ['workStartTime','businessStartTime','startTime','startAt','startedAt','業務開始時間'];
     $endKeys = ['workEndTime','businessEndTime','endTime','endAt','completedAt','業務終了時間','業務完了時間'];
     $keys = $type === 'start' ? $startKeys : $endKeys;
+    $label = $type === 'start' ? '業務開始時間' : '業務終了時間';
     $v = getv($p, $keys, '');
-    if ($v === '' && isset($p['m001']) && is_array($p['m001'])) $v = getv($p['m001'], $keys, '');
-    if ($v === '' && isset($p['workTime']) && is_array($p['workTime'])) $v = getv($p['workTime'], $type === 'start' ? ['start','開始','業務開始時間'] : ['end','終了','業務終了時間'], '');
-    if ($v === '' && isset($p['workTimeDetail']) && is_array($p['workTimeDetail'])) $v = getv($p['workTimeDetail'], $type === 'start' ? ['start','開始','業務開始時間'] : ['end','終了','業務終了時間'], '');
+    if ($v === '') $v = label_value($p, $label);
+    foreach (['m001','customerWork','workTime','workTimeDetail'] as $parent) {
+        if ($v === '' && isset($p[$parent]) && is_array($p[$parent])) {
+            $v = getv($p[$parent], $keys, '');
+            if ($v === '') $v = label_value($p[$parent], $label);
+            if ($v === '' && ($parent === 'workTime' || $parent === 'workTimeDetail')) {
+                $v = getv($p[$parent], $type === 'start' ? ['start','開始','業務開始時間'] : ['end','終了','業務終了時間'], '');
+            }
+        }
+    }
     return $v ?: '－';
 }
 function total_collect_text($p, $rows) {
     $s = isset($p['summary']) && is_array($p['summary']) ? $p['summary'] : [];
+    if (!$s && isset($p['m001']['summary']) && is_array($p['m001']['summary'])) $s = $p['m001']['summary'];
+    if (!$s && isset($p['customerWork']['summary']) && is_array($p['customerWork']['summary'])) $s = $p['customerWork']['summary'];
     foreach (['todayTotalCollectAmountText','本日の合計集金総額','本日の集金総額','totalCollectAmountText','collectAmountText'] as $k) {
         if (isset($s[$k]) && $s[$k] !== '') return (string)$s[$k];
     }

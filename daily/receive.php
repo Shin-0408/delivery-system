@@ -1,6 +1,6 @@
 <?php
 /* 配送・集金管理システム V100.1 receive.php
-   受信側修正: JSON保存を安定化。list.phpで業務時間・本日の集金総額・配送完了一覧金額を表示できる形で保存。
+   受信側：text/plain JSON / application/json / form POST を正しく受信して reports/*.json に保存。
 */
 mb_internal_encoding('UTF-8');
 date_default_timezone_set('Asia/Tokyo');
@@ -10,81 +10,75 @@ header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { exit; }
 
-function respond($ok, $data = []) {
+function respond_json($ok, $data = []) {
     echo json_encode(array_merge(['ok' => $ok], $data), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     exit;
 }
-function deep_decode($v) {
+function decode_json_string($v) {
     if (is_array($v)) return $v;
-    if (!is_string($v)) return $v;
+    if (!is_string($v)) return null;
     $s = trim($v);
-    if ($s === '') return $v;
+    if ($s === '') return null;
     $j = json_decode($s, true);
-    if (json_last_error() === JSON_ERROR_NONE && is_array($j)) return $j;
-    return $v;
+    return (json_last_error() === JSON_ERROR_NONE && is_array($j)) ? $j : null;
 }
 function pick_payload() {
     $raw = file_get_contents('php://input');
-    $payload = null;
-    $ct = isset($_SERVER['CONTENT_TYPE']) ? strtolower($_SERVER['CONTENT_TYPE']) : '';
 
-    if (strpos($ct, 'application/json') !== false) {
-        $j = json_decode($raw, true);
-        if (json_last_error() === JSON_ERROR_NONE && is_array($j)) $payload = $j;
-    }
-    if (!$payload && !empty($_POST)) {
+    // V100系の送信は Content-Type:text/plain で JSON文字列。必ず最初にJSONとして読む。
+    $json = decode_json_string($raw);
+    if ($json) return $json;
+
+    if (!empty($_POST)) {
         foreach (['payload','data','json','reportData','dailyPayload','body','text','message','report'] as $k) {
             if (isset($_POST[$k])) {
-                $decoded = deep_decode($_POST[$k]);
-                if (is_array($decoded)) { $payload = $decoded; break; }
+                $j = decode_json_string($_POST[$k]);
+                if ($j) return $j;
             }
         }
-        if (!$payload) $payload = $_POST;
+        return $_POST;
     }
-    if (!$payload && is_string($raw) && trim($raw) !== '') {
+
+    if (is_string($raw) && trim($raw) !== '') {
         parse_str($raw, $form);
         if (!empty($form)) {
             foreach (['payload','data','json','reportData','dailyPayload','body','text','message','report'] as $k) {
                 if (isset($form[$k])) {
-                    $decoded = deep_decode($form[$k]);
-                    if (is_array($decoded)) { $payload = $decoded; break; }
+                    $j = decode_json_string($form[$k]);
+                    if ($j) return $j;
                 }
             }
-            if (!$payload) $payload = $form;
-        } else {
-            $j = json_decode($raw, true);
-            if (json_last_error() === JSON_ERROR_NONE && is_array($j)) $payload = $j;
+            return $form;
         }
     }
-    if (!$payload) $payload = ['rawBody' => $raw];
-    return $payload;
+    return ['rawBody' => $raw];
 }
 function normalize_payload($p) {
-    if (!is_array($p)) $p = ['raw' => $p];
+    if (!is_array($p)) $p = ['rawBody' => (string)$p];
     foreach (['payload','data','json','reportData','dailyPayload'] as $k) {
         if (isset($p[$k])) {
-            $d = deep_decode($p[$k]);
-            if (is_array($d)) { $p = array_merge($p, $d); break; }
+            $j = decode_json_string($p[$k]);
+            if ($j) { $p = array_merge($p, $j); break; }
         }
     }
-    $p['receivedAt'] = date('Y-m-d H:i:s');
+    if (empty($p['receivedAt'])) $p['receivedAt'] = date('Y-m-d H:i:s');
     $p['receiveVersion'] = 'V100.1';
     return $p;
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    respond(false, ['message' => 'POST only']);
+    respond_json(false, ['message' => 'POST only']);
 }
 
 $payload = normalize_payload(pick_payload());
 $dir = __DIR__ . '/reports';
 if (!is_dir($dir) && !mkdir($dir, 0775, true)) {
-    respond(false, ['message' => '保存フォルダを作成できません']);
+    respond_json(false, ['message' => '保存フォルダを作成できません']);
 }
 $id = date('Ymd_His') . '_' . substr(bin2hex(random_bytes(4)), 0, 8);
 $file = $dir . '/' . $id . '.json';
 $json = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
 if (file_put_contents($file, $json, LOCK_EX) === false) {
-    respond(false, ['message' => '日報を保存できません']);
+    respond_json(false, ['message' => '日報を保存できません']);
 }
-respond(true, ['message' => '日報を受信しました', 'id' => $id, 'saved' => basename($file)]);
+respond_json(true, ['message' => '日報を受信しました', 'id' => $id, 'saved' => basename($file)]);

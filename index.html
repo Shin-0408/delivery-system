@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>配送・集金管理システム V99</title>
+<title>配送・集金管理システム V100</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;width:100%;min-width:100%;background:#e9edf2;font-family:sans-serif;overflow-x:hidden}
@@ -2354,6 +2354,163 @@ window.addEventListener("load",function(){
   window.buildRowsV99=buildRowsV99;window.clearTodayV99=clearAfterSend;window.sendDailyV99=onMail;
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
   window.addEventListener("pageshow",bind);window.addEventListener("pagehide",saveWork);
+})();
+</script>
+
+
+
+<script id="v100-complete-button-start-restore-js">
+/* ===== V100：点呼へ戻った後も業務開始状態を確実に復元し、業務完了ボタンを必ず正しく押せるようにする。常時監視なし。 ===== */
+(function(){
+  var KEY="deliverySystemV45_";
+  var VERSION="V100";
+  var FIELDS=["startMeter","startAlcohol","endMeter","endAlcohol","dailyDistance"];
+  var START_KEYS=[
+    "DeliverySystemV100_workStartTime","DeliverySystemV99_workStartTime","DeliverySystemV97_workStartTime","DeliverySystemV96_workStartTime","DeliverySystemV95_workStartTime","DeliverySystemV94_workStartTime",
+    "DeliverySystemV87_workStartTime","DeliverySystemV85_workStartTime","DeliverySystemV84_workStartTime","DeliverySystemV83_workStartTime","DeliverySystemV82_workStartTime",
+    "DeliverySystemV81_workStartTime","DeliverySystemV79_workStartTime","DeliverySystemV78_workStartTime","DeliverySystemV72_workStartTime"
+  ];
+  var END_KEYS=[
+    "DeliverySystemV100_workEndTime","DeliverySystemV99_workEndTime","DeliverySystemV97_workEndTime","DeliverySystemV96_workEndTime","DeliverySystemV95_workEndTime","DeliverySystemV94_workEndTime",
+    "DeliverySystemV87_workEndTime","DeliverySystemV85_workEndTime","DeliverySystemV84_workEndTime","DeliverySystemV83_workEndTime","DeliverySystemV82_workEndTime",
+    "DeliverySystemV81_workEndTime","DeliverySystemV79_workEndTime","DeliverySystemV78_workEndTime","DeliverySystemV72_workEndTime"
+  ];
+  var START_FLAGS=[
+    "DeliverySystemV100_tenkoStarted","DeliverySystemV99_tenkoStarted","DeliverySystemV97_tenkoStarted"
+  ];
+  var MANUAL_FLAGS=[
+    "DeliverySystemV100_startManual","DeliverySystemV99_startManual","DeliverySystemV97_startManual"
+  ];
+  var DONE_KEYS=[
+    "DeliverySystemV100_businessCompleted","DeliverySystemV99_businessCompleted","DeliverySystemV97_businessCompleted","DeliverySystemV96_businessCompleted","DeliverySystemV95_businessCompleted",
+    "DeliverySystemV85_businessCompleted","DeliverySystemV84_businessCompleted","DeliverySystemV83_businessCompleted","DeliverySystemV72_businessCompleted",
+    "DeliverySystemV64_businessCompleted","deliverySystemV45_businessCompleted"
+  ];
+  var WORK_KEYS=[
+    KEY+"workData",KEY+"DeliverySystemV99_tenkoWorkBackup",KEY+"DeliverySystemV100_tenkoWorkBackup",
+    "DeliverySystemV100_tenkoWorkBackup","DeliverySystemV99_tenkoWorkBackup","DeliverySystemV97_tenkoWorkBackup","DeliverySystemV96_tenkoWorkBackup"
+  ];
+  function id(x){return document.getElementById(x);}
+  function raw(k){try{return localStorage.getItem(k)||"";}catch(e){return "";}}
+  function put(k,v){try{localStorage.setItem(k,String(v));}catch(e){}}
+  function del(k){try{localStorage.removeItem(k);}catch(e){}}
+  function parse(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
+  function setJson(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+  function val(x){var e=id(x);return e?String(e.value||"").trim():"";}
+  function hm(v){var s=String(v||"");var m=s.match(/(\d{1,2}:\d{2})(?::\d{2})?/);return m?m[1]:s;}
+  function now(){return new Date().toLocaleString("ja-JP");}
+  function first(keys){for(var i=0;i<keys.length;i++){var v=raw(keys[i]);if(v)return v;}return "";}
+  function writeAll(keys,v){for(var i=0;i<keys.length;i++){put(keys[i],v);put(keys[i]+"_hm",hm(v));}}
+  function readWork(){
+    var w={};
+    for(var i=0;i<WORK_KEYS.length;i++){
+      var x=parse(WORK_KEYS[i],null);
+      if(x){for(var k in x){if(x.hasOwnProperty(k)&&w[k]==null)w[k]=x[k];}}
+    }
+    FIELDS.forEach(function(k){var e=id(k);if(e&&String(e.value||"").trim()!=="")w[k]=String(e.value||"");});
+    var sm=Number(w.startMeter||0),em=Number(w.endMeter||0);
+    if(w.startMeter!==""&&w.endMeter!==""&&!isNaN(sm)&&!isNaN(em)&&em>=sm)w.dailyDistance=String(em-sm);
+    else if(!w.dailyDistance)w.dailyDistance="0";
+    return w;
+  }
+  function saveWork(){
+    var w=readWork();
+    setJson(KEY+"workData",w);setJson("DeliverySystemV100_tenkoWorkBackup",w);setJson(KEY+"DeliverySystemV100_tenkoWorkBackup",w);
+    var d=id("dailyDistance");if(d)d.value=w.dailyDistance||"0";
+    var cfg=parse(KEY+"config",{});
+    ["customerCode","driverCode","vehicleCode","terminalCode"].forEach(function(k){var e=id(k);if(e)cfg[k]=e.value||cfg[k]||"";});
+    setJson(KEY+"config",cfg);
+  }
+  function restoreWork(){
+    var w=readWork();
+    FIELDS.forEach(function(k){var e=id(k);if(e&&w[k]!=null)e.value=String(w[k]||"");});
+    saveWork();
+  }
+  function readyStart(){return !!(val("startMeter")&&val("startAlcohol"));}
+  function readyEnd(){return !!(val("startMeter")&&val("startAlcohol")&&val("endMeter")&&val("endAlcohol"));}
+  function started(){
+    var hasTime=!!first(START_KEYS);
+    var hasFlag=false;
+    for(var i=0;i<START_FLAGS.length;i++){if(raw(START_FLAGS[i])==="1")hasFlag=true;}
+    if(hasTime||hasFlag){
+      for(var a=0;a<START_FLAGS.length;a++)put(START_FLAGS[a],"1");
+      for(var b=0;b<MANUAL_FLAGS.length;b++)put(MANUAL_FLAGS[b],"1");
+      if(!hasTime)writeAll(START_KEYS,now());
+      return true;
+    }
+    return false;
+  }
+  function done(){for(var i=0;i<DONE_KEYS.length;i++){if(raw(DONE_KEYS[i])==="1")return true;}return false;}
+  function setDone(v){for(var i=0;i<DONE_KEYS.length;i++)put(DONE_KEYS[i],v?"1":"0");}
+  function getDaily(k,d){return parse(KEY+k,d);}
+  function hasM001Activity(){
+    try{if(typeof window.buildRowsV99==="function"&&window.buildRowsV99().length)return true;}catch(e){}
+    var names=["historyData","collectHistoryData","carryOutData","stateData","m001ReportData","lastDailyPayload","dailyPayloadV91"];
+    for(var i=0;i<names.length;i++){
+      var x=getDaily(names[i],null);
+      if(Array.isArray(x)&&x.length)return true;
+      if(x&&typeof x==="object"){
+        if(Array.isArray(x.completedList)&&x.completedList.length)return true;
+        if(Array.isArray(x.storeReports)&&x.storeReports.length)return true;
+        if(Array.isArray(x.dailyDetails)&&x.dailyDetails.length)return true;
+        if(Object.keys(x).length&&names[i]==="stateData")return true;
+      }
+    }
+    return false;
+  }
+  function updateButtons(){
+    restoreWork();
+    var st=started(),dn=done(),bs=id("btnBusinessStartV82"),go=id("btnGoCustomerPage"),bc=id("btnBusinessCompleteV84"),bm=id("btnMail"),br=id("btnResetComplete");
+    if(bs){bs.textContent=st?"業務開始済":"業務開始";bs.disabled=st||!readyStart();bs.style.opacity=bs.disabled?".75":"";}
+    if(go){go.disabled=!st;go.style.opacity=st?"":".45";go.style.filter=st?"":"grayscale(1)";go.textContent="得意先ページへ進む";}
+    if(bc){var ok=st&&readyEnd();bc.disabled=!ok;bc.style.opacity=ok?"":".45";bc.textContent="業務完了";}
+    if(bm){bm.disabled=!dn;bm.style.opacity=dn?"":".45";bm.style.filter=dn?"":"grayscale(1)";bm.textContent="日報送信";}
+    if(br)br.style.display="none";
+  }
+  function cloneBind(idName,fn){
+    var old=id(idName);if(!old||old.__v100)return;var c=old.cloneNode(true);c.__v100=true;old.parentNode.replaceChild(c,old);c.addEventListener("click",fn,false);
+  }
+  function onStart(e){
+    e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
+    saveWork();
+    if(!readyStart()){alert("業務開始前走行距離と業務開始前アルコール値を入力してください。");updateButtons();return false;}
+    writeAll(START_KEYS,first(START_KEYS)||now());
+    for(var i=0;i<START_FLAGS.length;i++)put(START_FLAGS[i],"1");
+    for(var j=0;j<MANUAL_FLAGS.length;j++)put(MANUAL_FLAGS[j],"1");
+    setDone(false);updateButtons();return false;
+  }
+  function onGo(e){
+    saveWork();
+    if(!started()){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();alert("先に業務開始ボタンを押してください。");updateButtons();return false;}
+    var c=val("customerCode")||"M001";
+    location.href=(c==="M002"?"m002.html":c==="M003"?"m003.html":c==="M004"?"m004.html":"m001.html");
+    return false;
+  }
+  function onComplete(e){
+    e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
+    restoreWork();saveWork();
+    if(!started()){alert("先に業務開始ボタンを押してください。");updateButtons();return false;}
+    if(!readyEnd()){alert("業務開始前走行距離、業務開始前アルコール値、業務終了後走行距離、業務終了後アルコール値をすべて入力してください。");updateButtons();return false;}
+    if((val("customerCode")||"M001")==="M001"&&!hasM001Activity()){alert("最低1件以上、配送完了または配送不可まで処理してください。");updateButtons();return false;}
+    writeAll(END_KEYS,now());setDone(true);
+    try{if(typeof window.buildPayloadV84==="function"){var p=window.buildPayloadV84();if(p){p.version=VERSION;setJson(KEY+"lastDailyPayload",p);}}}catch(e2){}
+    updateButtons();
+    var m=id("completeModalV72");if(m)m.style.display="flex";else alert("業務完了しました。日報送信してください。");
+    return false;
+  }
+  function onMail(e){saveWork();if(!done()){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();alert("先に業務完了ボタンを押してください。");updateButtons();return false;}return true;}
+  function bind(){
+    try{document.title="配送・集金管理システム V100";}catch(e){}
+    restoreWork();
+    FIELDS.forEach(function(k){var e=id(k);if(e&&!e.__v100input){e.__v100input=true;e.addEventListener("input",function(){saveWork();updateButtons();},false);e.addEventListener("change",function(){saveWork();updateButtons();},false);e.addEventListener("blur",saveWork,false);}});
+    cloneBind("btnBusinessStartV82",onStart);cloneBind("btnGoCustomerPage",onGo);cloneBind("btnBusinessCompleteV84",onComplete);
+    var bm=id("btnMail");if(bm&&!bm.__v100mail){bm.__v100mail=true;bm.addEventListener("click",onMail,true);}
+    updateButtons();
+  }
+  window.refreshV100Buttons=updateButtons;
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
+  window.addEventListener("pageshow",bind);
+  window.addEventListener("pagehide",saveWork);
 })();
 </script>
 

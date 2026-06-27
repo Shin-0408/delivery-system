@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>M001 株式会社松葉屋製麺 V91</title>
+<title>M001 株式会社松葉屋製麺 V102</title>
 <!-- V72: M001松葉屋専用ページ。V74データ互換維持。 -->
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -3971,6 +3971,26 @@ body.v86-customer-page-clean .topGrid{display:none!important;}
   window.addEventListener("beforeunload",keep);
   window.addEventListener("pageshow",function(){restoreIfEmpty();keep();});
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",function(){restoreIfEmpty();keep();});else{restoreIfEmpty();keep();}
+})();
+</script>
+
+
+<script id="v102-m001-return-flag-js">
+/* ===== V102：点呼ページへ戻る時、業務開始状態の復元目印だけ保存。業務データは消さない。 ===== */
+(function(){
+  function put(k,v){try{localStorage.setItem(k,String(v));}catch(e){}}
+  function markReturn(){put("DeliverySystemV102_returnedFromM001","1");put("DeliverySystemV102_returnedFromCustomer","1");}
+  function bind(){
+    var links=document.getElementsByTagName("a");
+    for(var i=0;i<links.length;i++){
+      if((links[i].getAttribute("href")||"").indexOf("index.html")>=0 && !links[i].__v102return){
+        links[i].__v102return=true;
+        links[i].addEventListener("click",markReturn,false);
+      }
+    }
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
+  window.addEventListener("pagehide",markReturn);
 })();
 </script>
 

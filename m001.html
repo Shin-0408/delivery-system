@@ -4042,5 +4042,31 @@ body.v86-customer-page-clean .topGrid{display:none!important;}
 })();
 </script>
 
+
+
+<script id="v110-active-customer-m001-js">
+/* ===== V110：点呼ページへ戻った時の得意先誤選択防止 ===== */
+(function(){
+  var KEY="deliverySystemV45_", CUSTOMER="M001";
+  function setActive(){
+    try{
+      localStorage.setItem("DeliverySystemV110_activeCustomer",CUSTOMER);
+      localStorage.setItem("DeliverySystemV106_activeCustomer",CUSTOMER);
+      localStorage.setItem("DeliverySystemV105_activeCustomer",CUSTOMER);
+      var cfg={};try{cfg=JSON.parse(localStorage.getItem(KEY+"config")||"{}");}catch(e){cfg={};}
+      cfg.customerCode=CUSTOMER;
+      localStorage.setItem(KEY+"config",JSON.stringify(cfg));
+    }catch(e){}
+  }
+  function bind(){
+    setActive();
+    var links=document.querySelectorAll('a[href="./index.html"],a[href="index.html"]');
+    for(var i=0;i<links.length;i++){if(!links[i].__v110active){links[i].__v110active=1;links[i].addEventListener("click",setActive,true);}}
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
+  window.addEventListener("pageshow",bind);
+})();
+</script>
+
 </body>
 </html>

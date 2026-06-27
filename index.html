@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>配送・集金管理システム V102</title>
+<title>配送・集金管理システム V103</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;width:100%;min-width:100%;background:#e9edf2;font-family:sans-serif;overflow-x:hidden}
@@ -2647,7 +2647,7 @@ window.addEventListener("load",function(){
   }
   function onMail(e){saveWork();if(!done()){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();alert("先に業務完了ボタンを押してください。");update();return false;}return true;}
   function bind(){
-    try{document.title="配送・集金管理システム V102";}catch(e){}
+    try{document.title="配送・集金管理システム V103";}catch(e){}
     saveWork();
     FIELDS.forEach(function(k){var e=id(k);if(e&&!e.__v102input){e.__v102input=true;e.addEventListener("input",update,false);e.addEventListener("change",update,false);e.addEventListener("blur",saveWork,false);}});
     replaceClick("btnBusinessStartV82",onStart);
@@ -2657,6 +2657,136 @@ window.addEventListener("load",function(){
     update();
   }
   window.refreshV102Buttons=update;
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
+  window.addEventListener("pageshow",bind);
+  window.addEventListener("focus",update);
+  window.addEventListener("pagehide",saveWork);
+})();
+</script>
+
+
+<script id="v103-start-button-input-gate-js">
+/* ===== V103：業務開始ボタンの入力前ロック。開始前走行距離・開始前アルコール値が空なら開始済み扱いにしない。 ===== */
+(function(){
+  var KEY="deliverySystemV45_";
+  var START_KEYS=[
+    "DeliverySystemV103_workStartTime","DeliverySystemV102_workStartTime","DeliverySystemV100_workStartTime","DeliverySystemV99_workStartTime","DeliverySystemV97_workStartTime","DeliverySystemV96_workStartTime","DeliverySystemV95_workStartTime","DeliverySystemV94_workStartTime",
+    "DeliverySystemV87_workStartTime","DeliverySystemV85_workStartTime","DeliverySystemV84_workStartTime","DeliverySystemV83_workStartTime","DeliverySystemV82_workStartTime","DeliverySystemV81_workStartTime","DeliverySystemV79_workStartTime","DeliverySystemV78_workStartTime","DeliverySystemV72_workStartTime"
+  ];
+  var START_FLAGS=[
+    "DeliverySystemV103_tenkoStarted","DeliverySystemV102_tenkoStarted","DeliverySystemV100_tenkoStarted","DeliverySystemV99_tenkoStarted","DeliverySystemV97_tenkoStarted","DeliverySystemV82_businessStarted","DeliverySystemV81_businessStarted","DeliverySystemV102_startManual"
+  ];
+  var DONE_KEYS=[
+    "DeliverySystemV103_businessCompleted","DeliverySystemV102_businessCompleted","DeliverySystemV100_businessCompleted","DeliverySystemV99_businessCompleted","DeliverySystemV97_businessCompleted","DeliverySystemV96_businessCompleted","DeliverySystemV95_businessCompleted",
+    "DeliverySystemV85_businessCompleted","DeliverySystemV84_businessCompleted","DeliverySystemV83_businessCompleted","DeliverySystemV72_businessCompleted","DeliverySystemV64_businessCompleted","deliverySystemV45_businessCompleted"
+  ];
+  function id(x){return document.getElementById(x);}
+  function raw(k){try{return localStorage.getItem(k)||"";}catch(e){return "";}}
+  function put(k,v){try{localStorage.setItem(k,String(v));}catch(e){}}
+  function del(k){try{localStorage.removeItem(k);}catch(e){}}
+  function getJson(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
+  function setJson(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+  function val(x){var e=id(x);return e?String(e.value||"").trim():"";}
+  function hm(v){var s=String(v||"");var m=s.match(/(\d{1,2}:\d{2})(?::\d{2})?/);return m?m[1]:s;}
+  function now(){return new Date().toLocaleString("ja-JP");}
+  function readyStart(){return !!(val("startMeter") && val("startAlcohol"));}
+  function readyEnd(){return !!(val("startMeter") && val("startAlcohol") && val("endMeter") && val("endAlcohol"));}
+  function first(keys){for(var i=0;i<keys.length;i++){var v=raw(keys[i]);if(v)return v;}return "";}
+  function writeAll(keys,v){for(var i=0;i<keys.length;i++){put(keys[i],v);put(keys[i]+"_hm",hm(v));}}
+  function clearStaleStart(){
+    for(var i=0;i<START_KEYS.length;i++){del(START_KEYS[i]);del(START_KEYS[i]+"_hm");}
+    for(var j=0;j<START_FLAGS.length;j++)del(START_FLAGS[j]);
+  }
+  function startedStrict(){
+    if(!readyStart())return false;
+    return !!first(START_KEYS);
+  }
+  function done(){for(var i=0;i<DONE_KEYS.length;i++){if(raw(DONE_KEYS[i])==="1")return true;}return false;}
+  function setDone(v){for(var i=0;i<DONE_KEYS.length;i++)put(DONE_KEYS[i],v?"1":"0");}
+  function saveWork(){
+    var w=getJson(KEY+"workData",{});
+    ["startMeter","startAlcohol","endMeter","endAlcohol","dailyDistance"].forEach(function(k){
+      var e=id(k); if(e)w[k]=String(e.value||"").trim();
+    });
+    var sm=Number(w.startMeter||0), em=Number(w.endMeter||0);
+    if(w.startMeter!=="" && w.endMeter!=="" && !isNaN(sm) && !isNaN(em) && em>=sm)w.dailyDistance=String(em-sm);
+    else if(!w.dailyDistance)w.dailyDistance="0";
+    var d=id("dailyDistance"); if(d)d.value=w.dailyDistance||"0";
+    setJson(KEY+"workData",w);
+    setJson("DeliverySystemV103_tenkoWorkBackup",w);
+    setJson(KEY+"DeliverySystemV103_tenkoWorkBackup",w);
+  }
+  function update(){
+    saveWork();
+    if(!readyStart())clearStaleStart();
+    var st=startedStrict(), dn=done();
+    var bs=id("btnBusinessStartV82"), go=id("btnGoCustomerPage"), bc=id("btnBusinessCompleteV84"), bm=id("btnMail"), br=id("btnResetComplete");
+    if(bs){
+      bs.textContent=st?"業務開始済":"業務開始";
+      bs.disabled=st || !readyStart();
+      bs.style.opacity=st?".75":(readyStart()?"":".45");
+      bs.style.filter=(!st && readyStart())?"":"grayscale(1)";
+    }
+    if(go){go.disabled=!st;go.style.opacity=st?"":".45";go.style.filter=st?"":"grayscale(1)";}
+    if(bc){
+      var ok=st && readyEnd();
+      bc.disabled=!ok;bc.style.opacity=ok?"":".45";bc.style.filter=ok?"":"grayscale(1)";bc.textContent="業務完了";
+    }
+    if(bm){bm.disabled=!dn;bm.style.opacity=dn?"":".45";bm.style.filter=dn?"":"grayscale(1)";}
+    if(br)br.style.display="none";
+  }
+  function replaceClick(idName,fn){
+    var old=id(idName); if(!old || old.__v103)return;
+    var c=old.cloneNode(true); c.__v103=true; old.parentNode.replaceChild(c,old);
+    c.addEventListener("click",fn,false);
+  }
+  function onStart(e){
+    e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
+    saveWork();
+    if(!readyStart()){
+      clearStaleStart();
+      alert("業務開始前走行距離と業務開始前アルコール値を入力してください。");
+      update();
+      return false;
+    }
+    var t=now();
+    writeAll(START_KEYS,t);
+    for(var i=0;i<START_FLAGS.length;i++)put(START_FLAGS[i],"1");
+    setDone(false);
+    update();
+    alert("業務開始時間を記録しました。\n"+hm(t));
+    return false;
+  }
+  function onGo(e){
+    saveWork();
+    if(!startedStrict()){
+      e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
+      alert("先に業務開始ボタンを押してください。");
+      update();
+      return false;
+    }
+    put("DeliverySystemV103_returnedFromCustomer","1");
+    put("DeliverySystemV102_returnedFromCustomer","1");
+    var c=val("customerCode")||"M001";
+    location.href=(c==="M002"?"m002.html":c==="M003"?"m003.html":c==="M004"?"m004.html":"m001.html");
+    return false;
+  }
+  function bind(){
+    try{document.title="配送・集金管理システム V103";var h=document.querySelector(".header");if(h)h.textContent="点呼ページ";}catch(e){}
+    ["startMeter","startAlcohol","endMeter","endAlcohol","dailyDistance"].forEach(function(k){
+      var e=id(k);
+      if(e&&!e.__v103input){
+        e.__v103input=true;
+        e.addEventListener("input",update,false);
+        e.addEventListener("change",update,false);
+        e.addEventListener("blur",saveWork,false);
+      }
+    });
+    replaceClick("btnBusinessStartV82",onStart);
+    replaceClick("btnGoCustomerPage",onGo);
+    update();
+  }
+  window.refreshV103Buttons=update;
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
   window.addEventListener("pageshow",bind);
   window.addEventListener("focus",update);

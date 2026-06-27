@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>M001 株式会社松葉屋製麺 V86</title>
+<title>M001 株式会社松葉屋製麺 V87</title>
 <!-- V72: M001松葉屋専用ページ。V74データ互換維持。 -->
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -3504,11 +3504,11 @@ body.v84-m001-clean .footerBtns{grid-template-columns:1fr 1fr!important;}
   function rawGet(k){try{return localStorage.getItem(k)||"";}catch(e){return "";}}
   function rawSet(k,v){try{localStorage.setItem(k,String(v||""));}catch(e){}}
   function hm(v){var s=String(v||"");var m=s.match(/(\d{1,2}:\d{2})(?::\d{2})?/);return m?m[1]:s;}
-  function started(){return rawGet("DeliverySystemV86_workStartTime")||rawGet("DeliverySystemV84_workStartTime")||rawGet("DeliverySystemV83_workStartTime")||rawGet("DeliverySystemV82_workStartTime")||rawGet("DeliverySystemV81_workStartTime")||rawGet("DeliverySystemV79_workStartTime")||rawGet("DeliverySystemV72_workStartTime")||"";}
-  function ended(){return rawGet("DeliverySystemV86_workEndTime")||rawGet("DeliverySystemV84_workEndTime")||rawGet("DeliverySystemV83_workEndTime")||rawGet("DeliverySystemV82_workEndTime")||rawGet("DeliverySystemV81_workEndTime")||rawGet("DeliverySystemV79_workEndTime")||rawGet("DeliverySystemV72_workEndTime")||"";}
+  function started(){return rawGet("DeliverySystemV87_workStartTime")||rawGet("DeliverySystemV84_workStartTime")||rawGet("DeliverySystemV83_workStartTime")||rawGet("DeliverySystemV82_workStartTime")||rawGet("DeliverySystemV81_workStartTime")||rawGet("DeliverySystemV79_workStartTime")||rawGet("DeliverySystemV72_workStartTime")||"";}
+  function ended(){return rawGet("DeliverySystemV87_workEndTime")||rawGet("DeliverySystemV84_workEndTime")||rawGet("DeliverySystemV83_workEndTime")||rawGet("DeliverySystemV82_workEndTime")||rawGet("DeliverySystemV81_workEndTime")||rawGet("DeliverySystemV79_workEndTime")||rawGet("DeliverySystemV72_workEndTime")||"";}
   function applyClean(){
     document.body.className=(document.body.className||"").replace(/\bv84-m001-clean\b/g,"")+" v84-m001-clean";
-    try{document.title="M001 株式会社松葉屋製麺 V86";var h=document.querySelector(".header");if(h)h.textContent="株式会社松葉屋製麺";}catch(e){}
+    try{document.title="M001 株式会社松葉屋製麺 V87";var h=document.querySelector(".header");if(h)h.textContent="株式会社松葉屋製麺";}catch(e){}
     var back=document.querySelector('a[href="./index.html"],a[href="index.html"]');if(back){back.textContent="点呼ページへ戻る";back.setAttribute("aria-label","点呼ページへ戻る");}
     ["btnM001CompleteMark","btnPageDailySend","btnComplete","btnMail","btnDailySend"].forEach(function(x){var b=id(x);if(b){b.style.display="none";b.disabled=true;b.onclick=function(){location.href="./index.html";return false;};}});
     try{if(typeof window.buildPayloadV83==="function"){var p=window.buildPayloadV83(); if(p&&p.m001){set("m001ReportData",p.m001);}}}catch(e){}
@@ -3523,7 +3523,7 @@ body.v84-m001-clean .footerBtns{grid-template-columns:1fr 1fr!important;}
 
 
 <script id="v85-m001-back-save-js">
-/* ===== V86：点呼ページへ戻る前に点呼入力を保存 ===== */
+/* ===== V87：点呼ページへ戻る前に点呼入力を保存 ===== */
 (function(){
   var KEY="deliverySystemV45_";
   function id(x){return document.getElementById(x);}
@@ -3538,7 +3538,7 @@ body.v84-m001-clean .footerBtns{grid-template-columns:1fr 1fr!important;}
     }catch(e){}
   }
   function bind(){
-    try{document.title="M001 株式会社松葉屋製麺 V86";}catch(e){}
+    try{document.title="M001 株式会社松葉屋製麺 V87";}catch(e){}
     var backs=document.querySelectorAll('a[href="./index.html"],a[href="index.html"]');
     for(var i=0;i<backs.length;i++){if(!backs[i].__v85save){backs[i].__v85save=1;backs[i].addEventListener("click",saveWork);}}
     window.addEventListener("pagehide",saveWork);
@@ -3551,14 +3551,14 @@ body.v84-m001-clean .footerBtns{grid-template-columns:1fr 1fr!important;}
 
 
 <style id="v86-customer-page-clean-css">
-/* ===== V86：得意先・ドライバー・車両・端末の選択は点呼ページのみ表示 ===== */
+/* ===== V87：得意先・ドライバー・車両・端末の選択は点呼ページのみ表示 ===== */
 body.v86-customer-page-clean .topGrid{display:none!important;}
 </style>
 <script id="v86-customer-page-clean-js">
-/* ===== V86：得意先ページでは点呼情報を消さず、点呼ページへ戻す ===== */
+/* ===== V87：得意先ページでは点呼情報を消さず、点呼ページへ戻す ===== */
 (function(){
   var KEY="deliverySystemV45_";
-  var BACKUP_KEY="DeliverySystemV86_tenkoBackup";
+  var BACKUP_KEY="DeliverySystemV87_tenkoBackup";
   function id(x){return document.getElementById(x);}
   function rawGet(k){try{return localStorage.getItem(k)||"";}catch(e){return "";}}
   function rawSet(k,v){try{localStorage.setItem(k,String(v||""));}catch(e){}}
@@ -3584,7 +3584,7 @@ body.v86-customer-page-clean .topGrid{display:none!important;}
   }
   function bind(){
     document.body.className=(document.body.className||"").replace(/\bv86-customer-page-clean\b/g,"")+" v86-customer-page-clean";
-    try{document.title=document.title.replace(/V85/g,"V86");}catch(e){}
+    try{document.title=document.title.replace(/V85/g,"V87");}catch(e){}
     var back=document.querySelector('a[href="./index.html"],a[href="index.html"]');
     if(back){back.textContent="点呼ページへ戻る";back.addEventListener("click",preserveTenko,true);}
     preserveTenko();

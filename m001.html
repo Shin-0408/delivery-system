@@ -3789,5 +3789,117 @@ body.v86-customer-page-clean .topGrid{display:none!important;}
 })();
 </script>
 
+
+<script id="v96-m001-amount-and-snapshot-safe-js">
+/* ===== V96：配送完了一覧に金額を保持/表示。点呼へ戻る前に確実保存 ===== */
+(function(){
+  var KEY=window.KEY||"deliverySystemV45_";
+  function id(x){return document.getElementById(x);}
+  function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];});}
+  function yen(n){n=Number(n||0);return n?n.toLocaleString()+"円":"";}
+  function hm(v){var s=String(v||"");var m=s.match(/(\d{1,2}:\d{2})(?::\d{2})?/);return m?m[1]:s;}
+  function get(k,d){try{var v=localStorage.getItem(KEY+k);return v?JSON.parse(v):d;}catch(e){return d;}}
+  function set(k,v){try{localStorage.setItem(KEY+k,JSON.stringify(v));}catch(e){}}
+  function optText(code){
+    try{
+      var o=(window.optionData&&window.optionData[code])||{};
+      var a=[];
+      if(o.deliveryItem)a.push("商品配送");
+      if(o.invoiceItem)a.push("請求書");
+      if(o.letterItem)a.push("手紙");
+      if(o.collectionOnly)a.push("集金のみ");
+      if(o.returnItem)a.push("回収あり");
+      return a.join("・")||"商品配送";
+    }catch(e){return "商品配送";}
+  }
+  function makeRows(){
+    var hist=(window.historyData||get("historyData",[])||[]).slice();
+    var collect=(window.collectHistoryData||get("collectHistoryData",[])||[]).slice();
+    var carry=(window.carryOutData||get("carryOutData",[])||[]).slice();
+    var map={}, order=[];
+    function touch(code,name){
+      code=String(code||"").trim(); if(!code)return null;
+      if(!map[code]){map[code]={code:code,name:name||(window.stores&&window.stores[code])||"",carryTime:"",deliveryTime:"",deliveryContent:optText(code),collectionStatus:"",amount:0,reason:""};order.push(code);}
+      if(name)map[code].name=name;
+      return map[code];
+    }
+    carry.forEach(function(x){var r=touch(x&&x.code,x&&x.name); if(r)r.carryTime=hm(x.time||x.datetime||x.carryTime||x.carryOutTime||r.carryTime);});
+    hist.forEach(function(x){
+      var r=touch(x&&x.code,x&&x.name); if(!r)return;
+      var st=String(x.status||"");
+      if(st==="持出")r.carryTime=hm(x.time||x.datetime||r.carryTime);
+      if(st==="配送完了"||st==="配送不可"||st==="集金完了"||st==="集金なし"||st==="未集金"){
+        r.deliveryTime=hm(x.deliveryTime||x.completedTime||x.time||x.datetime||r.deliveryTime);
+        if(st==="配送不可"){r.collectionStatus="配送不可";r.reason=x.reason||r.reason;}
+        if(st==="集金完了"){r.collectionStatus="集金完了";r.amount=Number(x.amount||r.amount||0);}
+        if(st==="集金なし")r.collectionStatus="集金なし";
+        if(st==="未集金"){r.collectionStatus="未集金";r.amount=Number(x.amount||r.amount||0);r.reason=x.reason||r.reason;}
+        if(x.deliveryContent)r.deliveryContent=x.deliveryContent;
+      }
+    });
+    collect.forEach(function(x){var r=touch(x&&x.code,x&&x.name); if(r){r.collectionStatus="集金完了";r.amount=Number(x.amount||r.amount||0);}});
+    return order.map(function(c){return map[c];}).filter(function(r){return r.deliveryTime || r.collectionStatus || r.amount;});
+  }
+  function fixHeader(){
+    var list=id("completedList"); if(!list)return;
+    var table=list.closest?list.closest("table"):null; if(!table)return;
+    var tr=table.querySelector("thead tr"); if(!tr)return;
+    var txt=tr.textContent||"";
+    if(txt.indexOf("金額")<0){
+      tr.innerHTML="<th>店舗コード</th><th>店舗名</th><th>持出時間</th><th>配送完了時間</th><th>配送内容</th><th>状態</th><th>金額</th>";
+    }
+  }
+  function render(){
+    var rows=makeRows();
+    fixHeader();
+    var list=id("completedList");
+    if(list){
+      var h="";
+      rows.slice().reverse().forEach(function(r){
+        h+="<tr><td>"+esc(r.code)+"</td><td>"+esc(r.name)+"</td><td>"+esc(r.carryTime)+"</td><td>"+esc(r.deliveryTime)+"</td><td>"+esc(r.deliveryContent||"商品配送")+"</td><td>"+esc(r.collectionStatus||"")+"</td><td>"+esc(yen(r.amount))+"</td></tr>";
+      });
+      list.innerHTML=h;
+    }
+    if(id("completedListCount"))id("completedListCount").textContent=rows.length+"件";
+    save(rows);
+  }
+  function save(rows){
+    rows=rows||makeRows();
+    var old=get("m001ReportData",{});
+    old.savedAt=new Date().toLocaleString("ja-JP");
+    old.customerCode="M001";
+    old.completedList=rows;
+    old.storeReports=rows;
+    old.dailyDetails=rows;
+    old.historyData=window.historyData||get("historyData",[]);
+    old.collectHistoryData=window.collectHistoryData||get("collectHistoryData",[]);
+    old.carryOutData=window.carryOutData||get("carryOutData",[]);
+    old.stateData=window.stateData||get("stateData",{});
+    set("m001ReportData",old);
+    try{
+      var p=get("lastDailyPayload",null);
+      if(p && (p.customerCode==="M001" || !p.customerCode)){
+        p.completedList=rows;p.storeReports=rows;p.dailyDetails=rows;
+        set("lastDailyPayload",p);
+      }
+    }catch(e){}
+  }
+  ["carry","deliveryDone","collectDone","noCollect","pendingCollect","deliveryFail"].forEach(function(n){
+    var old=window[n];
+    if(typeof old==="function"&&!old.__v96){
+      var fn=function(){var r=old.apply(this,arguments);setTimeout(render,30);setTimeout(render,250);return r;};
+      fn.__v96=true;window[n]=fn;
+    }
+  });
+  document.addEventListener("click",function(e){
+    var t=e.target;
+    if(t && /点呼ページへ戻る|一覧へ戻る|戻る/.test(String(t.textContent||""))) save();
+  },true);
+  window.addEventListener("pagehide",function(){save();});
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",function(){setTimeout(render,250);});
+  else setTimeout(render,250);
+})();
+</script>
+
 </body>
 </html>

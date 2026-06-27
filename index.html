@@ -1761,5 +1761,178 @@ window.addEventListener("load",function(){
 })();
 </script>
 
+
+<script id="v96-complete-button-persist-safe-js">
+/* ===== V96：業務完了ボタン復旧・点呼4項目を日報送信まで保持・軽量1回実行 ===== */
+(function(){
+  var KEY="deliverySystemV45_";
+  var BACKUP_KEY="DeliverySystemV96_tenkoWorkBackup";
+  var FIELDS=["startMeter","startAlcohol","endMeter","endAlcohol","dailyDistance"];
+  var START_KEYS=[
+    "DeliverySystemV96_workStartTime","DeliverySystemV95_workStartTime","DeliverySystemV94_workStartTime",
+    "DeliverySystemV85_workStartTime","DeliverySystemV84_workStartTime","DeliverySystemV83_workStartTime",
+    "DeliverySystemV82_workStartTime","DeliverySystemV81_workStartTime","DeliverySystemV79_workStartTime",
+    "DeliverySystemV78_workStartTime","DeliverySystemV72_workStartTime"
+  ];
+  var END_KEYS=[
+    "DeliverySystemV96_workEndTime","DeliverySystemV95_workEndTime","DeliverySystemV94_workEndTime",
+    "DeliverySystemV85_workEndTime","DeliverySystemV84_workEndTime","DeliverySystemV83_workEndTime",
+    "DeliverySystemV82_workEndTime","DeliverySystemV81_workEndTime","DeliverySystemV79_workEndTime",
+    "DeliverySystemV78_workEndTime","DeliverySystemV72_workEndTime"
+  ];
+  var DONE_KEYS=[
+    "DeliverySystemV96_businessCompleted","DeliverySystemV95_businessCompleted","DeliverySystemV85_businessCompleted",
+    "DeliverySystemV84_businessCompleted","DeliverySystemV83_businessCompleted","DeliverySystemV72_businessCompleted",
+    "DeliverySystemV64_businessCompleted","deliverySystemV45_businessCompleted"
+  ];
+  function id(x){return document.getElementById(x);}
+  function val(x){var e=id(x);return e?String(e.value||"").trim():"";}
+  function raw(k){try{return localStorage.getItem(k)||"";}catch(e){return "";}}
+  function put(k,v){try{localStorage.setItem(k,String(v));}catch(e){}}
+  function del(k){try{localStorage.removeItem(k);}catch(e){}}
+  function get(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
+  function set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+  function first(keys){for(var i=0;i<keys.length;i++){var v=raw(keys[i]);if(v)return v;}return "";}
+  function now(){return new Date().toLocaleString("ja-JP");}
+  function hm(v){var s=String(v||"");var m=s.match(/(\d{1,2}:\d{2})(?::\d{2})?/);return m?m[1]:s;}
+  function write(keys,v){for(var i=0;i<keys.length;i++){put(keys[i],v);put(keys[i]+"_hm",hm(v));}}
+  function calc(){
+    var s=Number(val("startMeter")||0), e=Number(val("endMeter")||0), d=id("dailyDistance");
+    if(d)d.value=(!isNaN(s)&&!isNaN(e)&&e>=s)?String(e-s):"0";
+  }
+  function save(){
+    calc();
+    var old=get(KEY+"workData",{});
+    FIELDS.forEach(function(k){var e=id(k); if(e) old[k]=String(e.value||"");});
+    set(KEY+"workData",old);
+    set(BACKUP_KEY,old);
+    var cfg=get(KEY+"config",{});
+    ["customerCode","driverCode","vehicleCode","terminalCode"].forEach(function(k){var e=id(k); if(e) cfg[k]=e.value||cfg[k]||"";});
+    set(KEY+"config",cfg);
+  }
+  function restore(){
+    var w=get(BACKUP_KEY,null)||get(KEY+"workData",{});
+    FIELDS.forEach(function(k){var e=id(k); if(e && String(e.value||"")==="" && w && w[k]!=null) e.value=w[k];});
+    calc();
+  }
+  function started(){return !!first(START_KEYS);}
+  function done(){for(var i=0;i<DONE_KEYS.length;i++){if(raw(DONE_KEYS[i])==="1")return true;}return false;}
+  function setDone(v){for(var i=0;i<DONE_KEYS.length;i++)put(DONE_KEYS[i],v?"1":"0");}
+  function readyStart(){return !!(val("startMeter") && val("startAlcohol"));}
+  function readyEnd(){return !!(val("startMeter") && val("startAlcohol") && val("endMeter") && val("endAlcohol"));}
+  function ensurePayloadTimes(){
+    var p=get(KEY+"lastDailyPayload",null);
+    if(!p)return;
+    var ws=p.workStartTime||p.businessStartTime||p["業務開始時間"]||first(START_KEYS)||"";
+    var we=p.workEndTime||p.businessEndTime||p["業務終了時間"]||p["業務完了時間"]||first(END_KEYS)||"";
+    p.version="V96";
+    p.workStartTime=ws;p.businessStartTime=ws;p["業務開始時間"]=ws;
+    p.workEndTime=we;p.businessEndTime=we;p["業務終了時間"]=we;p["業務完了時間"]=we;
+    p.dailyDetailFields=p.dailyDetailFields||[];
+    var a=false,b=false;
+    p.dailyDetailFields.forEach(function(x){if(x&&x.label==="業務開始時間")a=true;if(x&&x.label==="業務終了時間")b=true;});
+    if(!b)p.dailyDetailFields.unshift({label:"業務終了時間",value:we});
+    if(!a)p.dailyDetailFields.unshift({label:"業務開始時間",value:ws});
+    set(KEY+"lastDailyPayload",p);
+  }
+  function refresh(){
+    restore();
+    var bs=id("btnBusinessStartV82"), bc=id("btnBusinessCompleteV84"), bm=id("btnMail"), br=id("btnResetComplete");
+    if(bs){
+      bs.textContent=started()?"業務開始済":"業務開始";
+      bs.disabled=started() || !readyStart();
+      bs.style.opacity=bs.disabled?".75":"";
+    }
+    if(bc){
+      var ok=started() && readyEnd();
+      bc.disabled=!ok;
+      bc.style.opacity=ok?"":".45";
+      bc.textContent="業務完了";
+    }
+    if(bm){
+      bm.disabled=!done();
+      bm.style.opacity=done()?"":".45";
+      bm.style.filter=done()?"":"grayscale(1)";
+      bm.textContent="日報送信";
+    }
+    if(br)br.style.display="none";
+  }
+  function replaceButton(buttonId,handler){
+    var old=id(buttonId);
+    if(!old || old.__v96replaced)return;
+    var clone=old.cloneNode(true);
+    clone.__v96replaced=1;
+    old.parentNode.replaceChild(clone,old);
+    clone.addEventListener("click",handler,false);
+  }
+  function startClick(ev){
+    ev.preventDefault();
+    save();
+    if(!readyStart()){alert("業務開始前走行距離と業務開始前アルコール値を入力してください。");refresh();return false;}
+    var t=first(START_KEYS)||now();
+    write(START_KEYS,t);
+    setDone(false);
+    refresh();
+    return false;
+  }
+  function completeClick(ev){
+    ev.preventDefault();
+    save();
+    if(!readyEnd()){alert("業務開始前走行距離、業務開始前アルコール値、業務終了後走行距離、業務終了後アルコール値をすべて入力してください。");refresh();return false;}
+    if(!started()){alert("先に業務開始ボタンを押してください。");refresh();return false;}
+    var c=val("customerCode")||"M001";
+    if(c==="M001"){
+      var rows=[];
+      try{
+        if(typeof window.buildPayloadV84==="function"){
+          var p=window.buildPayloadV84()||{};
+          rows=p.completedList||p.storeReports||p.dailyDetails||[];
+        }
+      }catch(e){}
+      if(!rows.length){
+        var p2=get(KEY+"m001ReportData",{});
+        rows=p2.completedList||p2.storeReports||p2.dailyDetails||[];
+      }
+      if(!rows.length){alert("最低1件以上、配送完了または配送不可まで処理してください。");setDone(false);refresh();return false;}
+    }
+    var t=now();
+    write(END_KEYS,t);
+    setDone(true);
+    try{ if(typeof window.buildPayloadV84==="function") window.buildPayloadV84(); }catch(e){}
+    ensurePayloadTimes();
+    refresh();
+    var modal=id("completeModalV72"); if(modal) modal.style.display="flex";
+    return false;
+  }
+  function mailClick(){
+    save(); ensurePayloadTimes();
+    var bm=id("btnMail");
+    if(bm && !done()){alert("先に業務完了ボタンを押してください。");refresh();return false;}
+  }
+  function bind(){
+    try{document.title="配送・集金管理システム V96";}catch(e){}
+    restore();
+    FIELDS.forEach(function(k){
+      var e=id(k);
+      if(e&&!e.__v96){
+        e.__v96=1;
+        e.addEventListener("input",function(){save();refresh();},false);
+        e.addEventListener("change",function(){save();refresh();},false);
+        e.addEventListener("blur",save,false);
+      }
+    });
+    var go=id("btnGoCustomerPage"); if(go&&!go.__v96){go.__v96=1;go.addEventListener("click",save,true);}
+    replaceButton("btnBusinessStartV82",startClick);
+    replaceButton("btnBusinessCompleteV84",completeClick);
+    var bm=id("btnMail"); if(bm&&!bm.__v96){bm.__v96=1;bm.addEventListener("click",mailClick,true);}
+    refresh();
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
+  window.addEventListener("pageshow",function(){restore();setTimeout(refresh,0);});
+  window.addEventListener("pagehide",save);
+  setTimeout(bind,300);
+})();
+</script>
+
 </body>
 </html>

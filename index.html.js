@@ -1,369 +1,4 @@
-<!DOCTYPE html>
-<html lang="ja" manifest="offline.appcache">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>配送・集金管理システム V106</title>
-<style>
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;padding:0;width:100%;min-width:100%;background:#e9edf2;font-family:sans-serif;overflow-x:hidden}
-body{font-size:20px;line-height:1.15}
-.app{width:100%;max-width:760px;margin:0 auto;background:#f7f7f7;border:2px solid #222;min-height:100vh}
-.header{height:48px;background:#0048b5;color:white;font-size:28px;font-weight:bold;text-align:center;line-height:48px;position:sticky;top:0;z-index:10}
-.topGrid{display:grid;grid-template-columns:90px 1fr 110px 1fr;gap:8px;padding:10px;background:#fff;border-bottom:2px solid #bbb;align-items:center}
-.lbl{font-size:20px;font-weight:bold;text-align:center;white-space:nowrap}
-select,input{height:46px;font-size:22px;border:2px solid #aaa;border-radius:4px;background:#fff;padding:4px 8px;width:100%;min-width:0}
-.searchBar{display:grid;grid-template-columns:130px 1fr 120px 120px;gap:8px;padding:10px;background:#fff;border-bottom:2px solid #bbb;align-items:center}
-#storeCode{font-size:30px;font-weight:bold;letter-spacing:2px;height:56px;border:3px solid #333;text-transform:uppercase}
-.btn{border:0;border-radius:7px;font-size:24px;font-weight:bold;color:#fff;height:58px;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 2px 2px rgba(0,0,0,.25)}
-.btn:disabled{opacity:.35}
-.blue{background:linear-gradient(#1f67ff,#003cc7)}
-.green{background:linear-gradient(#2dcc55,#07851f)}
-.orange{background:linear-gradient(#ffb322,#e37c00)}
-.red{background:linear-gradient(#e83a3a,#b40000)}
-.purple{background:linear-gradient(#933de8,#5f17b2)}
-.brown{background:linear-gradient(#c98142,#8b4b20)}
-.cyan{background:linear-gradient(#21c9cf,#07969c)}
-.gray{background:linear-gradient(#888,#555)}
-.dark{background:linear-gradient(#666,#333)}
-.info{background:#fff4cc;border-top:2px solid #e0b44b;border-bottom:2px solid #e0b44b;padding:12px 14px}
-.storeNameLine{font-size:32px;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.statusLine{font-size:30px;font-weight:bold;color:#0054d8;margin-top:6px}
-.moneyGrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px;align-items:end}
-.moneyBox{border-right:2px solid #777;padding:0 8px;min-height:62px}
-.moneyBox:last-child{border-right:0}
-.moneyTitle{font-size:18px;font-weight:bold}
-.moneyValue{font-size:28px;font-weight:bold;text-align:right;margin-top:5px}
-.invoiceWrap{display:flex;align-items:center;gap:5px}
-#invoiceAmount{font-size:28px;text-align:right;height:46px}
-.actions{padding:10px;background:#fff;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;border-bottom:2px solid #ddd}
-.actions .wide2{grid-column:span 2}
-.actions .btn{height:60px;font-size:26px}
-.lists{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:8px;background:#fff;border-bottom:2px solid #ddd}
-.panel{border:1px solid #ccc;background:#fff}
-.panelHead{display:flex;justify-content:space-between;align-items:center;background:#f7f7f7;padding:6px 8px;font-size:22px;font-weight:bold;color:#003366;border-bottom:1px solid #ccc}
-.panelHead:before{content:"■";color:#003366;margin-right:6px}
-.listBody{height:150px;overflow:auto}
-table{width:100%;border-collapse:collapse}
-td,th{border-bottom:1px solid #ddd;padding:5px 6px;font-size:18px;white-space:nowrap}
-td:last-child{text-align:right}
-.unpaidTotal{font-size:24px;font-weight:bold;text-align:right;color:#c00000;padding:8px}
-.summary{padding:8px;background:#fff;border-bottom:2px solid #ddd}
-.summaryTitle{font-size:22px;font-weight:bold;color:#003366;margin-bottom:4px}
-.summaryTitle:before{content:"■";color:#003366;margin-right:6px}
-.summaryGrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border:1px solid #ccc}
-.summaryGrid div{padding:5px 8px;border-right:1px solid #ccc;border-bottom:1px solid #ccc;font-size:19px}
-.summaryGrid div:nth-child(3n){border-right:0}
-.summaryGrid b{float:right}
-.footerBtns{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;padding:8px;background:#fff;border-top:2px solid #aaa}
-.footerBtns .btn{height:58px;font-size:22px}
-.section{background:#fff;margin:8px;border:1px solid #ccc;padding:8px}
-.masterWrap{display:none;margin-bottom:18px}
-.masterList{height:250px;overflow:auto;border:1px solid #aaa;background:#fafafa;margin:6px 0}
-.masterRow{font-size:22px;padding:9px;border-bottom:1px solid #ddd;cursor:pointer}
-.masterBtns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-.smallBtn{height:58px;font-size:23px;color:#fff;border-radius:6px;border:0;font-weight:bold}
-.historyWrap{display:none}
-.historyTableWrap{height:260px;overflow:auto}
-@media (max-width:520px){
-.app{border:0}
-.header{font-size:23px;height:42px;line-height:42px}
-.topGrid{grid-template-columns:74px 1fr 90px 1fr;gap:5px;padding:6px}
-.lbl{font-size:17px}
-select,input{height:40px;font-size:18px}
-.searchBar{grid-template-columns:100px 1fr 82px 82px;gap:5px;padding:6px}
-#storeCode{height:48px;font-size:26px}
-.btn{height:50px;font-size:20px}
-.storeNameLine{font-size:26px}
-.statusLine{font-size:25px}
-.moneyGrid{grid-template-columns:1fr 1fr}
-.moneyBox{border-right:0;border-bottom:1px solid #aaa}
-.moneyValue{font-size:24px}
-.actions{grid-template-columns:1fr 1fr;gap:7px;padding:7px}
-.actions .wide2{grid-column:span 1}
-.lists{grid-template-columns:1fr}
-.listBody{height:130px}
-.summaryGrid{grid-template-columns:1fr 1fr}
-.summaryGrid div:nth-child(3n){border-right:1px solid #ccc}
-.summaryGrid div:nth-child(2n){border-right:0}
-.footerBtns{grid-template-columns:1fr 1fr}
-}
 
-#completeModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:999;align-items:center;justify-content:center;padding:18px}
-.modalCard{background:#fff;border:5px solid #003366;border-radius:14px;padding:18px;width:100%;max-width:520px;text-align:center;box-shadow:0 6px 18px rgba(0,0,0,.45)}
-.modalTitle{font-size:34px;font-weight:bold;color:#003366;margin-bottom:10px}
-.pixelImg{max-width:100%;border:3px solid #222;border-radius:8px;background:#eef}
-.bow{animation:bow 1.1s ease-in-out infinite;transform-origin:center bottom}
-@keyframes bow{0%,100%{transform:rotate(0deg)}50%{transform:rotate(4deg) translateY(4px)}}
-.modalMsg{font-size:28px;font-weight:bold;margin:12px 0;color:#c00000}
-.modalSub{font-size:22px;margin-bottom:14px}
-
-
-/* ===== V41 FZ-N1専用調整 ===== */
-html,body{overflow-x:hidden!important}
-.app{max-width:100%!important;border:0!important}
-.header{font-size:24px!important;height:44px!important;line-height:44px!important;white-space:nowrap}
-.topGrid{grid-template-columns:64px 1fr 92px 1fr!important;gap:4px!important;padding:6px!important}
-.lbl{font-size:17px!important;text-align:left!important;padding-left:2px}
-select,input{height:42px!important;font-size:18px!important;padding:3px 5px!important}
-.searchBar{grid-template-columns:92px minmax(120px,1fr) 82px 70px!important;gap:5px!important;padding:7px!important;align-items:center!important}
-#storeCode{width:100%!important;min-width:120px!important;height:58px!important;font-size:31px!important;letter-spacing:1px!important;padding:4px 8px!important;text-align:center!important}
-.searchBar .btn{height:58px!important;font-size:22px!important;padding:0!important}
-.info{padding:10px!important}
-.storeNameLine{font-size:26px!important;white-space:normal!important;line-height:1.2!important}
-.statusLine{font-size:25px!important}
-.moneyGrid{grid-template-columns:1fr 1fr!important;gap:6px!important}
-.moneyBox{border-right:0!important;border-bottom:1px solid #b7a45b!important;padding:4px!important}
-.moneyTitle{font-size:17px!important}
-.moneyValue{font-size:26px!important}
-.moneyBox:nth-child(3){grid-column:1 / span 2}
-.invoiceWrap{max-width:230px}
-#invoiceAmount{height:52px!important;font-size:30px!important}
-.section{margin:6px!important;padding:8px!important}
-#businessOptions{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;align-items:center!important}
-#businessOptions label{display:flex!important;align-items:center!important;gap:8px!important;margin:0!important;min-height:50px!important;font-size:22px!important;line-height:1.1!important;background:#fff!important;border:1px solid #ddd!important;border-radius:6px!important;padding:6px!important}
-#businessOptions input[type="checkbox"]{width:38px!important;height:38px!important;margin:0!important;flex:0 0 38px!important}
-#businessNotSet{display:none;padding:18px 10px;background:#fff3cd;border:2px solid #e0a800;border-radius:8px;color:#7a4b00;font-size:22px;font-weight:bold;line-height:1.45;text-align:center}
-.actions{grid-template-columns:1fr 1fr!important;gap:8px!important;padding:8px!important}
-.actions .btn{height:66px!important;font-size:25px!important}
-.actions .wide2{grid-column:span 1!important}
-.lists{grid-template-columns:1fr!important;gap:8px!important}
-.footerBtns{grid-template-columns:1fr 1fr!important}
-
-
-/* ===== V43 日報必須項目 ===== */
-.workInfoBox{
-  background:#ffffff;
-  margin:6px;
-  padding:8px;
-  border:2px solid #0b4ea2;
-  border-radius:8px;
-}
-.workInfoTitle{
-  font-size:22px;
-  font-weight:bold;
-  color:#003366;
-  margin-bottom:6px;
-}
-.workInfoGrid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
-}
-.workField label{
-  display:block;
-  font-size:18px;
-  font-weight:bold;
-  margin-bottom:3px;
-}
-.workInputWrap{
-  display:flex;
-  align-items:center;
-  gap:5px;
-}
-.workInputWrap input{
-  height:48px!important;
-  font-size:24px!important;
-  text-align:right;
-}
-.workInputWrap span{
-  font-size:20px;
-  font-weight:bold;
-}
-#dailyDistance{
-  background:#f0f4ff!important;
-  font-weight:bold;
-}
-@media(max-width:520px){
-  .workInfoGrid{grid-template-columns:1fr!important}
-  .workInfoTitle{font-size:21px}
-  .workField label{font-size:17px}
-}
-
-
-/* ===== V44 安定版：得意先別表示制御 ===== */
-#customerNotReadyNotice{display:none;margin:8px;padding:18px 10px;background:#fff3cd;border:3px solid #e0a800;border-radius:10px;color:#7a4b00;font-size:23px;font-weight:bold;line-height:1.45;text-align:center}
-body.customer-not-ready .searchBar,body.customer-not-ready .info,body.customer-not-ready .lists,body.customer-not-ready .summary,body.customer-not-ready #historyWrap{display:none!important}
-body.customer-not-ready #businessOptions,body.customer-not-ready #businessNotSet{display:none!important}
-body.customer-not-ready #customerNotReadyNotice{display:block!important}
-body.customer-not-ready .actions{display:block!important;padding:8px!important}
-body.customer-not-ready .actions button:not(#btnComplete){display:none!important}
-body.customer-not-ready #btnComplete{display:block!important;width:100%!important;height:68px!important;font-size:27px!important}
-
-
-/* ===== V49 最小修正：M002以降でも共通の日報集計は表示 ===== */
-body.customer-not-ready .summary{display:block!important}
-body.customer-not-ready .footerBtns{display:grid!important}
-body.customer-not-ready .workInfoBox{display:block!important}
-body.customer-not-ready .topGrid{display:grid!important}
-
-
-/* ===== V72 分離構成 共通 ===== */
-body{background:#e9edf2}
-.app{max-width:760px;margin:0 auto;background:#f7f7f7;min-height:100vh}
-.v72Notice{
-  margin:8px;
-  padding:12px;
-  background:#fff;
-  border:2px solid #0048b5;
-  border-radius:8px;
-  font-size:19px;
-  line-height:1.35;
-}
-.v72Notice b{color:#003366}
-
-
-
-
-
-.pageNav{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
-  padding:8px;
-  background:#fff;
-  border-bottom:2px solid #bbb;
-}
-.smallInfo{
-  background:#fff;
-  margin:8px;
-  border:2px solid #0048b5;
-  border-radius:8px;
-  padding:10px;
-  font-size:19px;
-  line-height:1.35;
-}
-.m002Box,.genericBox{
-  background:#fff;
-  margin:8px;
-  border:2px solid #0048b5;
-  border-radius:8px;
-  padding:10px;
-}
-.m002Box h2,.genericBox h2{
-  margin:0 0 8px 0;
-  color:#003366;
-  font-size:25px;
-}
-.formGrid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-}
-.formField label{
-  display:block;
-  font-size:19px;
-  font-weight:bold;
-  margin-bottom:4px;
-}
-.formField input,.formField select,.formField textarea{
-  width:100%;
-  min-height:50px;
-  font-size:22px;
-}
-.formField textarea{min-height:100px}
-.full{grid-column:1 / -1}
-.bigActions{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-  margin-top:12px;
-}
-.topOnlyFooter{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
-  padding:8px;
-  background:#fff;
-}
-@media(max-width:520px){
-  .formGrid,.bigActions,.pageNav,.topOnlyFooter{grid-template-columns:1fr}
-  
-}
-</style>
-<link rel="manifest" href="./manifest.json">
-<meta name="theme-color" content="#0048b5">
-<link rel="icon" href="./icon-192.png" type="image/png">
-<link rel="apple-touch-icon" href="./icon-192.png">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-</head>
-<body>
-<div class="app">
-<div class="header">点呼ページ</div>
-
-<div class="topGrid">
-<div class="lbl">得意先</div><select id="customerCode"><option value="M001" >M001　株式会社松葉屋製麺</option>
-<option value="M002" >M002　株式会社アローズ</option>
-<option value="M003" >M003　株式会社カーゴジャパンアドバンスト</option>
-<option value="M004" >M004　株式会社大将</option></select>
-<div class="lbl">ドライバー</div><select id="driverCode"><option value="D001" >D001　福田</option>
-<option value="D002" >D002　岸</option>
-<option value="D003" >D003　森田</option></select>
-<div class="lbl">車 両</div><select id="vehicleCode"><option value="V001" >V001　京都480れ12-44</option>
-<option value="V002" >V002　京都481り12-46</option>
-<option value="V003" >V003　京都481り1-45</option>
-<option value="V004" >V004　京都480り94-29</option>
-<option value="V005" >V005　京都880り6-89</option></select>
-<div class="lbl">端 末</div><select id="terminalCode"><option value="S001" >S001　FZ-N1①</option>
-<option value="S002" >S002　FZ-N1②</option>
-<option value="S003" >S003　FZ-N1③</option>
-<option value="S004" >S004　FZ-N1④</option>
-<option value="S005" >S005　FZ-N1⑤</option></select>
-</div>
-
-<div class="workInfoBox">
-  <div class="workInfoTitle">業務開始前情報</div>
-  <div class="workInfoGrid">
-    <div class="workField">
-      <label>業務開始前走行距離</label>
-      <div class="workInputWrap"><input type="number" id="startMeter" inputmode="numeric" placeholder="0"><span>km</span></div>
-    </div>
-    <div class="workField">
-      <label>業務開始前アルコール値</label>
-      <div class="workInputWrap"><input type="number" id="startAlcohol" step="0.001" inputmode="decimal" placeholder="0.000"><span>mg/L</span></div>
-    </div>
-  </div>
-</div>
-
-<div class="workInfoBox">
-  <div class="workInfoTitle">業務終了後情報</div>
-  <div class="workInfoGrid">
-    <div class="workField">
-      <label>業務終了後走行距離</label>
-      <div class="workInputWrap"><input type="number" id="endMeter" inputmode="numeric" placeholder="0"><span>km</span></div>
-    </div>
-    <div class="workField">
-      <label>本日の走行距離</label>
-      <div class="workInputWrap"><input type="number" id="dailyDistance" readonly value="0"><span>km</span></div>
-    </div>
-    <div class="workField">
-      <label>業務終了後アルコール値</label>
-      <div class="workInputWrap"><input type="number" id="endAlcohol" step="0.001" inputmode="decimal" placeholder="0.000"><span>mg/L</span></div>
-    </div>
-  </div>
-</div>
-
-<div class="v72Notice">
-<b>点呼ページ</b><br>
-得意先・ドライバー・車両・端末、走行距離、アルコール値を入力します。<br>
-得意先を選択すると、その得意先専用ページへ移動します。
-</div>
-
-<div class="topOnlyFooter">
-<button id="btnBusinessStartV82" class="btn green" type="button">業務開始</button>
-<button id="btnGoCustomerPage" class="btn blue" type="button">得意先ページへ進む</button>
-<button id="btnMail" class="btn dark" type="button">日報送信</button>
-<button id="btnBusinessCompleteV84" class="btn red" type="button">業務完了</button><button id="btnResetComplete" class="btn gray" type="button" style="display:none">業務完了解除</button>
-</div>
-
-<div class="v72Notice">
-<b>運用メモ</b><br>
-起動時・得意先ページ移動時・日報送信時だけ通信。入力操作はlocalStorageへ保存します。
-</div>
-</div>
-
-<script>
 var KEY="deliverySystemV45_";
 var COMPLETE_KEY="DeliverySystemV72_businessCompleted";
 var ENDPOINT="https://fukudakoken.com/daily/receive.php";
@@ -425,24 +60,9 @@ window.addEventListener("load",function(){
   updateMailLock();
   if("serviceWorker" in navigator){navigator.serviceWorker.register("./service-worker.js?v=95").catch(function(){});}
 });
-</script>
 
-<div id="completeModalV72" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;align-items:center;justify-content:center;padding:18px">
-  <div style="background:#fff;border:5px solid #003366;border-radius:14px;padding:16px;width:100%;max-width:560px;text-align:center;box-shadow:0 6px 18px rgba(0,0,0,.45)">
-    <div style="font-size:34px;font-weight:bold;color:#003366;margin-bottom:10px">業務終了</div>
-    <img src="./complete-card.jpg" alt="お疲れ様でした" style="max-width:100%;border:3px solid #222;border-radius:8px;background:#eef">
-    <div style="font-size:28px;font-weight:bold;margin:12px 0;color:#c00000">お疲れ様でした！</div>
-    <div style="font-size:22px;margin-bottom:14px">本日の業務が終了しました。<br>日報送信してください。</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <button class="btn blue closeCompleteV72" type="button">閉じる</button>
-      <button id="btnDailySend" class="btn red" type="button">日報送信</button>
-    </div>
-  </div>
-</div>
+;
 
-
-
-<script>
 (function(){
   function id(x){return document.getElementById(x);}
   var pageMap={M001:"m001.html",M002:"m002.html",M003:"m003.html",M004:"m004.html"};
@@ -488,10 +108,9 @@ window.addEventListener("load",function(){
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bindV72Route);else bindV72Route();
 })();
-</script>
 
+;
 
-<script>
 /* ===== V72 統合日報送信・業務完了画面復活 ===== */
 (function(){
   var KEY = window.KEY || "deliverySystemV45_";
@@ -685,17 +304,17 @@ window.addEventListener("load",function(){
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
   setTimeout(bind,800);
 })();
-</script>
 
-<script>
+;
+
 (function(){function h(){document.title="配送・集金管理システム";var e=document.querySelector(".header");if(e)e.textContent="配送・集金管理システム";} if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",h);else h();setTimeout(h,500);setTimeout(h,1500);})();
-</script>
-<!-- V76 index title override -->
-<script>
-(function(){function t(){document.title="配送・集金管理システム";var h=document.querySelector(".header");if(h)h.textContent="配送・集金管理システム";}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",t);else t();setTimeout(t,500);})();
-</script>
 
-<script id="v82-index-business-start-js">
+;
+
+(function(){function t(){document.title="配送・集金管理システム";var h=document.querySelector(".header");if(h)h.textContent="配送・集金管理システム";}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",t);else t();setTimeout(t,500);})();
+
+;
+
 /* ===== V82：トップページ業務開始ボタン ===== */
 (function(){
   var KEYS=[
@@ -729,9 +348,9 @@ window.addEventListener("load",function(){
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
   setTimeout(bind,500);setTimeout(bind,1500);
 })();
-</script>
 
-<script id="v83-index-start-button-release-js">
+;
+
 /* ===== V83：業務完了後、トップページの業務開始ボタンを解除 ===== */
 (function(){
   var START_KEYS=["DeliverySystemV82_workStartTime","DeliverySystemV81_workStartTime","DeliverySystemV79_workStartTime","DeliverySystemV78_workStartTime","DeliverySystemV72_workStartTime"];
@@ -751,10 +370,9 @@ window.addEventListener("load",function(){
   function bind(){var b=id("btnBusinessStartV82");if(!b)return;b.onclick=begin;if(rawGet(RELEASE_KEY)==="1"){b.textContent="業務開始";b.disabled=false;b.style.opacity="";return;}var s=started();if(s){b.textContent="業務開始済";b.disabled=true;b.style.opacity=".75";}else{b.textContent="業務開始";b.disabled=false;b.style.opacity="";}}
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();setTimeout(bind,300);setTimeout(bind,1200);setTimeout(bind,2000);
 })();
-</script>
 
+;
 
-<script id="v84-tenko-page-js">
 /* ===== V84：点呼ページ化・業務開始/完了/日報送信をトップに集約 ===== */
 (function(){
   var KEY="deliverySystemV45_";
@@ -933,18 +551,9 @@ window.addEventListener("load",function(){
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bindV84);else bindV84();
   setTimeout(bindV84,300);setTimeout(bindV84,1000);setTimeout(bindV84,2500);setTimeout(refreshV84,1200);
 })();
-</script>
 
+;
 
-
-<style id="v85-tenko-retain-modal-clean-css">
-/* ===== V85：ミッドナイトくん完了画面の下部ボタン削除 ===== */
-#completeModalV72 #btnDailySend,
-#completeModalV72 .closeCompleteV72{display:none!important;}
-#completeModalV72 div[style*="grid-template-columns"]{display:none!important;}
-</style>
-
-<script id="v85-tenko-retain-modal-clean-js">
 /* ===== V85：点呼入力は日報送信まで保持。得意先移動・戻りで消えないように強制保存/復元 ===== */
 (function(){
   var KEY="deliverySystemV45_";
@@ -1001,18 +610,9 @@ window.addEventListener("load",function(){
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
   setTimeout(bind,200);setTimeout(bind,800);setTimeout(bind,1800);setTimeout(function(){restore();cleanModal();},1500);
 })();
-</script>
 
+;
 
-
-<style id="v86-tenko-final-css">
-/* ===== V87：完了画面は画像と大きな閉じるだけ。画像内の下メッセージ枠は画像側で削除済 ===== */
-#completeModalV72 #btnDailySend,
-#completeModalV72 .closeCompleteV72,
-#completeModalV72 div[style*="grid-template-columns"]{display:none!important;}
-</style>
-
-<script id="v86-tenko-final-js">
 /* ===== V87：点呼ページ入力保持強化＋業務開始条件強化 ===== */
 (function(){
   var KEY="deliverySystemV45_";
@@ -1150,43 +750,9 @@ window.addEventListener("load",function(){
   setTimeout(bind,200);setTimeout(bind,800);setTimeout(bind,1800);setTimeout(bind,3000);
   setTimeout(function(){restoreStrong();refreshButtons();},500);
 })();
-</script>
 
+;
 
-<style id="v87-complete-modal-fix-css">
-/* ===== V87：完了画面の枠補正＋閉じるボタンを1個だけ復活 ===== */
-#completeModalV72 #btnDailySend,
-#completeModalV72 .closeCompleteV72,
-#completeModalV72 div[style*="grid-template-columns"]{display:none!important;}
-#completeModalV72 .v87CompleteCloseWrap{
-  display:block!important;
-  margin-top:14px!important;
-  width:100%!important;
-}
-#completeModalV72 .v87CompleteCloseBtn{
-  display:block!important;
-  width:100%!important;
-  height:64px!important;
-  border:0!important;
-  border-radius:10px!important;
-  background:linear-gradient(#2f75ff,#0050d8)!important;
-  color:#fff!important;
-  font-size:26px!important;
-  font-weight:bold!important;
-  box-shadow:0 3px 8px rgba(0,0,0,.25)!important;
-}
-#completeModalV72 img[src*="complete-card"]{
-  display:block!important;
-  width:100%!important;
-  height:auto!important;
-  object-fit:contain!important;
-  border:3px solid #222!important;
-  border-radius:8px!important;
-  background:#fff!important;
-}
-</style>
-
-<script id="v87-complete-modal-fix-js">
 /* ===== V87：完了画面は閉じるボタン1個だけ。既存処理は壊さず追加制御 ===== */
 (function(){
   function id(x){return document.getElementById(x);}
@@ -1236,13 +802,9 @@ window.addEventListener("load",function(){
   setTimeout(ensureV87Close,1800);
   setTimeout(ensureV87Close,1000);
 })();
-</script>
 
+;
 
-<style id="v88-daily-detail-time-css">
-/* ===== V88：日報の業務開始/終了時間は店舗別行ではなく日報詳細用データへ分離 ===== */
-</style>
-<script id="v88-daily-detail-time-js">
 /* ===== V88：配送完了一覧から業務開始/業務完了を除外し、日報詳細用の業務時間枠データを追加 ===== */
 (function(){
   function hm(v){var s=String(v||"");var m=s.match(/(\d{1,2}:\d{2})(?::\d{2})?/);return m?m[1]:s;}
@@ -1331,14 +893,9 @@ window.addEventListener("load",function(){
     window.postBodyV84=post;
   }
 })();
-</script>
 
+;
 
-
-<style id="v90-unpaid-and-clear-css">
-/* ===== V91：日報送信後の点呼4項目クリアを強制。未集金残高は日報クリア対象外 ===== */
-</style>
-<script id="v90-unpaid-and-clear-js">
 /* ===== V91：V89補正を実効化。送信処理・クリア処理を最終上書き ===== */
 (function(){
   var KEY="deliverySystemV45_";
@@ -1438,15 +995,9 @@ window.addEventListener("load",function(){
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
   setTimeout(bind,200);setTimeout(bind,800);setTimeout(bind,2000);setTimeout(restoreUnpaid,1000);
 })();
-</script>
 
+;
 
-
-
-<style id="v91-summary-unpaid-css">
-/* ===== V91：日報の集計一覧・未集金一覧へM001業務内容を必ず反映 ===== */
-</style>
-<script id="v91-summary-unpaid-js">
 (function(){
   var KEY="deliverySystemV45_";
   var VERSION="V91";
@@ -1502,14 +1053,9 @@ window.addEventListener("load",function(){
   };
   try{window.buildPayloadV84();}catch(e){}
 })();
-</script>
 
+;
 
-
-<style id="v92-worktime-detail-and-clear-css">
-/* ===== V93：業務開始ボタン時刻非表示・日報詳細へ業務開始/終了時間を明示送信 ===== */
-</style>
-<script id="v92-worktime-detail-and-clear-js">
 (function(){
   var KEY="deliverySystemV45_";
   var VERSION="V93";
@@ -1597,11 +1143,9 @@ window.addEventListener("load",function(){
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",function(){sanitizeButton();try{if(typeof window.buildPayloadV84==="function")window.buildPayloadV84();}catch(e){}});else{sanitizeButton();try{if(typeof window.buildPayloadV84==="function")window.buildPayloadV84();}catch(e){}}
   setTimeout(sanitizeButton,200);setTimeout(sanitizeButton,1000);setTimeout(watchClear,500);
 })();
-</script>
 
+;
 
-
-<script id="v93-index-stable-tenko-safe-js">
 /* ===== V93：V93基準の軽量修正。常時監視なし。点呼入力は日報送信まで保持。 ===== */
 (function(){
   var KEY="deliverySystemV45_";
@@ -1658,10 +1202,9 @@ window.addEventListener("load",function(){
   setTimeout(function(){restoreWork();clearStartButtonTimeOnly();},250);
   setTimeout(function(){restoreWork();clearStartButtonTimeOnly();},1200);
 })();
-</script>
 
+;
 
-<script id="v94-stable-complete-button-light-js">
 /* ===== V94：V93を軽量化。業務完了ボタンを点呼4項目＋開始済で安定制御 ===== */
 (function(){
   var KEY="deliverySystemV45_";
@@ -1803,10 +1346,9 @@ window.addEventListener("load",function(){
   setTimeout(bind,250);
   setTimeout(bind,1200);
 })();
-</script>
 
+;
 
-<script id="v96-complete-button-persist-safe-js">
 /* ===== V96：業務完了ボタン復旧・点呼4項目を日報送信まで保持・軽量1回実行 ===== */
 (function(){
   var KEY="deliverySystemV45_";
@@ -1976,10 +1518,9 @@ window.addEventListener("load",function(){
   window.addEventListener("pagehide",save);
   setTimeout(bind,300);
 })();
-</script>
 
+;
 
-<script id="v97-event-driven-tenko-safe-js">
 /* ===== V97：常時監視ゼロ。業務開始は手動クリックのみ。点呼4項目は日報送信まで保持。 ===== */
 (function(){
   var KEY="deliverySystemV45_";
@@ -2185,9 +1726,9 @@ window.addEventListener("load",function(){
   window.addEventListener("pagehide",save);
   /* V99: late bind removed */
 })();
-</script>
 
-<script id="v98-report-redesign-safe-js">
+;
+
 /* ===== V99：日報送信を再設計。業務開始/終了時間と配送完了一覧金額を送信データへ必ず入れる。常時監視なし。 ===== */
 (function(){
   var KEY="deliverySystemV45_";
@@ -2251,10 +1792,9 @@ window.addEventListener("load",function(){
   window.buildRowsV99=buildRowsV99;window.sendDailyV99=sendV99;
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();window.addEventListener("pageshow",bind);
 })();
-</script>
 
+;
 
-<script id="v99-persist-complete-report-safe-js">
 /* ===== V99：リセットは日報送信後だけ。更新・戻るでは保持。業務完了ボタンと日報行金額を再固定。 ===== */
 (function(){
   var KEY="deliverySystemV45_";
@@ -2403,11 +1943,9 @@ window.addEventListener("load",function(){
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
   window.addEventListener("pageshow",bind);window.addEventListener("pagehide",saveWork);
 })();
-</script>
 
+;
 
-
-<script id="v100-complete-button-start-restore-js">
 /* ===== V100：点呼へ戻った後も業務開始状態を確実に復元し、業務完了ボタンを必ず正しく押せるようにする。常時監視なし。 ===== */
 (function(){
   var KEY="deliverySystemV45_";
@@ -2560,10 +2098,9 @@ window.addEventListener("load",function(){
   window.addEventListener("pageshow",bind);
   window.addEventListener("pagehide",saveWork);
 })();
-</script>
 
+;
 
-<script id="v102-complete-button-final-fix-js">
 /* ===== V102：得意先ページから点呼へ戻った後の業務開始状態・業務完了ボタン最終補正。setIntervalなし。 ===== */
 (function(){
   var KEY="deliverySystemV45_";
@@ -2710,10 +2247,9 @@ window.addEventListener("load",function(){
   window.addEventListener("focus",update);
   window.addEventListener("pagehide",saveWork);
 })();
-</script>
 
+;
 
-<script id="v103-start-button-input-gate-js">
 /* ===== V103：業務開始ボタンの入力前ロック。開始前走行距離・開始前アルコール値が空なら開始済み扱いにしない。 ===== */
 (function(){
   var KEY="deliverySystemV45_";
@@ -2840,11 +2376,9 @@ window.addEventListener("load",function(){
   window.addEventListener("focus",update);
   window.addEventListener("pagehide",saveWork);
 })();
-</script>
 
+;
 
-
-<script id="v104-start-button-final-gate-js">
 /* ===== V105：V104補正。入力中に復元処理で現在入力値を上書きしない。開始前2項目が揃った時だけ開始ボタンを有効化。 ===== */
 (function(){
   var KEY="deliverySystemV45_";
@@ -3034,10 +2568,9 @@ window.addEventListener("load",function(){
   setTimeout(bind,0);
   setTimeout(bind,300);
 })();
-</script>
 
+;
 
-<script id="v107-daily-send-tenko-clear-js">
 /* ===== V107：日報送信成功後、点呼入力4項目と開始/完了状態を確実に削除 ===== */
 (function(){
   var KEY="deliverySystemV45_";
@@ -3151,11 +2684,9 @@ window.addEventListener("load",function(){
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
   window.addEventListener("pageshow",bind);
 })();
-</script>
 
+;
 
-
-<script id="v110-final-reset-and-customer-lock-js">
 /* ===== V110：日報送信後の点呼4項目完全リセット＋得意先選択の誤復元防止 ===== */
 (function(){
   var KEY="deliverySystemV45_";
@@ -3299,11 +2830,9 @@ window.addEventListener("load",function(){
   window.addEventListener("focus",restoreCustomer);
   setTimeout(bind,0);setTimeout(bind,500);
 })();
-</script>
 
+;
 
-
-<script id="v111-tenko-input-reset-final-js">
 /* ===== V111：点呼4項目の手動削除と日報送信後リセットを最終固定 ===== */
 (function(){
   var KEY="deliverySystemV45_";
@@ -3447,10 +2976,9 @@ window.addEventListener("load",function(){
   window.addEventListener("pagehide",exactSaveFromScreen,true);
   setTimeout(bind,0);setTimeout(bind,600);setTimeout(bind,1600);
 })();
-</script>
 
+;
 
-<script id="v112-tenko-reset-guard-final-js">
 /* ===== V112：点呼4項目リセット最終ガード（一点修正）=====
    目的：
    1) 手動削除した空欄を古い補正処理が復元しない
@@ -3638,11 +3166,9 @@ window.addEventListener("load",function(){
   window.addEventListener("focus",function(){bind();recoverIfLocked();},true);
   setTimeout(bind,0);setTimeout(bind,700);setTimeout(bind,1800);
 })();
-</script>
 
+;
 
-
-<script id="v113-manual-start-only-final-js">
 /* ===== V113：業務開始は手動クリックのみ。入力しただけで開始済になる旧フラグ復元を最終遮断 ===== */
 (function(){
   var KEY="deliverySystemV45_";
@@ -3792,11 +3318,9 @@ window.addEventListener("load",function(){
   window.addEventListener("pagehide",function(){saveConfig();writeWork(readWork());},true);
   setTimeout(bind,0);setTimeout(bind,300);setTimeout(bind,900);setTimeout(bind,1800);setTimeout(forceButtonState,2600);
 })();
-</script>
 
+;
 
-
-<script id="v114-manual-start-refresh-guard-js">
 /* ===== V114：業務開始は手動ボタンだけ。古い開始済み復元を遮断。更新・プル更新でも業務データ保持。 ===== */
 (function(){
   var KEY="deliverySystemV45_";
@@ -3900,11 +3424,9 @@ window.addEventListener("load",function(){
   window.addEventListener("focus",update);
   setTimeout(bind,300);setTimeout(update,1000);
 })();
-</script>
 
+;
 
-
-<script id="v115-button-state-final-js">
 /* ===== V115：ボタン状態の最終固定。開始=手動のみ、得意先=開始後、日報送信=業務完了後のみ。 ===== */
 (function(){
   var KEY="deliverySystemV45_";
@@ -4019,11 +3541,9 @@ window.addEventListener("load",function(){
   window.addEventListener("focus",update,true);
   setTimeout(bind,0);setTimeout(bind,600);setTimeout(update,1400);
 })();
-</script>
 
+;
 
-
-<script>
 /* ===== V116：点呼ボタン状態の再固定。未開始時の送信有効化を遮断、既存作業は安全に判定して引継ぎ。 ===== */
 (function(){
   var KEY="deliverySystemV45_";
@@ -4103,11 +3623,9 @@ window.addEventListener("load",function(){
   window.addEventListener("focus",update,true);
   setTimeout(bind,0);setTimeout(update,700);
 })();
-</script>
 
+;
 
-
-<script id="v117-customer-button-unlock-js">
 /* ===== V117：得意先ページボタン復旧。開始済判定は手動開始キーのみ、入力欄の復元不良に左右されない。 ===== */
 (function(){
   var KEY="deliverySystemV45_";
@@ -4172,10 +3690,9 @@ window.addEventListener("load",function(){
   window.addEventListener("focus",update,true);
   setTimeout(bind,0);setTimeout(update,500);
 })();
-</script>
 
+;
 
-<script id="v118-button-state-strict-final-js">
 /* ===== V118：ボタン制御最終固定。旧バージョンの開始/完了フラグを判定に使わない。手動クリックだけ有効。 ===== */
 (function(){
   var KEY="deliverySystemV45_";
@@ -4342,7 +3859,3 @@ window.addEventListener("load",function(){
   window.addEventListener("focus",update,true);
   setTimeout(bind,0);setTimeout(update,300);setTimeout(update,1000);
 })();
-</script>
-
-</body>
-</html>

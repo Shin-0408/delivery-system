@@ -1,6 +1,5 @@
 CACHE MANIFEST
-# V124
-# V124 cache
+# delivery-system-v126
 
 CACHE:
 index.html
@@ -8,8 +7,6 @@ m001.html
 m002.html
 m003.html
 m004.html
-manifest.json
-service-worker.js
 icon.png
 icon-192.png
 icon-512.png

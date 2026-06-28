@@ -1,6 +1,43 @@
 <!DOCTYPE html>
 <html lang="ja" manifest="offline.appcache">
 <head>
+<script id="v126-m001-early-never-clear-guard-js">
+/* ===== V126：M001再入場時の空保存・古い補正による消去を最初に防止 ===== */
+(function(){
+  'use strict';
+  var KEY='deliverySystemV45_', SNAP='DeliverySystemV126_M001_SAFE_SNAPSHOT', OLD='DeliverySystemV125_M001_SAFE_SNAPSHOT';
+  var names=['historyData','collectHistoryData','carryOutData','stateData','invoiceData','optionData','searchCountData','undoData','m001ReportData','lastDailyPayload','dailyPayloadV91'];
+  var protectedKeys={}; names.forEach(function(n){protectedKeys[KEY+n]=1;});
+  function raw(k){try{return window.localStorage.getItem(k)||'';}catch(e){return '';}}
+  function setRaw(k,v){try{return realSet.call(window.localStorage,k,String(v));}catch(e){}}
+  function parse(v,d){try{return v?JSON.parse(v):d;}catch(e){return d;}}
+  function size(v){var x=parse(v,null); if(Array.isArray(x))return x.length; if(x&&typeof x==='object')return Object.keys(x).length; return v?1:0;}
+  var realSet=window.localStorage.setItem, realRemove=window.localStorage.removeItem, realClear=window.localStorage.clear;
+  function snapObj(){return parse(raw(SNAP),null)||parse(raw(OLD),null)||null;}
+  function makeSnapshot(){try{var items={},n=0; names.forEach(function(name){var k=KEY+name,v=raw(k); if(v&&size(v)>0){items[k]=v;n++;}}); if(n){realSet.call(window.localStorage,SNAP,JSON.stringify({t:Date.now(),items:items}));}}catch(e){}}
+  function restoreSnapshot(){try{var s=snapObj(); if(!s||!s.items)return; Object.keys(s.items).forEach(function(k){var cur=raw(k),bak=s.items[k]; if(!cur||size(bak)>size(cur))realSet.call(window.localStorage,k,bak);});}catch(e){}}
+  restoreSnapshot(); makeSnapshot();
+  window.localStorage.setItem=function(k,v){
+    try{
+      k=String(k); var nv=String(v==null?'':v);
+      if(protectedKeys[k]){
+        var cur=raw(k), s=snapObj(), bak=s&&s.items?s.items[k]:'';
+        var best=size(cur)>=size(bak)?cur:bak;
+        if(best && size(nv)===0 && raw('DeliverySystemV126_ALLOW_M001_CLEAR')!=='1')return;
+        if(best && size(best)>size(nv) && raw('DeliverySystemV126_ALLOW_M001_CLEAR')!=='1')return realSet.call(window.localStorage,k,best);
+      }
+    }catch(e){}
+    return realSet.apply(window.localStorage,arguments);
+  };
+  window.localStorage.removeItem=function(k){try{if(protectedKeys[String(k)]&&raw('DeliverySystemV126_ALLOW_M001_CLEAR')!=='1')return;}catch(e){} return realRemove.apply(window.localStorage,arguments);};
+  window.localStorage.clear=function(){return;};
+  window.__M001_V126_restore=restoreSnapshot;
+  window.__M001_V126_snapshot=makeSnapshot;
+  window.addEventListener('pagehide',makeSnapshot);
+  window.addEventListener('beforeunload',makeSnapshot);
+})();
+</script>
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>M001 株式会社松葉屋製麺 V102</title>
@@ -4085,6 +4122,122 @@ body.v86-customer-page-clean .topGrid{display:none!important;}
   function bind(){restoreSnapshot();installPullGuard();setTimeout(makeSnapshot,300);setTimeout(makeSnapshot,1500);}
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
   window.addEventListener("pagehide",makeSnapshot);window.addEventListener("beforeunload",makeSnapshot);window.addEventListener("pageshow",bind);window.addEventListener("visibilitychange",function(){if(document.visibilityState==="hidden")makeSnapshot();else restoreSnapshot();});
+})();
+</script>
+
+
+
+<script id="v125-m001-never-reset-guard-js">
+/* ===== V125：日報送信成功までM001業務内容を絶対保持。点呼へ戻る前・再入場時に復元。 ===== */
+(function(){
+  'use strict';
+  var KEY='deliverySystemV45_', SNAP='DeliverySystemV125_M001_SAFE_SNAPSHOT';
+  var KEYS=['historyData','collectHistoryData','carryOutData','stateData','invoiceData','optionData','searchCountData','undoData','m001ReportData','lastDailyPayload','dailyPayloadV91'];
+  function raw(k){try{return localStorage.getItem(k)||''}catch(e){return ''}}
+  function put(k,v){try{localStorage.setItem(k,String(v))}catch(e){}}
+  function getJSON(k,d){try{var v=raw(k);return v?JSON.parse(v):d}catch(e){return d}}
+  function saveJSON(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+  function hasRealData(){
+    try{
+      var h=(typeof historyData!=='undefined'&&historyData&&historyData.length)?historyData:getJSON(KEY+'historyData',[]);
+      var c=(typeof carryOutData!=='undefined'&&carryOutData&&carryOutData.length)?carryOutData:getJSON(KEY+'carryOutData',[]);
+      var st=(typeof stateData!=='undefined'&&stateData&&Object.keys(stateData).length)?stateData:getJSON(KEY+'stateData',{});
+      return (h&&h.length)||(c&&c.length)||(st&&Object.keys(st).some(function(k){return st[k]&&st[k].status&&st[k].status!=='未処理'}));
+    }catch(e){return false}
+  }
+  function makeSnapshot(){
+    try{
+      if(typeof saveAll==='function')saveAll();
+      var snap={t:Date.now(),items:{}};
+      KEYS.forEach(function(k){var full=KEY+k,v=raw(full);if(v)snap.items[full]=v;});
+      if(Object.keys(snap.items).length)saveJSON(SNAP,snap);
+    }catch(e){}
+  }
+  function restoreSnapshot(){
+    try{
+      var snap=getJSON(SNAP,null); if(!snap||!snap.items)return;
+      Object.keys(snap.items).forEach(function(full){
+        var current=raw(full), backup=snap.items[full];
+        if(!current && backup) put(full,backup);
+        else if(current){
+          try{
+            var c=JSON.parse(current), b=JSON.parse(backup);
+            if(Array.isArray(b)&&Array.isArray(c)&&b.length>c.length)put(full,backup);
+            if(!Array.isArray(b)&&b&&typeof b==='object'&&(!c||Object.keys(b).length>Object.keys(c||{}).length))put(full,backup);
+          }catch(e){}
+        }
+      });
+      if(typeof historyData!=='undefined' && (!historyData||!historyData.length)) historyData=getJSON(KEY+'historyData',[]);
+      if(typeof collectHistoryData!=='undefined' && (!collectHistoryData||!collectHistoryData.length)) collectHistoryData=getJSON(KEY+'collectHistoryData',[]);
+      if(typeof carryOutData!=='undefined' && (!carryOutData||!carryOutData.length)) carryOutData=getJSON(KEY+'carryOutData',[]);
+      if(typeof stateData!=='undefined' && (!stateData||!Object.keys(stateData).length)) stateData=getJSON(KEY+'stateData',{});
+      if(typeof optionData!=='undefined' && (!optionData||!Object.keys(optionData).length)) optionData=getJSON(KEY+'optionData',{});
+      if(typeof invoiceData!=='undefined' && (!invoiceData||!Object.keys(invoiceData).length)) invoiceData=getJSON(KEY+'invoiceData',{});
+      if(typeof searchCountData!=='undefined' && (!searchCountData||!Object.keys(searchCountData).length)) searchCountData=getJSON(KEY+'searchCountData',{});
+      if(typeof renderAll==='function')renderAll();
+    }catch(e){}
+  }
+  function markDoneIfReady(){
+    try{
+      restoreSnapshot();
+      var h=(typeof historyData!=='undefined'?historyData:getJSON(KEY+'historyData',[]))||[];
+      var c=(typeof carryOutData!=='undefined'?carryOutData:getJSON(KEY+'carryOutData',[]))||[];
+      var st=(typeof stateData!=='undefined'?stateData:getJSON(KEY+'stateData',{}))||{};
+      var done=h.some(function(x){var s=String((x&&x.status)||'');return s==='配送完了'||s==='配送不可'||s==='集金完了'||s==='未集金'||s==='集金なし'||s==='業務完了'});
+      var open=c.some(function(x){var code=String((x&&x.code)||'');var ss=st[code]&&st[code].status;return ss==='持出'||ss==='未処理'});
+      if(done&&!open){put('DeliverySystemV72_businessCompleted','1');put('DeliverySystemV64_businessCompleted','1');}
+    }catch(e){}
+  }
+  function protectResetButton(){
+    var old=window.reset;
+    if(typeof old==='function'&&!old.__v125guard){
+      window.reset=function(){
+        if(!confirm('日報送信前の業務内容を削除します。本当に日報削除しますか？'))return false;
+        return old.apply(this,arguments);
+      };
+      window.reset.__v125guard=1;
+    }
+  }
+  function bind(){
+    restoreSnapshot(); markDoneIfReady(); protectResetButton();
+    var links=document.querySelectorAll('a[href="./index.html"],a[href="index.html"]');
+    for(var i=0;i<links.length;i++){if(!links[i].__v125keep){links[i].__v125keep=1;links[i].addEventListener('click',function(){makeSnapshot();markDoneIfReady();},true);}}
+    setTimeout(function(){restoreSnapshot();markDoneIfReady();makeSnapshot();},300);
+    setTimeout(function(){restoreSnapshot();markDoneIfReady();makeSnapshot();},1500);
+  }
+  window.addEventListener('pagehide',function(){makeSnapshot();markDoneIfReady();});
+  window.addEventListener('beforeunload',function(){makeSnapshot();markDoneIfReady();});
+  window.addEventListener('pageshow',bind);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else bind();
+})();
+</script>
+
+<script id="v126-m001-late-return-safe-js">
+/* ===== V126：点呼へ戻る前にM001完了フラグとスナップショットを必ず保存 ===== */
+(function(){
+  'use strict';
+  var KEY='deliverySystemV45_';
+  function raw(k){try{return localStorage.getItem(k)||''}catch(e){return ''}}
+  function put(k,v){try{localStorage.setItem(k,String(v))}catch(e){}}
+  function get(k,d){try{var v=raw(KEY+k);return v?JSON.parse(v):d}catch(e){return d}}
+  function code(v){var m=String(v||'').toUpperCase().match(/K\d{4}/);return m?m[0]:String(v||'')}
+  function mark(){
+    try{ if(window.__M001_V126_restore)window.__M001_V126_restore(); }catch(e){}
+    var h=get('historyData',[]), c=get('carryOutData',[]), st=get('stateData',{}), done={}, has=false, open=false;
+    try{h.forEach(function(x){var s=String(x&&x.status||''),k=code(x&&x.code); if(/^K\d{4}$/.test(k)&&(s==='配送完了'||s==='配送不可'||s==='集金完了'||s==='未集金'||s==='集金なし'||s==='業務完了')){done[k]=1;has=true;}});}catch(e){}
+    try{c.forEach(function(x){var k=code(x&&x.code); if(!/^K\d{4}$/.test(k)||done[k])return; var ss=st[k]&&st[k].status; if(!ss||ss==='持出'||ss==='未処理')open=true;});}catch(e){}
+    if(has&&!open){put('DeliverySystemV72_businessCompleted','1');put('DeliverySystemV64_businessCompleted','1');}
+    try{ if(window.__M001_V126_snapshot)window.__M001_V126_snapshot(); }catch(e){}
+  }
+  function bind(){
+    mark();
+    var links=document.querySelectorAll('a[href="./index.html"],a[href="index.html"]');
+    for(var i=0;i<links.length;i++){if(!links[i].__v126return){links[i].__v126return=1;links[i].addEventListener('click',mark,true);}}
+  }
+  window.addEventListener('pagehide',mark);
+  window.addEventListener('beforeunload',mark);
+  window.addEventListener('pageshow',bind);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else bind();
 })();
 </script>
 

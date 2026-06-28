@@ -7,7 +7,6 @@ function load(){var d=parse(STORE_KEY,{});id("workText").value=d.workText||"";id
 function saveWork(silent){save(STORE_KEY,{customerCode:"M004",customerName:"株式会社大将",workText:id("workText").value||"",noticeText:id("noticeText").value||"",savedAt:new Date().toLocaleString("ja-JP")});localStorage.setItem(COMPLETE_KEY,"0");if(!silent)alert("保存しました。");}
 window.onload=function(){load();id("btnSave").onclick=function(){saveWork(false);};id("btnComplete").onclick=function(){saveWork(true);if(!id("workText").value.trim()){alert("業務内容を入力してください。");return;}localStorage.setItem(COMPLETE_KEY,"1");localStorage.setItem("DeliverySystemV64_businessCompleted","1"); if(window.setBusinessDoneV72){window.setBusinessDoneV72();} else {alert("業務完了しました。日報送信してください。");}};id("btnClear").onclick=function(){if(confirm("入力をクリアしますか？")){id("workText").value="";id("noticeText").value="";saveWork(true);}};};
 
-;
 
 /* ===== V72 統合日報送信・業務完了画面復活 ===== */
 (function(){
@@ -203,7 +202,6 @@ window.onload=function(){load();id("btnSave").onclick=function(){saveWork(false)
   setTimeout(bind,800);
 })();
 
-;
 
 (function(){
   function id(x){return document.getElementById(x);}
@@ -216,7 +214,6 @@ window.onload=function(){load();id("btnSave").onclick=function(){saveWork(false)
   setTimeout(clean,300);setTimeout(clean,1200);setTimeout(clean,1800);
 })();
 
-;
 
 /* ===== V91：得意先ページでは点呼情報を消さず、点呼ページへ戻す ===== */
 (function(){
@@ -258,7 +255,6 @@ window.onload=function(){load();id("btnSave").onclick=function(){saveWork(false)
   setTimeout(bind,300);setTimeout(bind,1200);setTimeout(bind,2500);
 })();
 
-;
 
 /* ===== V110：点呼ページへ戻った時の得意先誤選択防止 ===== */
 (function(){
@@ -282,7 +278,6 @@ window.onload=function(){load();id("btnSave").onclick=function(){saveWork(false)
   window.addEventListener("pageshow",bind);
 })();
 
-;
 
 /* ===== V114：得意先ページ更新対策。日報送信以外では業務データを保持。 ===== */
 (function(){

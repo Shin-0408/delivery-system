@@ -1,35 +1,5 @@
-const CACHE_NAME = "delivery-system-v124";
-const FILES = [
-  './',
-  './index.html',
-  './m001.html',
-  './m002.html',
-  './m003.html',
-  './m004.html',
-  './manifest.json',
-  './icon.png',
-  './icon-192.png',
-  './icon-512.png',
-  './complete-card.jpg'
-];
-
-self.addEventListener('install', event => {
-  self.skipWaiting();
-  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(FILES).catch(() => {})));
-});
-
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.map(key => key !== CACHE_NAME ? caches.delete(key) : null))
-    ).then(() => self.clients.claim())
-  );
-});
-
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    fetch(event.request).catch(() =>
-      caches.match(event.request).then(res => res || caches.match('./index.html'))
-    )
-  );
-});
+const CACHE_NAME = 'delivery-system-v126-cache';
+const ASSETS = ['./','./index.html?v=125','./m001.html?v=125','./m002.html?v=125','./m003.html?v=125','./m004.html?v=125','./manifest.json?v=125','./icon.png?v=125','./icon-192.png?v=125','./icon-512.png?v=125','./complete-card.jpg?v=125'];
+self.addEventListener('install', e => { self.skipWaiting(); e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(ASSETS)).catch(()=>{})); });
+self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
+self.addEventListener('fetch', e => { e.respondWith(fetch(e.request, {cache:'no-store'}).catch(() => caches.match(e.request).then(r => r || caches.match('./index.html?v=125')))); });

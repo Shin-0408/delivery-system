@@ -1,4 +1,40 @@
 
+/* ===== V126：M001再入場時の空保存・古い補正による消去を最初に防止 ===== */
+(function(){
+  'use strict';
+  var KEY='deliverySystemV45_', SNAP='DeliverySystemV126_M001_SAFE_SNAPSHOT', OLD='DeliverySystemV125_M001_SAFE_SNAPSHOT';
+  var names=['historyData','collectHistoryData','carryOutData','stateData','invoiceData','optionData','searchCountData','undoData','m001ReportData','lastDailyPayload','dailyPayloadV91'];
+  var protectedKeys={}; names.forEach(function(n){protectedKeys[KEY+n]=1;});
+  function raw(k){try{return window.localStorage.getItem(k)||'';}catch(e){return '';}}
+  function setRaw(k,v){try{return realSet.call(window.localStorage,k,String(v));}catch(e){}}
+  function parse(v,d){try{return v?JSON.parse(v):d;}catch(e){return d;}}
+  function size(v){var x=parse(v,null); if(Array.isArray(x))return x.length; if(x&&typeof x==='object')return Object.keys(x).length; return v?1:0;}
+  var realSet=window.localStorage.setItem, realRemove=window.localStorage.removeItem, realClear=window.localStorage.clear;
+  function snapObj(){return parse(raw(SNAP),null)||parse(raw(OLD),null)||null;}
+  function makeSnapshot(){try{var items={},n=0; names.forEach(function(name){var k=KEY+name,v=raw(k); if(v&&size(v)>0){items[k]=v;n++;}}); if(n){realSet.call(window.localStorage,SNAP,JSON.stringify({t:Date.now(),items:items}));}}catch(e){}}
+  function restoreSnapshot(){try{var s=snapObj(); if(!s||!s.items)return; Object.keys(s.items).forEach(function(k){var cur=raw(k),bak=s.items[k]; if(!cur||size(bak)>size(cur))realSet.call(window.localStorage,k,bak);});}catch(e){}}
+  restoreSnapshot(); makeSnapshot();
+  window.localStorage.setItem=function(k,v){
+    try{
+      k=String(k); var nv=String(v==null?'':v);
+      if(protectedKeys[k]){
+        var cur=raw(k), s=snapObj(), bak=s&&s.items?s.items[k]:'';
+        var best=size(cur)>=size(bak)?cur:bak;
+        if(best && size(nv)===0 && raw('DeliverySystemV126_ALLOW_M001_CLEAR')!=='1')return;
+        if(best && size(best)>size(nv) && raw('DeliverySystemV126_ALLOW_M001_CLEAR')!=='1')return realSet.call(window.localStorage,k,best);
+      }
+    }catch(e){}
+    return realSet.apply(window.localStorage,arguments);
+  };
+  window.localStorage.removeItem=function(k){try{if(protectedKeys[String(k)]&&raw('DeliverySystemV126_ALLOW_M001_CLEAR')!=='1')return;}catch(e){} return realRemove.apply(window.localStorage,arguments);};
+  window.localStorage.clear=function(){return;};
+  window.__M001_V126_restore=restoreSnapshot;
+  window.__M001_V126_snapshot=makeSnapshot;
+  window.addEventListener('pagehide',makeSnapshot);
+  window.addEventListener('beforeunload',makeSnapshot);
+})();
+
+
 var KEY="deliverySystemV45_";
 var customers={},stores={},drivers={},vehicles={},terminals={};
 var currentStore="";
@@ -481,7 +517,6 @@ if($("btnBalanceClear"))$("btnBalanceClear").onclick=clearBalanceEdit;
 function start(){try{loadAll();fillMasters();loadConfig();loadWorkInfo();renderMaster();renderAll();bind();bindWorkInfo();watchBarcode();startGlobalScanner();saveAll();blurStoreCodeV60();}catch(e){alert("起動エラー："+e.message);}}
 window.onload=start;
 
-;
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", function () {
@@ -491,7 +526,6 @@ if ("serviceWorker" in navigator) {
   });
 }
 
-;
 
 (function(){
   function id(x){return document.getElementById(x);}
@@ -541,7 +575,6 @@ if ("serviceWorker" in navigator) {
   if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",rebindV44); else rebindV44();
 })();
 
-;
 
 /* ===== V74 軽量安定版：旧強制フォーカス・旧setInterval監視を実削除 ===== */
  /* localStorageキー・店舗マスター・日報データは変更しない。 */
@@ -941,7 +974,6 @@ if ("serviceWorker" in navigator) {
   setTimeout(boot,500);
 })();
 
-;
 
 (function(){
  var COMPLETE_KEY="DeliverySystemV72_businessCompleted"; var COMPLETE_KEY2="DeliverySystemV64_businessCompleted";
@@ -974,7 +1006,6 @@ if ("serviceWorker" in navigator) {
  setTimeout(bootM001,1000);
 })();
 
-;
 
 /* ===== V72 統合日報送信・業務完了画面復活 ===== */
 (function(){
@@ -1158,7 +1189,6 @@ if ("serviceWorker" in navigator) {
   setTimeout(bind,800);
 })();
 
-;
 
 (function(){
   var KEY="deliverySystemV45_";
@@ -1173,7 +1203,6 @@ if ("serviceWorker" in navigator) {
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bindCommon);else bindCommon();
 })();
 
-;
 
 /* ===== V74 M001限定補正：V72土台維持、検索ボタン維持、持出/配送時刻、重複なし、.com日報 ===== */
 (function(){
@@ -1511,7 +1540,6 @@ if ("serviceWorker" in navigator) {
   document.addEventListener("visibilitychange",function(){if(document.hidden) saveM001Snapshot();});
 })();
 
-;
 
 /* ===== V75 M001限定補正：タイトル、ボタン後アラート抑制、一覧幅調整 ===== */
 (function(){
@@ -1558,7 +1586,6 @@ if ("serviceWorker" in navigator) {
   setTimeout(bind,500); setTimeout(bind,1500); setTimeout(function(){setTitleV75();fixCompletedWidth();},3000);
 })();
 
-;
 
 (function(){
   var KEY=window.KEY||"deliverySystemV45_";
@@ -1683,7 +1710,6 @@ if ("serviceWorker" in navigator) {
   setTimeout(bind,500); setTimeout(bind,1500); setTimeout(function(){fixCompletedTable();syncButtons();},2500);
 })();
 
-;
 
 /* ===== V76 正式補正：日報時刻フィールド強化・上部ボタン単一運用・最低1件配送後のみ操作 ===== */
 (function(){
@@ -1799,7 +1825,6 @@ if ("serviceWorker" in navigator) {
   setTimeout(bind,500);setTimeout(bind,1500);setTimeout(refreshButtons,2000);
 })();
 
-;
 
 /* ===== V77：V76の業務完了条件・日報処理は維持し、完了時だけミッドナイトくんを表示 ===== */
 (function(){
@@ -1852,7 +1877,6 @@ if ("serviceWorker" in navigator) {
   setTimeout(bind,500);setTimeout(bind,1500);setTimeout(bind,3000);
 })();
 
-;
 
 /* ===== V77再修正：V76状態を維持して、業務完了成功時だけミッドナイトくんを必ず表示 ===== */
 (function(){
@@ -1901,7 +1925,6 @@ if ("serviceWorker" in navigator) {
   setTimeout(bind,700);
 })();
 
-;
 
 /* ===== V78新規作成：V77ベース維持、日報送信・完了カード・日報時刻だけ最終補正 ===== */
 (function(){
@@ -2033,7 +2056,6 @@ if ("serviceWorker" in navigator) {
   setTimeout(bind,400);setTimeout(bind,1200);setTimeout(bind,2500);setTimeout(bind,2500);
 })();
 
-;
 
 /* ===== V79：日報の4つの時間を最終固定（他機能はV78維持） =====
    ①業務開始時間 ②業務完了時間 ③持出時間 ④配送完了時間
@@ -2214,7 +2236,6 @@ if ("serviceWorker" in navigator) {
   setTimeout(bind,300);setTimeout(bind,1000);setTimeout(bind,2500);setTimeout(bind,2500);
 })();
 
-;
 
 /* ===== V80：V79ベース維持、日報受信復旧のみ =====
    送信方式を receive.php が受け取りやすい form-urlencoded に戻す。
@@ -2292,7 +2313,6 @@ if ("serviceWorker" in navigator) {
   setTimeout(bindV80,300);setTimeout(bindV80,1000);setTimeout(bindV80,2500);setTimeout(bindV80,2500);
 })();
 
-;
 
 /* ===== V81：V80をベースに日報へ4つの時間を確実に渡す =====
    ①業務開始時間 ②業務完了時間 ③持出時間 ④配送完了時間
@@ -2468,7 +2488,6 @@ if ("serviceWorker" in navigator) {
   setTimeout(bind,300);setTimeout(bind,1200);setTimeout(bind,2500);setTimeout(function(){ensureStart();updateTable();},2500);
 })();
 
-;
 
 /* ===== V82：V81ベース、日報4時間を受信側に渡す最終補正 =====
    追加：トップページ業務開始ボタンで保存した業務開始時間を日報へ反映
@@ -2687,7 +2706,6 @@ if ("serviceWorker" in navigator) {
   setTimeout(bind,300);setTimeout(bind,1200);setTimeout(bind,2500);setTimeout(bind,2500);
 })();
 
-;
 
 /* ===== V82実修正：日報4時間＋業務開始ボタン連携＋受信POST明示 =====
    既存の画面・一覧・ミッドナイトくん・ボタン条件は壊さず、
@@ -2955,7 +2973,6 @@ if ("serviceWorker" in navigator) {
   setTimeout(bind,300);setTimeout(bind,1200);setTimeout(bind,2500);setTimeout(bind,1200);
 })();
 
-;
 
 /* ===== V83：V82ベース。日報構成を作り直し、4時間を表示欄へ確実に載せる ===== */
 (function(){
@@ -3033,7 +3050,6 @@ if ("serviceWorker" in navigator) {
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",refresh);else refresh();setTimeout(refresh,300);setTimeout(refresh,1200);setTimeout(refresh,2500);setTimeout(refresh,1200);
 })();
 
-;
 
 /* ===== V84：ページ内の日報送信/業務完了は点呼ページへ集約。日報材料だけ保存 ===== */
 (function(){
@@ -3058,7 +3074,6 @@ if ("serviceWorker" in navigator) {
   setTimeout(applyClean,300);setTimeout(applyClean,1200);setTimeout(applyClean,2500);setTimeout(applyClean,1800);
 })();
 
-;
 
 /* ===== V87：点呼ページへ戻る前に点呼入力を保存 ===== */
 (function(){
@@ -3084,7 +3099,6 @@ if ("serviceWorker" in navigator) {
   setTimeout(bind,500);setTimeout(bind,1500);
 })();
 
-;
 
 /* ===== V87：得意先ページでは点呼情報を消さず、点呼ページへ戻す ===== */
 (function(){
@@ -3126,7 +3140,6 @@ if ("serviceWorker" in navigator) {
   setTimeout(bind,300);setTimeout(bind,1200);setTimeout(bind,2500);
 })();
 
-;
 
 /* ===== V91：M001側で保存する日報材料も、店舗別行から業務開始/完了を外す ===== */
 (function(){
@@ -3175,7 +3188,6 @@ if ("serviceWorker" in navigator) {
   });
 })();
 
-;
 
 /* ===== V91：未集金残高は集金完了まで保持。日報削除・送信クリアでは消さない ===== */
 (function(){
@@ -3221,7 +3233,6 @@ if ("serviceWorker" in navigator) {
   setTimeout(function(){restore();backup();protectResetButton();},1000);
 })();
 
-;
 
 /* ===== V91：M001の集計一覧・未集金一覧用スナップショットを常時保存 ===== */
 (function(){
@@ -3245,7 +3256,6 @@ if ("serviceWorker" in navigator) {
   setTimeout(snapshot,1500);
 })();
 
-;
 
 /* ===== V93：M001から点呼ページへ戻っても点呼入力を消さない。常時監視なし。 ===== */
 (function(){
@@ -3292,7 +3302,6 @@ if ("serviceWorker" in navigator) {
   setTimeout(restoreAfterOldScripts,1200);
 })();
 
-;
 
 /* ===== V96：配送完了一覧に金額を保持/表示。点呼へ戻る前に確実保存 ===== */
 (function(){
@@ -3403,7 +3412,6 @@ if ("serviceWorker" in navigator) {
   else setTimeout(render,250);
 })();
 
-;
 
 /* ===== V99：点呼ページへ戻る前に金額入り配送完了一覧を確実保存 ===== */
 (function(){
@@ -3432,7 +3440,6 @@ if ("serviceWorker" in navigator) {
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else bind();window.addEventListener('pagehide',saveSnap);
 })();
 
-;
 
 /* ===== V99：得意先ページ更新・戻る時に業務内容を必ず保存。削除は日報送信後だけ。 ===== */
 (function(){
@@ -3475,7 +3482,6 @@ if ("serviceWorker" in navigator) {
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",function(){restoreIfEmpty();keep();});else{restoreIfEmpty();keep();}
 })();
 
-;
 
 /* ===== V102：点呼ページへ戻る時、業務開始状態の復元目印だけ保存。業務データは消さない。 ===== */
 (function(){
@@ -3494,7 +3500,6 @@ if ("serviceWorker" in navigator) {
   window.addEventListener("pagehide",markReturn);
 })();
 
-;
 
 /* ===== V110：点呼ページへ戻った時の得意先誤選択防止 ===== */
 (function(){
@@ -3518,7 +3523,6 @@ if ("serviceWorker" in navigator) {
   window.addEventListener("pageshow",bind);
 })();
 
-;
 
 /* ===== V114：得意先ページ更新対策。日報送信以外では業務データを保持。 ===== */
 (function(){
@@ -3534,4 +3538,116 @@ if ("serviceWorker" in navigator) {
   function bind(){restoreSnapshot();installPullGuard();setTimeout(makeSnapshot,300);setTimeout(makeSnapshot,1500);}
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
   window.addEventListener("pagehide",makeSnapshot);window.addEventListener("beforeunload",makeSnapshot);window.addEventListener("pageshow",bind);window.addEventListener("visibilitychange",function(){if(document.visibilityState==="hidden")makeSnapshot();else restoreSnapshot();});
+})();
+
+
+/* ===== V125：日報送信成功までM001業務内容を絶対保持。点呼へ戻る前・再入場時に復元。 ===== */
+(function(){
+  'use strict';
+  var KEY='deliverySystemV45_', SNAP='DeliverySystemV125_M001_SAFE_SNAPSHOT';
+  var KEYS=['historyData','collectHistoryData','carryOutData','stateData','invoiceData','optionData','searchCountData','undoData','m001ReportData','lastDailyPayload','dailyPayloadV91'];
+  function raw(k){try{return localStorage.getItem(k)||''}catch(e){return ''}}
+  function put(k,v){try{localStorage.setItem(k,String(v))}catch(e){}}
+  function getJSON(k,d){try{var v=raw(k);return v?JSON.parse(v):d}catch(e){return d}}
+  function saveJSON(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+  function hasRealData(){
+    try{
+      var h=(typeof historyData!=='undefined'&&historyData&&historyData.length)?historyData:getJSON(KEY+'historyData',[]);
+      var c=(typeof carryOutData!=='undefined'&&carryOutData&&carryOutData.length)?carryOutData:getJSON(KEY+'carryOutData',[]);
+      var st=(typeof stateData!=='undefined'&&stateData&&Object.keys(stateData).length)?stateData:getJSON(KEY+'stateData',{});
+      return (h&&h.length)||(c&&c.length)||(st&&Object.keys(st).some(function(k){return st[k]&&st[k].status&&st[k].status!=='未処理'}));
+    }catch(e){return false}
+  }
+  function makeSnapshot(){
+    try{
+      if(typeof saveAll==='function')saveAll();
+      var snap={t:Date.now(),items:{}};
+      KEYS.forEach(function(k){var full=KEY+k,v=raw(full);if(v)snap.items[full]=v;});
+      if(Object.keys(snap.items).length)saveJSON(SNAP,snap);
+    }catch(e){}
+  }
+  function restoreSnapshot(){
+    try{
+      var snap=getJSON(SNAP,null); if(!snap||!snap.items)return;
+      Object.keys(snap.items).forEach(function(full){
+        var current=raw(full), backup=snap.items[full];
+        if(!current && backup) put(full,backup);
+        else if(current){
+          try{
+            var c=JSON.parse(current), b=JSON.parse(backup);
+            if(Array.isArray(b)&&Array.isArray(c)&&b.length>c.length)put(full,backup);
+            if(!Array.isArray(b)&&b&&typeof b==='object'&&(!c||Object.keys(b).length>Object.keys(c||{}).length))put(full,backup);
+          }catch(e){}
+        }
+      });
+      if(typeof historyData!=='undefined' && (!historyData||!historyData.length)) historyData=getJSON(KEY+'historyData',[]);
+      if(typeof collectHistoryData!=='undefined' && (!collectHistoryData||!collectHistoryData.length)) collectHistoryData=getJSON(KEY+'collectHistoryData',[]);
+      if(typeof carryOutData!=='undefined' && (!carryOutData||!carryOutData.length)) carryOutData=getJSON(KEY+'carryOutData',[]);
+      if(typeof stateData!=='undefined' && (!stateData||!Object.keys(stateData).length)) stateData=getJSON(KEY+'stateData',{});
+      if(typeof optionData!=='undefined' && (!optionData||!Object.keys(optionData).length)) optionData=getJSON(KEY+'optionData',{});
+      if(typeof invoiceData!=='undefined' && (!invoiceData||!Object.keys(invoiceData).length)) invoiceData=getJSON(KEY+'invoiceData',{});
+      if(typeof searchCountData!=='undefined' && (!searchCountData||!Object.keys(searchCountData).length)) searchCountData=getJSON(KEY+'searchCountData',{});
+      if(typeof renderAll==='function')renderAll();
+    }catch(e){}
+  }
+  function markDoneIfReady(){
+    try{
+      restoreSnapshot();
+      var h=(typeof historyData!=='undefined'?historyData:getJSON(KEY+'historyData',[]))||[];
+      var c=(typeof carryOutData!=='undefined'?carryOutData:getJSON(KEY+'carryOutData',[]))||[];
+      var st=(typeof stateData!=='undefined'?stateData:getJSON(KEY+'stateData',{}))||{};
+      var done=h.some(function(x){var s=String((x&&x.status)||'');return s==='配送完了'||s==='配送不可'||s==='集金完了'||s==='未集金'||s==='集金なし'||s==='業務完了'});
+      var open=c.some(function(x){var code=String((x&&x.code)||'');var ss=st[code]&&st[code].status;return ss==='持出'||ss==='未処理'});
+      if(done&&!open){put('DeliverySystemV72_businessCompleted','1');put('DeliverySystemV64_businessCompleted','1');}
+    }catch(e){}
+  }
+  function protectResetButton(){
+    var old=window.reset;
+    if(typeof old==='function'&&!old.__v125guard){
+      window.reset=function(){
+        if(!confirm('日報送信前の業務内容を削除します。本当に日報削除しますか？'))return false;
+        return old.apply(this,arguments);
+      };
+      window.reset.__v125guard=1;
+    }
+  }
+  function bind(){
+    restoreSnapshot(); markDoneIfReady(); protectResetButton();
+    var links=document.querySelectorAll('a[href="./index.html"],a[href="index.html"]');
+    for(var i=0;i<links.length;i++){if(!links[i].__v125keep){links[i].__v125keep=1;links[i].addEventListener('click',function(){makeSnapshot();markDoneIfReady();},true);}}
+    setTimeout(function(){restoreSnapshot();markDoneIfReady();makeSnapshot();},300);
+    setTimeout(function(){restoreSnapshot();markDoneIfReady();makeSnapshot();},1500);
+  }
+  window.addEventListener('pagehide',function(){makeSnapshot();markDoneIfReady();});
+  window.addEventListener('beforeunload',function(){makeSnapshot();markDoneIfReady();});
+  window.addEventListener('pageshow',bind);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else bind();
+})();
+
+
+/* ===== V126：点呼へ戻る前にM001完了フラグとスナップショットを必ず保存 ===== */
+(function(){
+  'use strict';
+  var KEY='deliverySystemV45_';
+  function raw(k){try{return localStorage.getItem(k)||''}catch(e){return ''}}
+  function put(k,v){try{localStorage.setItem(k,String(v))}catch(e){}}
+  function get(k,d){try{var v=raw(KEY+k);return v?JSON.parse(v):d}catch(e){return d}}
+  function code(v){var m=String(v||'').toUpperCase().match(/K\d{4}/);return m?m[0]:String(v||'')}
+  function mark(){
+    try{ if(window.__M001_V126_restore)window.__M001_V126_restore(); }catch(e){}
+    var h=get('historyData',[]), c=get('carryOutData',[]), st=get('stateData',{}), done={}, has=false, open=false;
+    try{h.forEach(function(x){var s=String(x&&x.status||''),k=code(x&&x.code); if(/^K\d{4}$/.test(k)&&(s==='配送完了'||s==='配送不可'||s==='集金完了'||s==='未集金'||s==='集金なし'||s==='業務完了')){done[k]=1;has=true;}});}catch(e){}
+    try{c.forEach(function(x){var k=code(x&&x.code); if(!/^K\d{4}$/.test(k)||done[k])return; var ss=st[k]&&st[k].status; if(!ss||ss==='持出'||ss==='未処理')open=true;});}catch(e){}
+    if(has&&!open){put('DeliverySystemV72_businessCompleted','1');put('DeliverySystemV64_businessCompleted','1');}
+    try{ if(window.__M001_V126_snapshot)window.__M001_V126_snapshot(); }catch(e){}
+  }
+  function bind(){
+    mark();
+    var links=document.querySelectorAll('a[href="./index.html"],a[href="index.html"]');
+    for(var i=0;i<links.length;i++){if(!links[i].__v126return){links[i].__v126return=1;links[i].addEventListener('click',mark,true);}}
+  }
+  window.addEventListener('pagehide',mark);
+  window.addEventListener('beforeunload',mark);
+  window.addEventListener('pageshow',bind);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else bind();
 })();

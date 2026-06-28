@@ -9,7 +9,6 @@ function saveWork(silent){save("m002WorkData",data());localStorage.setItem(COMPL
 function valid(){if(Number(id("m002Count").value||0)<1){alert("配送件数を入力してください。");return false;} if(!id("m002Support").value){alert("京都駅サポートを選択してください。");return false;} if(!id("m002NoticeFlag").value){alert("連絡事項の有無を選択してください。");return false;} if(id("m002NoticeFlag").value==="あり"&&!id("m002NoticeText").value.trim()){alert("連絡事項の内容を入力してください。");return false;} return true;}
 window.onload=function(){load();id("btnSave").onclick=function(){saveWork(false);};id("btnComplete").onclick=function(){saveWork(true);if(!valid())return;localStorage.setItem(COMPLETE_KEY,"1");localStorage.setItem("DeliverySystemV64_businessCompleted","1"); if(window.setBusinessDoneV72){window.setBusinessDoneV72();} else {alert("業務完了しました。日報送信してください。");}};id("btnClear").onclick=function(){if(confirm("入力をクリアしますか？")){["m002Count","m002Support","m002NoticeFlag","m002NoticeText"].forEach(function(k){id(k).value="";});saveWork(true);}};};
 
-;
 
 /* ===== V72 統合日報送信・業務完了画面復活 ===== */
 (function(){
@@ -205,7 +204,6 @@ window.onload=function(){load();id("btnSave").onclick=function(){saveWork(false)
   setTimeout(bind,800);
 })();
 
-;
 
 (function(){
   function id(x){return document.getElementById(x);}
@@ -218,7 +216,6 @@ window.onload=function(){load();id("btnSave").onclick=function(){saveWork(false)
   setTimeout(clean,300);setTimeout(clean,1200);setTimeout(clean,1800);
 })();
 
-;
 
 /* ===== V91：得意先ページでは点呼情報を消さず、点呼ページへ戻す ===== */
 (function(){
@@ -260,7 +257,6 @@ window.onload=function(){load();id("btnSave").onclick=function(){saveWork(false)
   setTimeout(bind,300);setTimeout(bind,1200);setTimeout(bind,2500);
 })();
 
-;
 
 /* ===== V106：M002株式会社アローズをM001業務条件から完全分離。点呼ページ復帰後もM002選択を保持。 ===== */
 (function(){
@@ -308,7 +304,6 @@ window.onload=function(){load();id("btnSave").onclick=function(){saveWork(false)
   window.addEventListener("pageshow",bind);
 })();
 
-;
 
 /* ===== V110：M002 activeCustomerをV110キーにも保存 ===== */
 (function(){
@@ -326,7 +321,6 @@ window.onload=function(){load();id("btnSave").onclick=function(){saveWork(false)
   window.addEventListener("pageshow",setActive);
 })();
 
-;
 
 /* ===== V114：得意先ページ更新対策。日報送信以外では業務データを保持。 ===== */
 (function(){

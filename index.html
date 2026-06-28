@@ -4344,5 +4344,76 @@ window.addEventListener("load",function(){
 })();
 </script>
 
+<script id="v119-customer-navigation-hard-fix-js">
+/* ===== V119：得意先ページへ進むボタンの遷移を最終固定。青いのに飛ばない問題をクリック/タッチ/ポインターで直接遷移。 ===== */
+(function(){
+  var KEY="deliverySystemV45_";
+  var VERSION="V119";
+  var START_TIME="DeliverySystemV118_workStartTime";
+  var START_FLAG="DeliverySystemV118_tenkoStarted";
+  var START_MANUAL="DeliverySystemV118_startManual";
+  function id(x){return document.getElementById(x);} 
+  function raw(k){try{return localStorage.getItem(k)||"";}catch(e){return "";}}
+  function get(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
+  function set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+  function val(k){var e=id(k);return e?String(e.value||"").trim():"";}
+  function started(){return raw(START_TIME)!=="" && raw(START_FLAG)==="1" && raw(START_MANUAL)==="1";}
+  function saveCommon(){
+    var cfg=get(KEY+"config",{});
+    ["customerCode","driverCode","vehicleCode","terminalCode"].forEach(function(k){var e=id(k);if(e)cfg[k]=e.value||cfg[k]||"";});
+    set(KEY+"config",cfg);
+    var w=get(KEY+"workData",{});
+    ["startMeter","startAlcohol","endMeter","endAlcohol","dailyDistance"].forEach(function(k){var e=id(k);if(e)w[k]=String(e.value||"");});
+    set(KEY+"workData",w);
+  }
+  function selectedCustomer(){return val("customerCode")||((get(KEY+"config",{})||{}).customerCode)||"M001";}
+  function targetFile(){
+    var c=selectedCustomer();
+    if(c==="M002")return "m002.html";
+    if(c==="M003")return "m003.html";
+    if(c==="M004")return "m004.html";
+    return "m001.html";
+  }
+  function goCustomer(ev){
+    if(ev){ev.preventDefault();ev.stopPropagation();if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();}
+    saveCommon();
+    if(!started()){alert("先に業務開始ボタンを押してください。");return false;}
+    var url=new URL(targetFile(), window.location.href).href;
+    try{window.location.assign(url);}catch(e){window.location.href=url;}
+    return false;
+  }
+  function paint(){
+    var b=id("btnGoCustomerPage");if(!b)return;
+    var ok=started();
+    b.textContent="得意先ページへ進む";
+    b.className="btn blue";
+    b.disabled=!ok;
+    b.style.opacity=ok?"1":".45";
+    b.style.filter=ok?"none":"grayscale(1)";
+    b.style.pointerEvents="auto";
+    b.onclick=goCustomer;
+    b.ontouchend=goCustomer;
+    b.onpointerup=goCustomer;
+  }
+  function isGoButton(t){
+    while(t&&t!==document){if(t.id==="btnGoCustomerPage")return true;t=t.parentNode;}
+    return false;
+  }
+  function capture(ev){if(isGoButton(ev.target))return goCustomer(ev);}
+  function bind(){
+    try{document.title="配送・集金管理システム V119";}catch(e){}
+    paint();
+    document.removeEventListener("click",capture,true);document.addEventListener("click",capture,true);
+    document.removeEventListener("touchend",capture,true);document.addEventListener("touchend",capture,true);
+    document.removeEventListener("pointerup",capture,true);document.addEventListener("pointerup",capture,true);
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
+  window.addEventListener("pageshow",bind,true);
+  document.addEventListener("input",function(){setTimeout(paint,0);},true);
+  document.addEventListener("change",function(){setTimeout(paint,0);},true);
+  setTimeout(bind,0);setTimeout(paint,300);setTimeout(paint,1000);
+})();
+</script>
+
 </body>
 </html>

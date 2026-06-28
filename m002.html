@@ -697,5 +697,25 @@ body.v86-customer-page-clean .topGrid{display:none!important;}
 })();
 </script>
 
+
+
+<script id="v114-customer-refresh-guard-js">
+/* ===== V114：得意先ページ更新対策。日報送信以外では業務データを保持。 ===== */
+(function(){
+  var KEY="deliverySystemV45_";
+  var SNAP="DeliverySystemV114_customerSnapshot";
+  var KEYS=["historyData","collectHistoryData","carryOutData","stateData","optionData","searchCountData","undoData","invoiceData","m001ReportData","lastDailyPayload","dailyPayloadV91","m002WorkData","customerWorkData","balanceData"];
+  function raw(k){try{return localStorage.getItem(k)||"";}catch(e){return "";}}
+  function put(k,v){try{localStorage.setItem(k,String(v));}catch(e){}}
+  function get(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
+  function makeSnapshot(){var s={t:Date.now(),items:{}};KEYS.forEach(function(k){var full=KEY+k,v=raw(full);if(v)s.items[full]=v;});try{localStorage.setItem(SNAP,JSON.stringify(s));}catch(e){}}
+  function restoreSnapshot(){var s=get(SNAP,null);if(!s||!s.items)return;Object.keys(s.items).forEach(function(k){if(!raw(k)&&s.items[k])put(k,s.items[k]);});}
+  function installPullGuard(){if(document.getElementById("v114-pull-refresh-guard-style"))return;var st=document.createElement("style");st.id="v114-pull-refresh-guard-style";st.textContent="html,body{overscroll-behavior-y:contain;overscroll-behavior-x:none;} body{touch-action:pan-x pan-y;}";document.head.appendChild(st);var y=0;document.addEventListener("touchstart",function(e){if(e.touches&&e.touches.length)y=e.touches[0].clientY;},{passive:true});document.addEventListener("touchmove",function(e){if(window.scrollY<=0&&e.touches&&e.touches.length&&e.touches[0].clientY>y){e.preventDefault();}},{passive:false});}
+  function bind(){restoreSnapshot();installPullGuard();setTimeout(makeSnapshot,300);setTimeout(makeSnapshot,1500);}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
+  window.addEventListener("pagehide",makeSnapshot);window.addEventListener("beforeunload",makeSnapshot);window.addEventListener("pageshow",bind);window.addEventListener("visibilitychange",function(){if(document.visibilityState==="hidden")makeSnapshot();else restoreSnapshot();});
+})();
+</script>
+
 </body>
 </html>

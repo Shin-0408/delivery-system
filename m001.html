@@ -480,7 +480,7 @@ body.customer-not-ready .topGrid{display:grid!important}
 
 <script>
 var KEY="deliverySystemV45_";
-var customers={},stores={},drivers={},vehicles={},terminals={};
+var customers={},stores={"K0001":"アジョシ","K0002":"あんびしゃす花","K0003":"味鉄","K0004":"e-space","K0005":"イーサン","K0006":"岩茶坊","K0007":"えなちゃん","K0008":"075食堂","K0009":"起福","K0010":"佳久","K0011":"亀八（別）","K0012":"亀八（本）","K0013":"亀八（山）","K0014":"がぶり","K0015":"寄まっし","K0016":"京亀","K0017":"京料理藤本","K0018":"金四郎食堂","K0019":"きん平","K0020":"ことら","K0021":"幸","K0022":"鮨しん","K0023":"翠雲苑","K0024":"すぎのこ亭","K0025":"シャム","K0026":"寿海","K0027":"秀寅","K0028":"新亀","K0029":"新福菜館（伏）","K0030":"新福菜館（本）","K0031":"第一旭（寺田）","K0032":"田々","K0033":"坦々（本）","K0034":"中家","K0035":"ならび屋","K0036":"ハイカラ亭","K0037":"はなはな","K0038":"ひのき","K0039":"冨美家（工場）","K0040":"冨美家（錦）","K0041":"冨美家（本）","K0042":"まあご","K0043":"まるい食堂","K0044":"まるちゃん","K0045":"まる福","K0046":"みずき","K0047":"みつ喜","K0048":"みまでり","K0049":"よこやまろうそく","K0050":"じゅん平"};
 var currentStore="";
 var historyData=[],collectHistoryData=[],carryOutData=[];
 var balanceData={},stateData={},invoiceData={},optionData={},searchCountData={},undoData=[];
@@ -539,17 +539,16 @@ customers={"M001":"株式会社松葉屋製麺","M002":"株式会社アローズ
 drivers={"D001":"福田","D002":"岸","D003":"森田"};
 vehicles={"V001":"京都480れ12-44","V002":"京都481り12-46","V003":"京都481り1-45","V004":"京都480り94-29","V005":"京都880り6-89"};
 terminals={"S001":"FZ-N1①","S002":"FZ-N1②","S003":"FZ-N1③","S004":"FZ-N1④","S005":"FZ-N1⑤"};
-stores={"K0001":"アジョシ","K0002":"あんびしゃす花","K0003":"味鉄","K0004":"e-space","K0005":"イーサン","K0006":"岩茶坊","K0007":"えなちゃん","K0008":"075食堂","K0009":"起福","K0010":"佳久","K0011":"亀八（別）","K0012":"亀八（本）","K0013":"亀八（山）","K0014":"がぶり","K0015":"寄まっし","K0016":"京亀","K0017":"京料理藤本","K0018":"金四郎食堂","K0019":"きん平","K0020":"ことら","K0021":"幸","K0022":"鮨しん","K0023":"翠雲苑","K0024":"すぎのこ亭","K0025":"シャム","K0026":"寿海","K0027":"秀寅","K0028":"新亀","K0029":"新福菜館（伏）","K0030":"新福菜館（本）","K0031":"第一旭（寺田）","K0032":"田々","K0033":"坦々（本）","K0034":"中家","K0035":"ならび屋","K0036":"ハイカラ亭","K0037":"はなはな","K0038":"ひのき","K0039":"冨美家（工場）","K0040":"冨美家（錦）","K0041":"冨美家（本）","K0042":"まあご","K0043":"まるい食堂","K0044":"まるちゃん","K0045":"まる福","K0046":"みずき","K0047":"みつ喜","K0048":"みまでり","K0049":"よこやまろうそく","K0050":"じゅん平"};
+stores={"K0001":"アジョシ","K0002":"あんびしゃす花","K0003":"味鉄","K0004":"e-space","K0005":"イーサン","K0006":"岩茶坊","K0007":"えなちゃん","K0008":"075食堂","K0009":"起福","K0010":"佳久","K0011":"亀八（別）","K0012":"亀八（本）","K0013":"亀八（山）","K0014":"がぶり","K0015":"寄まっし","K0016":"京亀","K0017":"京料理藤本","K0018":"金四郎食堂","K0019":"きん平","K0020":"ことら","K0021":"幸","K0022":"鮨しん","K0023":"翠雲苑","K0024":"すぎのこ亭","K0025":"シャム","K0026":"寿海","K0027":"秀寅","K0028":"新亀","K0029":"新福菜館（伏）","K0030":"新福菜館（本）","K0031":"新福菜館（寺田）","K0032":"第一旭（寺田）","K0033":"田々","K0034":"よこやまろうそく","K0035":"佳久","K0036":"亀八（山）","K0037":"新亀","K0038":"冨美家（工場）","K0039":"冨美家（本）","K0040":"冨美家（錦）","K0041":"みまでり","K0042":"e-space","K0043":"寿海","K0044":"ひのき","K0045":"すぎのこ亭","K0046":"岩茶坊","K0047":"075食堂","K0048":"えなちゃん","K0049":"鮨しん","K0050":"佳久"};
 }
 function loadAll(){
 defaults();
-customers=parse("customers",customers);drivers=parse("drivers",drivers);vehicles=parse("vehicles",vehicles);terminals=parse("terminals",terminals);stores=parse("stores",stores);/* V129: 管理者メニュー保存済み店舗マスターを反映。ここでdefaults()を再実行して上書きしない。 */
-/* V141 正規店舗マスター保護: K0001〜K0050を指定版へ補正 */
-var OFFICIAL_STORES_V141={"K0001":"アジョシ","K0002":"あんびしゃす花","K0003":"味鉄","K0004":"e-space","K0005":"イーサン","K0006":"岩茶坊","K0007":"えなちゃん","K0008":"075食堂","K0009":"起福","K0010":"佳久","K0011":"亀八（別）","K0012":"亀八（本）","K0013":"亀八（山）","K0014":"がぶり","K0015":"寄まっし","K0016":"京亀","K0017":"京料理藤本","K0018":"金四郎食堂","K0019":"きん平","K0020":"ことら","K0021":"幸","K0022":"鮨しん","K0023":"翠雲苑","K0024":"すぎのこ亭","K0025":"シャム","K0026":"寿海","K0027":"秀寅","K0028":"新亀","K0029":"新福菜館（伏）","K0030":"新福菜館（本）","K0031":"第一旭（寺田）","K0032":"田々","K0033":"坦々（本）","K0034":"中家","K0035":"ならび屋","K0036":"ハイカラ亭","K0037":"はなはな","K0038":"ひのき","K0039":"冨美家（工場）","K0040":"冨美家（錦）","K0041":"冨美家（本）","K0042":"まあご","K0043":"まるい食堂","K0044":"まるちゃん","K0045":"まる福","K0046":"みずき","K0047":"みつ喜","K0048":"みまでり","K0049":"よこやまろうそく","K0050":"じゅん平"};
-function sameStoresV141(a){try{var ks=Object.keys(OFFICIAL_STORES_V141);if(!a||Object.keys(a).length!==ks.length)return false;for(var i=0;i<ks.length;i++){var k=ks[i];if(a[k]!==OFFICIAL_STORES_V141[k])return false;}return true;}catch(e){return false;}}
-function repairStoresV141(){try{if(!sameStoresV141(stores)){stores=Object.assign({},OFFICIAL_STORES_V141);localStorage.setItem(KEY+"stores",JSON.stringify(stores));}}catch(e){stores=Object.assign({},OFFICIAL_STORES_V141);}}
-repairStoresV141();
-
+customers=parse("customers",customers);drivers=parse("drivers",drivers);vehicles=parse("vehicles",vehicles);terminals=parse("terminals",terminals);stores=parse("stores",stores);
+/* V142 正規店舗マスター50件固定 */
+var OFFICIAL_STORES_V142={"K0001":"アジョシ","K0002":"あんびしゃす花","K0003":"味鉄","K0004":"e-space","K0005":"イーサン","K0006":"岩茶坊","K0007":"えなちゃん","K0008":"075食堂","K0009":"起福","K0010":"佳久","K0011":"亀八（別）","K0012":"亀八（本）","K0013":"亀八（山）","K0014":"がぶり","K0015":"寄まっし","K0016":"京亀","K0017":"京料理藤本","K0018":"金四郎食堂","K0019":"きん平","K0020":"ことら","K0021":"幸","K0022":"鮨しん","K0023":"翠雲苑","K0024":"すぎのこ亭","K0025":"シャム","K0026":"寿海","K0027":"秀寅","K0028":"新亀","K0029":"新福菜館（伏）","K0030":"新福菜館（本）","K0031":"第一旭（寺田）","K0032":"田々","K0033":"坦々（本）","K0034":"中家","K0035":"ならび屋","K0036":"ハイカラ亭","K0037":"はなはな","K0038":"ひのき","K0039":"冨美家（工場）","K0040":"冨美家（錦）","K0041":"冨美家（本）","K0042":"まあご","K0043":"まるい食堂","K0044":"まるちゃん","K0045":"まる福","K0046":"みずき","K0047":"みつ喜","K0048":"みまでり","K0049":"よこやまろうそく","K0050":"じゅん平"};
+stores=Object.assign({},OFFICIAL_STORES_V142);
+try{localStorage.setItem(KEY+"stores",JSON.stringify(stores));}catch(e){}
+/* V129: 管理者メニュー保存済み店舗マスターを反映。ここでdefaults()を再実行して上書きしない。 */
 historyData=parse("historyData",[]);collectHistoryData=parse("collectHistoryData",[]);carryOutData=parse("carryOutData",[]);
 balanceData=parse("balanceData",{});stateData=parse("stateData",{});invoiceData=parse("invoiceData",{});optionData=parse("optionData",{});searchCountData=parse("searchCountData",{});undoData=parse("undoData",[]);
 if(Object.keys(stores).length===0){defaults();}
@@ -4248,6 +4247,34 @@ body.v86-customer-page-clean .topGrid{display:none!important;}
   function hide(){['btnPageDailySend','btnMail','btnDailySend','btnCsv','btnMasterOpen'].forEach(function(id){var e=document.getElementById(id);if(e){e.style.display='none';e.setAttribute('aria-hidden','true');}});}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',hide);else hide();
   setTimeout(hide,300);setTimeout(hide,1200);
+})();
+</script>
+
+
+<script id="v142-force-m001-page-js">
+(function(){
+  function id(x){return document.getElementById(x);}
+  function force(){
+    try{
+      var KEY=window.KEY||"deliverySystemV45_";
+      var cfg={}; try{cfg=JSON.parse(localStorage.getItem(KEY+"config")||"{}");}catch(e){cfg={};}
+      cfg.customerCode="M001"; localStorage.setItem(KEY+"config",JSON.stringify(cfg));
+      if(id("customerCode")){id("customerCode").value="M001"; id("customerCode").disabled=true;}
+      document.body.classList.remove("customer-not-ready");
+      document.body.classList.add("customer-ready");
+      var n=id("businessNotSet"); if(n)n.style.display="none";
+      var a=id("appWrap")||id("businessWrap")||id("m001BusinessWrap"); if(a)a.style.display="block";
+      if(typeof window.applyBusinessConfig==="function") window.applyBusinessConfig=function(){
+        if(id("customerCode")){id("customerCode").value="M001"; id("customerCode").disabled=true;}
+        document.body.classList.remove("customer-not-ready"); document.body.classList.add("customer-ready");
+        if(id("businessNotSet"))id("businessNotSet").style.display="none";
+        if(id("btnComplete"))id("btnComplete").disabled=false;
+      };
+    }catch(e){}
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",force);else force();
+  window.addEventListener("pageshow",force);
+  setTimeout(force,200); setTimeout(force,800); setTimeout(force,1500);
 })();
 </script>
 

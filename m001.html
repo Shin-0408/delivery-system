@@ -955,7 +955,7 @@ window.onload=start;
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", function () {
-    navigator.serviceWorker.register("./service-worker.js?v=136").then(function(reg){
+    navigator.serviceWorker.register("./service-worker.js?v=137").then(function(reg){
       reg.update();
     }).catch(function(){});
   });
@@ -1407,7 +1407,7 @@ if ("serviceWorker" in navigator) {
     // ボタン再結線
     [["btnCarry","carry"],["btnUndoCarry","undoCarry"],["btnDelivery","delivery"],["btnFail","fail"],["btnCollect","collect"],["btnPending","pending"],["btnNoCollect","noCollect"],["btnComplete","complete"],["btnBack","undo"],["btnReset","reset"]].forEach(function(p){ var el=id(p[0]); if(el && typeof window[p[1]]==="function") el.onclick=window[p[1]]; });
     normalizeCarryData(); renderAllSafe(); updateMailLock(); saveAllSafe();
-    try{ if("serviceWorker" in navigator){ navigator.serviceWorker.register("./service-worker.js?v=136").then(function(reg){try{reg.update();}catch(e){}}).catch(function(){}); } }catch(e){}
+    try{ if("serviceWorker" in navigator){ navigator.serviceWorker.register("./service-worker.js?v=137").then(function(reg){try{reg.update();}catch(e){}}).catch(function(){}); } }catch(e){}
   }
   if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",boot); else boot();
   setTimeout(boot,500);

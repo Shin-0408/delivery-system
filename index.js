@@ -1,88 +1,7 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
-<title>配送・集金管理システム V139</title>
-<link rel="manifest" href="./manifest.json?v=139">
-<link rel="icon" href="./icon.png?v=139" type="image/png">
-<link rel="apple-touch-icon" href="./icon-192.png?v=139">
-<meta name="theme-color" content="#0048b5">
-<style>
-*{box-sizing:border-box}body{margin:0;background:#eef2f7;font-family:Arial,'Noto Sans JP',sans-serif;color:#111}.app{max-width:720px;margin:0 auto;background:#fff;min-height:100vh}.header{background:#003366;color:#fff;text-align:center;font-size:26px;font-weight:900;padding:14px 8px}.card{margin:10px;border:2px solid #b8c1cc;border-radius:12px;background:#fff;overflow:hidden}.cardTitle{background:#f2f6fb;border-bottom:2px solid #b8c1cc;color:#003366;font-weight:900;font-size:22px;padding:10px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px}.field label{display:block;font-size:18px;font-weight:900;margin-bottom:4px}.field input,.field select{width:100%;height:54px;font-size:22px;padding:6px;border:2px solid #777;border-radius:8px;background:#fff}.field input[readonly]{background:#eaf0ff;font-weight:900}.buttons{display:grid;grid-template-columns:1fr;gap:10px;padding:12px}.btn{width:100%;min-height:62px;border:0;border-radius:10px;font-size:24px;font-weight:900;color:#fff}.btn.gray{background:#8b8b8b}.btn.green{background:#00843d}.btn.blue{background:#005bd3}.btn.red{background:#c00000}.btn.dark{background:#111}.btn:disabled{background:#8b8b8b!important;color:#eee!important;opacity:.75}.state{padding:12px;font-size:19px;line-height:1.5;background:#fffbe6;border-top:1px solid #dccb75}.note{margin:10px;padding:10px;border:2px solid #d8e1f0;border-radius:10px;background:#f7fbff;font-size:17px;line-height:1.5}#completeModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.68);z-index:999999;align-items:center;justify-content:center;padding:12px}.modalCard{background:#fff;border:5px solid #003366;border-radius:16px;padding:18px;width:100%;max-width:560px;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.35)}.modalTitle{font-size:34px;font-weight:900;color:#003366;margin:2px 0 14px}.completePanel{border:4px solid #111;border-radius:10px;background:#fff;padding:4px;margin:0 auto 16px;box-shadow:inset 0 0 0 3px #0b336c}.completePanelHead{background:#081f5f;color:#fff;font-weight:900;font-size:22px;letter-spacing:.18em;padding:7px 4px;border-bottom:2px solid #0b336c}.completeStage{position:relative;min-height:250px;background:#fffaf0;overflow:hidden}.speech{position:absolute;left:16px;top:22px;background:#fff;border:3px solid #111;border-radius:14px;padding:12px 14px;font-size:22px;font-weight:900;line-height:1.45;z-index:2}.speech:after{content:'';position:absolute;right:-18px;top:46px;border-width:10px 0 10px 18px;border-style:solid;border-color:transparent transparent transparent #111}.speech:before{content:'';position:absolute;right:-13px;top:49px;border-width:7px 0 7px 14px;border-style:solid;border-color:transparent transparent transparent #fff;z-index:2}.spark{position:absolute;color:#e3ae00;font-size:28px;font-weight:900;text-shadow:0 1px 0 #fff}.sp1{left:32%;top:48%}.sp2{right:24%;top:38%}.sp3{right:15%;top:58%}.sp4{left:22%;top:66%;font-size:22px}.midnightSvg{position:absolute;left:37%;top:18px;width:45%;height:205px}.shadowOval{position:absolute;left:39%;bottom:18px;width:36%;height:24px;background:#cdb68e;border-radius:50%;opacity:.85}.completePanelFoot{display:grid;grid-template-columns:1fr 130px;gap:8px;align-items:center;border:2px solid #0b336c;border-radius:8px;margin:4px;background:#fff;padding:8px}.footText{text-align:left;font-size:15px;font-weight:900;line-height:1.45}.miniClose{height:48px;border:2px solid #09245d;border-radius:8px;background:#003b99;color:#fff;font-size:20px;font-weight:900}.modalMsg{font-size:30px;font-weight:900;color:#c00000;margin:6px 0 10px}.modalSub{font-size:26px;line-height:1.25;margin:0 0 18px}.modalActions{display:grid;grid-template-columns:1fr 1fr;gap:14px}.modalActions .btn{min-height:58px}@media(max-width:520px){.grid{grid-template-columns:1fr}.header{font-size:23px}.btn{font-size:22px}.field input,.field select{height:50px;font-size:21px}.modalCard{max-width:94vw;padding:14px}.modalTitle{font-size:32px}.completeStage{min-height:240px}.speech{left:14px;top:22px;font-size:20px}.midnightSvg{left:36%;width:48%}.modalMsg{font-size:28px}.modalSub{font-size:24px}}@media(max-width:520px){.grid{grid-template-columns:1fr}.header{font-size:23px}.btn{font-size:22px}.field input,.field select{height:50px;font-size:21px}}
 
-.adminPanel{display:none;margin:10px;border:2px solid #003366;border-radius:12px;background:#fff;overflow:hidden}.adminBody{padding:12px}.adminBody h2{margin:8px 0 10px;color:#003366;font-size:24px}.adminBody select,.adminBody input{width:100%;height:54px;font-size:22px;margin:6px 0;padding:6px;border:2px solid #777;border-radius:8px}.adminList{max-height:240px;overflow:auto;border:2px solid #bbb;border-radius:8px;background:#fafafa;margin:8px 0}.adminRow{padding:10px;border-bottom:1px solid #ddd;font-size:20px;font-weight:700}.adminRow:active{background:#eaf2ff}.adminBtns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}.adminBtns.three{grid-template-columns:1fr}.adminMsg{font-size:16px;line-height:1.45;background:#fffbe6;border:1px solid #dccb75;border-radius:8px;padding:8px;margin-top:8px}.hiddenFile{display:none}
-
-.approvedCompleteWrap{margin:0 auto 16px;width:100%;}
-.approvedCompleteImg{display:block;width:100%;max-width:520px;margin:0 auto;border-radius:8px;}
-</style>
-</head>
-<body>
-<div class="app">
-  <div class="header">配送・集金管理システム</div>
-  <div class="card">
-    <div class="cardTitle">点呼ページ V139</div>
-    <div class="grid">
-      <div class="field"><label>得意先</label><select id="customerCode"><option value="M001">M001 株式会社松葉屋製麺</option><option value="M002">M002 株式会社アローズ</option><option value="M003">M003 株式会社カーゴジャパンアドバンスト</option><option value="M004">M004 株式会社大将</option></select></div>
-      <div class="field"><label>ドライバー</label><select id="driverCode"><option value="D001">D001 福田</option><option value="D002">D002 岸</option><option value="D003">D003 森田</option></select></div>
-      <div class="field"><label>車両</label><select id="vehicleCode"><option value="V001">V001 京都480れ12-44</option><option value="V002">V002 京都481り12-46</option><option value="V003">V003 京都481り1-45</option><option value="V004">V004 京都480り94-29</option><option value="V005">V005 京都880り6-89</option></select></div>
-      <div class="field"><label>端末</label><select id="terminalCode"><option value="S001">S001</option><option value="S002">S002</option><option value="S003">S003</option><option value="S004">S004</option><option value="S005">S005</option></select></div>
-      <div class="field"><label>業務開始前走行距離</label><input id="startMeter" type="number" inputmode="decimal"></div>
-      <div class="field"><label>業務開始前アルコール値</label><input id="startAlcohol" type="number" inputmode="decimal" step="0.01"></div>
-      <div class="field"><label>業務終了後走行距離</label><input id="endMeter" type="number" inputmode="decimal"></div>
-      <div class="field"><label>業務終了後アルコール値</label><input id="endAlcohol" type="number" inputmode="decimal" step="0.01"></div>
-      <div class="field"><label>本日走行距離</label><input id="dailyDistance" type="text" readonly value="0"></div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="buttons">
-      <button id="btnBusinessStartV82" class="btn gray" type="button">業務開始</button>
-      <button id="btnGoCustomerPage" class="btn gray" type="button">得意先ページへ進む</button>
-      <button id="btnBusinessCompleteV84" class="btn gray" type="button">業務完了</button>
-      <button id="btnDailySend" class="btn gray" type="button">日報送信</button>
-      <button id="btnCsvTenko" class="btn dark" type="button">CSV出力</button>
-      <button id="btnAdminTenko" class="btn dark" type="button">管理者メニュー</button>
-      <button id="btnMail" class="btn gray" type="button" style="display:none">日報送信</button>
-    </div>
-    <div id="stateText" class="state"></div>
-  </div>
-  <div id="adminPanel" class="adminPanel">
-    <div class="cardTitle">管理者メニュー</div>
-    <div class="adminBody">
-      <h2>マスター管理</h2>
-      <select id="adminMasterType">
-        <option value="store">店舗</option>
-        <option value="customer">得意先</option>
-        <option value="driver">ドライバー</option>
-        <option value="vehicle">車両</option>
-        <option value="terminal">端末</option>
-      </select>
-      <div id="adminMasterList" class="adminList"></div>
-      <input id="adminMasterCode" placeholder="コード 例 K0051">
-      <input id="adminMasterName" placeholder="名称">
-      <div class="adminBtns">
-        <button id="btnAdminSave" class="btn blue" type="button">追加・保存</button>
-        <button id="btnAdminDelete" class="btn red" type="button">削除</button>
-      </div>
-      <div class="adminMsg">保存したマスターはサーバーへ送信し、他端末は起動時・点呼ページ表示時に自動取得します。通信できない時はこの端末に一時保存し、次回オンライン時に同期してください。</div>
-      <div class="adminBtns three">
-        <button id="btnMasterSync" class="btn green" type="button">マスター同期</button>
-        <button id="btnMasterExport" class="btn dark" type="button">バックアップ出力</button>
-        <button id="btnMasterImport" class="btn dark" type="button">バックアップ読込</button>
-        <input id="masterImportFile" class="hiddenFile" type="file" accept=".json,application/json">
-      </div>
-    </div>
-  </div>
-  <div class="note">日報送信が成功するまで、点呼入力・M001業務内容・M002入力内容はlocalStorageに保持します。ページ更新・戻る・再読込では削除しません。</div>
-</div>
-<div id="completeModal" role="dialog" aria-modal="true"><div class="modalCard"><div class="modalTitle">業務完了</div><div class="approvedCompleteWrap"><img src="./complete-card.jpg?v=140" alt="業務終了 お疲れ様でした" class="approvedCompleteImg"></div><div class="modalMsg">お疲れ様でした！</div><div class="modalSub">本日の業務が終了しました。<br>日報送信してください。</div><div class="modalActions"><button id="btnCloseModal" class="btn blue" type="button">閉じる</button><button id="btnModalSend" class="btn gray" type="button">日報送信</button></div></div></div>
-<script>
 (function(){
 'use strict';
-var KEY='deliverySystemV45_',VERSION='V140',ENDPOINT='https://fukudakoken.com/daily/receive.php',MASTER_ENDPOINT='https://fukudakoken.com/daily/master.php',TOKEN='FKK_DAILY_V61_20260620';
+var KEY='deliverySystemV45_',VERSION='V139',ENDPOINT='https://fukudakoken.com/daily/receive.php',MASTER_ENDPOINT='https://fukudakoken.com/daily/master.php',TOKEN='FKK_DAILY_V61_20260620';
 var START_FLAG='DeliverySystemV126_tenkoStarted',MANUAL_FLAG='DeliverySystemV126_startManual',FINAL_DONE='DeliverySystemV126_finalCompleted';
 var START_TIME='DeliverySystemV126_workStartTime',END_TIME='DeliverySystemV126_workEndTime',BACKUP_KEY='DeliverySystemV126_tenkoWorkBackup';
 var CUSTOMER_DONE='DeliverySystemV72_businessCompleted',CUSTOMER_DONE_OLD='DeliverySystemV64_businessCompleted';
@@ -160,14 +79,13 @@ function clearAfterSend(){
     }
   }catch(e){}
   set('balanceData',balance);
-  del(KEY+'workData');del(KEY+BACKUP_KEY);del(BACKUP_KEY);
+  del(KEY+'workData');del(BACKUP_KEY);
   clearMany(START_COMPAT);clearMany(END_COMPAT);START_FLAGS.forEach(del);
   put(CUSTOMER_DONE,'0');put(CUSTOMER_DONE_OLD,'0');DONE_COMPAT.forEach(function(k){put(k,'0')});
   del(START_FLAG);del(MANUAL_FLAG);del(FINAL_DONE);
   FIELDS.forEach(function(k){var e=id(k);if(e)e.value=k==='dailyDistance'?'0':''});
   saveCommon();
   del('DeliverySystemV126_ALLOW_M001_CLEAR');
-  var cm=id('completeModal');if(cm)cm.style.display='none';
   updateButtons();
 }
 function sendReport(e){if(e){e.preventDefault();e.stopPropagation()}saveCommon();if(!finalDone()){alert('先に業務完了ボタンを押してください。');updateButtons();return false}if(!confirm('日報を送信すると本日の点呼入力と日報内容を削除します。未集金残高は保存します。よろしいですか？'))return false;if(!navigator.onLine){alert('通信できません。Wi-Fi接続後にもう一度、日報送信してください。');return false}var p=buildPayload(),b=id('btnDailySend'),mb=id('btnModalSend');function unlock(){if(b){b.disabled=false;b.textContent='日報送信'}if(mb){mb.disabled=false;mb.textContent='日報送信'}updateButtons()}if(b){b.disabled=true;b.textContent='送信中...'}if(mb){mb.disabled=true;mb.textContent='送信中...'}postDailyPayload(p).then(function(){clearAfterSend();alert('日報送信完了。\n点呼入力と本日業務内容を削除しました。\n未集金残高は保存しています。');unlock()}).catch(function(err){if(confirm('通常送信に失敗しました。別方式で送信しますか？\n'+err.message)){iframeSend(p);clearAfterSend();alert('日報送信を別方式で実行しました。\n日報一覧で受信確認してください。\n未集金残高は保存しています。')}unlock()});return false}
@@ -175,10 +93,10 @@ function clearCustomerProgress(){put(CUSTOMER_DONE,'0');put(CUSTOMER_DONE_OLD,'0
 
 function masterDefaults(){return {customers:{M001:'株式会社松葉屋製麺',M002:'株式会社アローズ',M003:'株式会社カーゴジャパンアドバンスト',M004:'株式会社大将'},drivers:{D001:'福田',D002:'岸',D003:'森田'},vehicles:{V001:'京都480れ12-44',V002:'京都481り12-46',V003:'京都481り1-45',V004:'京都480り94-29',V005:'京都880り6-89'},terminals:{S001:'S001',S002:'S002',S003:'S003',S004:'S004',S005:'S005'},stores:{K0001:'アジョシ',K0002:'あんびしゃす花',K0003:'味鉄',K0004:'e-space',K0005:'イーサン',K0006:'岩茶坊',K0007:'えなちゃん',K0008:'075食堂',K0009:'起福',K0010:'佳久',K0011:'亀八（別）',K0012:'亀八（本）',K0013:'亀八（山）',K0014:'がぶり',K0015:'寄まっし',K0016:'京亀',K0017:'京料理藤本',K0018:'金四郎食堂',K0019:'きん平',K0020:'ことら',K0021:'幸',K0022:'鮨しん',K0023:'翠雲苑',K0024:'すぎのこ亭',K0025:'シャム',K0026:'寿海',K0027:'秀寅',K0028:'新亀',K0029:'新福菜館（伏）',K0030:'新福菜館（本）',K0031:'新福菜館（寺田）',K0032:'第一旭（寺田）',K0033:'田々',K0034:'よこやまろうそく',K0035:'佳久',K0036:'亀八（山）',K0037:'新亀',K0038:'冨美家（工場）',K0039:'冨美家（本）',K0040:'冨美家（錦）',K0041:'みまでり',K0042:'e-space',K0043:'寿海',K0044:'ひのき',K0045:'すぎのこ亭',K0046:'岩茶坊',K0047:'075食堂',K0048:'えなちゃん',K0049:'鮨しん',K0050:'佳久'}}}
 function loadMasterMap(type){var d=masterDefaults(),key=type==='store'?'stores':type+'s';return get(key,d[key]||{})}
-function saveMasterMapLocal(type,map){var key=type==='store'?'stores':type+'s';set(key,map);if(type==='store'){NAMES.store=map}else if(type==='customer'){NAMES.customer=map}if(type==='customer'||type==='driver'||type==='vehicle'||type==='terminal'){refreshSelectFromMap(type,map)}try{localStorage.setItem('masterLocalUpdatedAt',now())}catch(e){}}
+function saveMasterMapLocal(type,map){var key=type==='store'?'stores':type+'s';set(key,map);if(type==='customer'||type==='driver'||type==='vehicle'||type==='terminal'){refreshSelectFromMap(type,map)}try{localStorage.setItem('masterLocalUpdatedAt',now())}catch(e){}}
 function saveMasterMap(type,map){saveMasterMapLocal(type,map);pushMastersToServer(false)}
-function allMasters(){return {version:'V140',updatedAt:now(),customers:loadMasterMap('customer'),stores:loadMasterMap('store'),drivers:loadMasterMap('driver'),vehicles:loadMasterMap('vehicle'),terminals:loadMasterMap('terminal')}}
-function applyMasters(data){if(!data||typeof data!=='object')return false;var changed=false;if(data.customers){set('customers',data.customers);NAMES.customer=data.customers;changed=true}if(data.stores){set('stores',data.stores);NAMES.store=data.stores;changed=true}if(data.drivers){set('drivers',data.drivers);changed=true}if(data.vehicles){set('vehicles',data.vehicles);changed=true}if(data.terminals){set('terminals',data.terminals);changed=true}if(changed){['customer','driver','vehicle','terminal'].forEach(function(t){refreshSelectFromMap(t,loadMasterMap(t))});try{localStorage.setItem('masterServerUpdatedAt',data.updatedAt||now())}catch(e){}renderAdmin()}return changed}
+function allMasters(){return {version:'V139',updatedAt:now(),customers:loadMasterMap('customer'),stores:loadMasterMap('store'),drivers:loadMasterMap('driver'),vehicles:loadMasterMap('vehicle'),terminals:loadMasterMap('terminal')}}
+function applyMasters(data){if(!data||typeof data!=='object')return false;var changed=false;if(data.customers){set('customers',data.customers);changed=true}if(data.stores){set('stores',data.stores);changed=true}if(data.drivers){set('drivers',data.drivers);changed=true}if(data.vehicles){set('vehicles',data.vehicles);changed=true}if(data.terminals){set('terminals',data.terminals);changed=true}if(changed){['customer','driver','vehicle','terminal'].forEach(function(t){refreshSelectFromMap(t,loadMasterMap(t))});try{localStorage.setItem('masterServerUpdatedAt',data.updatedAt||now())}catch(e){}renderAdmin()}return changed}
 function parseJsonSafe(t){var j={};try{j=JSON.parse(t||'{}')}catch(e){throw new Error('サーバー応答がJSONではありません：'+String(t||'').slice(0,120))}return j}
 function pullMastersFromServer(showMsg){if(!navigator.onLine){if(showMsg)alert('通信できません。オンライン時にマスター同期してください。');return Promise.resolve(false)}return getJson(MASTER_ENDPOINT+'?t='+Date.now()).then(function(t){var j=parseJsonSafe(t);if(j.ok===false)throw new Error(j.error||j.message||'マスター取得エラー');var ok=applyMasters(j.masters||j);if(showMsg)alert(ok?'マスターを同期しました。':'サーバーにマスターが未保存です。');return ok}).catch(function(e){if(showMsg)alert('マスター同期に失敗しました。'+(e.message?'\n'+e.message:''));return false})}
 function pushMastersToServer(showMsg){var data=allMasters();try{localStorage.setItem('pendingMasterSync',JSON.stringify(data))}catch(e){}if(!navigator.onLine){if(showMsg)alert('通信できません。この端末には保存済みです。オンライン時にマスター同期してください。');return Promise.resolve(false)}return postJson(MASTER_ENDPOINT,data).then(function(t){var j=parseJsonSafe(t);if(j.ok===false)throw new Error(j.error||j.message||'マスター保存エラー');try{localStorage.removeItem('pendingMasterSync');localStorage.setItem('masterServerUpdatedAt',j.updatedAt||data.updatedAt)}catch(e){}if(showMsg)alert('サーバーへ保存しました。全端末は次回起動・点呼ページ表示時に自動反映されます。');return true}).catch(function(e){if(showMsg)alert('サーバー保存に失敗しました。この端末には保存済みです。オンライン時に再同期してください。'+(e.message?'\n'+e.message:''));return false})}
@@ -188,14 +106,11 @@ function adminType(){var e=id('adminMasterType');return e?e.value:'store'}
 function renderAdmin(){var t=adminType(),map=loadMasterMap(t),list=id('adminMasterList');if(!list)return;var h='';Object.keys(map).sort().forEach(function(c){h+='<div class="adminRow" data-code="'+c+'">'+c+'　'+map[c]+'</div>'});list.innerHTML=h;Array.prototype.forEach.call(list.querySelectorAll('.adminRow'),function(r){r.onclick=function(){var c=r.getAttribute('data-code');id('adminMasterCode').value=c;id('adminMasterName').value=map[c]||''}})}
 function adminSave(){var t=adminType(),code=String(id('adminMasterCode').value||'').trim().toUpperCase().replace(/[^A-Z0-9]/g,''),name=String(id('adminMasterName').value||'').trim();if(!code){alert('コードを入力してください');return}if(t==='store'&&!/^K\d{4}$/.test(code)){alert('店舗コードは K0051 の形式で入力してください。');return}if(t!=='terminal'&&!name){alert('名称を入力してください');return}if(!name)name=code;var map=loadMasterMap(t);map[code]=name;saveMasterMapLocal(t,map);id('adminMasterCode').value=code;id('adminMasterName').value=name;renderAdmin();pushMastersToServer(true)}
 function adminDelete(){var t=adminType(),code=String(id('adminMasterCode').value||'').trim().toUpperCase().replace(/[^A-Z0-9]/g,'');if(!code){alert('削除するコードを入力または一覧から選択してください。');return}var map=loadMasterMap(t);if(!map[code]){alert('対象がありません：'+code);return}if(!confirm(code+' を削除しますか？'))return;delete map[code];saveMasterMapLocal(t,map);id('adminMasterCode').value='';id('adminMasterName').value='';renderAdmin();pushMastersToServer(true)}
-function exportMasters(){var data={version:'V140',exportedAt:now(),customers:loadMasterMap('customer'),stores:loadMasterMap('store'),drivers:loadMasterMap('driver'),vehicles:loadMasterMap('vehicle'),terminals:loadMasterMap('terminal')};var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='delivery-master-v140-backup.json';document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(function(){URL.revokeObjectURL(a.href)},1000)}
+function exportMasters(){var data={version:'V139',exportedAt:now(),customers:loadMasterMap('customer'),stores:loadMasterMap('store'),drivers:loadMasterMap('driver'),vehicles:loadMasterMap('vehicle'),terminals:loadMasterMap('terminal')};var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='delivery-master-v139-backup.json';document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(function(){URL.revokeObjectURL(a.href)},1000)}
 function importMastersFile(file){var r=new FileReader();r.onload=function(e){try{var d=JSON.parse(e.target.result);if(d.customers)set('customers',d.customers);if(d.stores)set('stores',d.stores);if(d.drivers)set('drivers',d.drivers);if(d.vehicles)set('vehicles',d.vehicles);if(d.terminals)set('terminals',d.terminals);['customer','driver','vehicle','terminal'].forEach(function(t){refreshSelectFromMap(t,loadMasterMap(t))});renderAdmin();pushMastersToServer(false);alert('バックアップデータを読込しました。サーバー同期を実行しています。')}catch(err){alert('読込できません。データを確認してください。')}};r.readAsText(file)}
-function exportCsvTenko(){saveCommon();var p;try{p=buildPayload()}catch(e){p=null}var rows=(p&&p.rows)||m001Rows();var csv='日時,店舗コード,店舗名,状態,金額,理由,持出時間,配送完了時間,集金状態,得意先,ドライバー,車両,端末,開始走行距離,終了走行距離,本日走行距離,開始前アルコール,終了後アルコール\n';rows.forEach(function(r){csv+=[r.time,r.code,r.name,r.status||'',r.amount||'',r.reason||'',r.carryTime||'',r.deliveryTime||'',r.collectionStatus||'',(p&&p.customerName)||'',(p&&p.driverCode)||'',(p&&p.vehicleCode)||'',(p&&p.terminalCode)||'',(p&&p.startMeter)||'',(p&&p.endMeter)||'',(p&&p.dailyDistance)||'',(p&&p.startAlcohol)||'',(p&&p.endAlcohol)||''].map(function(v){return '"'+String(v==null?'':v).replace(/"/g,'""')+'"'}).join(',')+'\n'});var b=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='配送集金日報V140.csv';document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(function(){URL.revokeObjectURL(a.href)},1000)}
-function bindAdmin(){var b=id('btnAdminTenko');if(b)b.onclick=function(){var p=id('adminPanel');if(!p)return;p.style.display=p.style.display==='block'?'none':'block';renderAdmin();if(p.style.display==='block')setTimeout(function(){p.scrollIntoView({behavior:'smooth',block:'start'})},80)};var c=id('btnCsvTenko');if(c)c.onclick=exportCsvTenko;var t=id('adminMasterType');if(t)t.onchange=function(){id('adminMasterCode').value='';id('adminMasterName').value='';renderAdmin()};var s=id('btnAdminSave');if(s){s.disabled=false;s.onclick=adminSave;s.addEventListener('click',adminSave,false)}var d=id('btnAdminDelete');if(d){d.disabled=false;d.onclick=adminDelete;d.addEventListener('click',adminDelete,false)}var sy=id('btnMasterSync');if(sy){sy.disabled=false;sy.onclick=function(){syncMasters(true)};sy.addEventListener('click',function(){syncMasters(true)},false)};var ex=id('btnMasterExport');if(ex)ex.onclick=exportMasters;var im=id('btnMasterImport'),fi=id('masterImportFile');if(im&&fi){im.onclick=function(){fi.click()};fi.onchange=function(){if(fi.files&&fi.files[0])importMastersFile(fi.files[0]);fi.value=''}}renderAdmin()}
-function bind(){restoreCommon();['customerCode','driverCode','vehicleCode','terminalCode'].forEach(function(k){id(k).addEventListener('change',function(){if(k==='customerCode')clearCustomerProgress();saveCommon();updateButtons()},false)});['startMeter','startAlcohol','endMeter','endAlcohol'].forEach(function(k){id(k).addEventListener('input',function(){saveCommon();updateButtons()},false);id(k).addEventListener('change',function(){saveCommon();updateButtons()},false);id(k).addEventListener('blur',saveCommon,false)});id('btnBusinessStartV82').onclick=onStart;id('btnGoCustomerPage').onclick=onGo;id('btnBusinessCompleteV84').onclick=onComplete;id('btnDailySend').onclick=sendReport;id('btnMail').onclick=sendReport;id('btnCloseModal').onclick=function(){id('completeModal').style.display='none'};var msb=id('btnModalSend');if(msb)msb.onclick=sendReport;saveCommon();updateButtons();bindAdmin();syncMasters(false).then(function(){updateButtons()});if('serviceWorker' in navigator){navigator.serviceWorker.register('./service-worker.js?v=140').catch(function(){})}}
+function exportCsvTenko(){saveCommon();var p;try{p=buildPayload()}catch(e){p=null}var rows=(p&&p.rows)||m001Rows();var csv='日時,店舗コード,店舗名,状態,金額,理由,持出時間,配送完了時間,集金状態,得意先,ドライバー,車両,端末,開始走行距離,終了走行距離,本日走行距離,開始前アルコール,終了後アルコール\n';rows.forEach(function(r){csv+=[r.time,r.code,r.name,r.status||'',r.amount||'',r.reason||'',r.carryTime||'',r.deliveryTime||'',r.collectionStatus||'',(p&&p.customerName)||'',(p&&p.driverCode)||'',(p&&p.vehicleCode)||'',(p&&p.terminalCode)||'',(p&&p.startMeter)||'',(p&&p.endMeter)||'',(p&&p.dailyDistance)||'',(p&&p.startAlcohol)||'',(p&&p.endAlcohol)||''].map(function(v){return '"'+String(v==null?'':v).replace(/"/g,'""')+'"'}).join(',')+'\n'});var b=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='配送集金日報V139.csv';document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(function(){URL.revokeObjectURL(a.href)},1000)}
+function bindAdmin(){var b=id('btnAdminTenko');if(b)b.onclick=function(){var p=id('adminPanel');if(!p)return;p.style.display=p.style.display==='block'?'none':'block';renderAdmin();if(p.style.display==='block')setTimeout(function(){p.scrollIntoView({behavior:'smooth',block:'start'})},80)};var c=id('btnCsvTenko');if(c)c.onclick=exportCsvTenko;var t=id('adminMasterType');if(t)t.onchange=function(){id('adminMasterCode').value='';id('adminMasterName').value='';renderAdmin()};var s=id('btnAdminSave');if(s)s.onclick=adminSave;var d=id('btnAdminDelete');if(d)d.onclick=adminDelete;var sy=id('btnMasterSync');if(sy)sy.onclick=function(){syncMasters(true)};var ex=id('btnMasterExport');if(ex)ex.onclick=exportMasters;var im=id('btnMasterImport'),fi=id('masterImportFile');if(im&&fi){im.onclick=function(){fi.click()};fi.onchange=function(){if(fi.files&&fi.files[0])importMastersFile(fi.files[0]);fi.value=''}}renderAdmin()}
+function bind(){restoreCommon();['customerCode','driverCode','vehicleCode','terminalCode'].forEach(function(k){id(k).addEventListener('change',function(){if(k==='customerCode')clearCustomerProgress();saveCommon();updateButtons()},false)});['startMeter','startAlcohol','endMeter','endAlcohol'].forEach(function(k){id(k).addEventListener('input',function(){saveCommon();updateButtons()},false);id(k).addEventListener('change',function(){saveCommon();updateButtons()},false);id(k).addEventListener('blur',saveCommon,false)});id('btnBusinessStartV82').onclick=onStart;id('btnGoCustomerPage').onclick=onGo;id('btnBusinessCompleteV84').onclick=onComplete;id('btnDailySend').onclick=sendReport;id('btnMail').onclick=sendReport;id('btnCloseModal').onclick=function(){id('completeModal').style.display='none'};var msb=id('btnModalSend');if(msb)msb.onclick=sendReport;saveCommon();updateButtons();bindAdmin();syncMasters(false).then(function(){updateButtons()});if('serviceWorker' in navigator){navigator.serviceWorker.register('./service-worker.js?v=139').catch(function(){})}}
 window.buildPayloadV127=buildPayload;window.sendDailyV127=sendReport;window.refreshV127Buttons=updateButtons;window.buildPayloadV126=buildPayload;window.sendDailyV126=sendReport;window.refreshV126Buttons=updateButtons;window.buildPayloadV125=buildPayload;window.sendDailyV125=sendReport;window.refreshV125Buttons=updateButtons;
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else bind();window.addEventListener('pageshow',function(){restoreCommon();updateButtons()},false);
 })();
-</script>
-</body>
-</html>

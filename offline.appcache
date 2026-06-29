@@ -1,17 +1,10 @@
 CACHE MANIFEST
-# V140
-# delivery-system-v135
-
-CACHE:
+# v200-new
 index.html
 m001.html
 m002.html
 m003.html
 m004.html
-icon.png
-icon-192.png
-icon-512.png
 complete-card.jpg
-
 NETWORK:
 *

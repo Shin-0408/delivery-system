@@ -1,4 +1,4 @@
-const CACHE_NAME='dsv208-daily-send-safe';
+const CACHE_NAME='dsv218-admin-sync-icon-safe';
 const ASSETS=['./','index.html','m001.html','m002.html','m003.html','m004.html','complete-card.jpg','icon.png','icon-192.png','icon-512.png','manifest.json'];
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(ASSETS)))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE_NAME).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
